@@ -72,14 +72,13 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         Image.network(
           data.logo!,
           width: double.infinity,
-          height: 350,
+          height: double.infinity,
           fit: BoxFit.cover,
         ),
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: const SizedBox(
-            width: double.infinity,
-            height: 350,
+          child: Container(
+
           ),
         ),
         Container(
@@ -91,31 +90,37 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     end: Alignment.bottomCenter,
                     colors: [
                   Colors.black.withAlpha(15),
-                  Colors.black.withAlpha(85),
+                  Colors.black.withAlpha(125),
                   Colors.black
                 ]))),
         SingleChildScrollView(
           controller: _scrollController,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  )),
-              SizedBox(
-                width: size.width / 2,
-                height: 255,
-                child: Image.network(
-                  data.logo!,
-                  width: double.infinity,
+              SafeArea(
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    )),
+              ),
+              Center(
+                child: SizedBox(
+                  width: size.width / 2,
                   height: 255,
-                  fit: BoxFit.cover,
+                  child: Image.network(
+                    data.logo!,
+                    width: double.infinity,
+                    height: 255,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              )
+              ),
+
             ],
           ),
         )
