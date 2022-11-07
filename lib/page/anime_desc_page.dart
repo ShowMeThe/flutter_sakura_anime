@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
@@ -77,9 +78,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         ),
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-
-          ),
+          child: Container(),
         ),
         Container(
             width: double.infinity,
@@ -120,11 +119,56 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   ),
                 ),
               ),
-
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 8.0, right: 8.0, top: 12.0),
+                child: Center(
+                  child: Text(
+                    data.title == null ? "" : data.title!,
+                    style: const TextStyle(color: Colors.white, fontSize: 15.0),
+                  ),
+                ),
+              ),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Wrap(
+                    spacing: 5.0,
+                    runSpacing: 5.0,
+                    alignment: WrapAlignment.start,
+                    children: buildTag(data),
+                  ),
+                ),
+              ),
+              Center(
+                  child: Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 0.0),
+                child: FoldTextView(data.des == null ? "" : data.des!, 4,
+                    const TextStyle(color: Colors.white, fontSize: 15.0), 320),
+              )),
             ],
           ),
         )
       ],
     );
+  }
+
+  List<Widget> buildTag(AnimeDesData? data) {
+    var list = <Widget>[];
+    if (data != null) {
+      for (var element in data.tags) {
+        list.add(Material(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          color: ColorRes.pink50,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(element.title,
+                style: const TextStyle(color: Colors.white, fontSize: 12.0)),
+          ),
+        ));
+      }
+    }
+    return list;
   }
 }
