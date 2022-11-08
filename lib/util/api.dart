@@ -61,7 +61,7 @@ class Api {
     data
       ..url = url
       ..title = document.querySelector("h1")?.text
-      ..des = document.querySelector("div.info")?.text
+      ..des = document.querySelector("div.info")?.text.replaceAll("\n", "")
       ..score = document.querySelector("div.score > em")?.text
       ..logo = document.querySelector("div.thumb > img")?.attributes["src"]
       ..tags = tags;

@@ -97,7 +97,7 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
     return GestureDetector(
       onTap: (){
         if(item.url!=null){
-          Navigator.of(context).push(FadeRoute(AnimeDesPage(item.url!)));
+          Navigator.of(context).push(FadeRoute(AnimeDesPage(item.url!,item.episode)));
         }
       },
       child: Card(

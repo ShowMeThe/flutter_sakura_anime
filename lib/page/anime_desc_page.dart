@@ -4,10 +4,13 @@ import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
+import '../widget/score_shape_border.dart';
+
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
+  final String episode;
 
-  const AnimeDesPage(this.animeShowUrl, {super.key});
+  const AnimeDesPage(this.animeShowUrl, this.episode, {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AnimeDesPageState();
@@ -109,13 +112,55 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
               ),
               Center(
                 child: SizedBox(
-                  width: size.width / 2,
-                  height: 255,
-                  child: Image.network(
-                    data.logo!,
-                    width: double.infinity,
-                    height: 255,
-                    fit: BoxFit.cover,
+                  width: size.width / 3,
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        data.logo!,
+                        width: double.infinity,
+                        fit: BoxFit.fitWidth,
+                      ),
+                      Positioned(
+                          child: SizedBox(
+                        width: 45.0,
+                        height: 35.0,
+                        child: CustomPaint(
+                          painter:
+                              ScoreShapeBorder(ColorRes.pink400.withAlpha(200)),
+                        ),
+                      )),
+                      Positioned(
+                          left: 10,
+                          child: Text(
+                            data.score!,
+                            style: const TextStyle(color: Colors.white),
+                          )),
+                      Positioned(
+                          left: 0,
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            width: double.infinity,
+                            height: 20,
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                  Colors.black12.withAlpha(30),
+                                  Colors.black12.withAlpha(125)
+                                ])),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: Text(
+                                widget.episode,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 12.0),
+                              ),
+                            ),
+                          )),
+                    ],
                   ),
                 ),
               ),
@@ -144,7 +189,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   child: Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 0.0),
                 child: FoldTextView(data.des == null ? "" : data.des!, 4,
-                    const TextStyle(color: Colors.white, fontSize: 15.0), 320),
+                    const TextStyle(color: Colors.white, fontSize: 12.0), 320),
               )),
             ],
           ),
