@@ -1,6 +1,8 @@
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
 
+import '../bean/anime_drams_data.dart';
+
 class Api {
   static const String baseUrl = "http://www.yinghuacd.com";
 
@@ -43,11 +45,29 @@ class Api {
     return week;
   }
 
-  static Future<dynamic> getAnimeDes(String url) async {
+  static Future<AnimeDesData> getAnimeDes(String url) async {
     var requestUrl = baseUrl + url;
     var future = await HttpClient.get().get(requestUrl);
     var document = parse(future.data);
     AnimeDesData data = AnimeDesData();
+    var sinInfo = document.querySelectorAll("div.sinfo > p");
+    if (sinInfo.length > 1) {
+      var time = sinInfo[1].text;
+      if (time.isEmpty) {
+        data.updateTime = "尚未更新";
+      } else {
+        data.updateTime = time;
+      }
+    } else if (sinInfo.isNotEmpty) {
+      var time = sinInfo[0].text;
+      if (time.isEmpty) {
+        data.updateTime = "尚未更新";
+      } else {
+        data.updateTime = time;
+      }
+    } else {
+      data.updateTime = "尚未更新";
+    }
     List<dom.Element> elements = [];
     var selector = document.querySelectorAll("div.sinfo > span");
     elements.addAll(selector[0].querySelectorAll("a"));
@@ -67,5 +87,52 @@ class Api {
       ..tags = tags;
     debugPrint("data = $data");
     return data;
+  }
+
+  static Future<AnimePlayListData> getAnimePlayList(String url) async {
+    var animaPlay = AnimePlayListData();
+    var requestUrl = baseUrl + url;
+    var future = await HttpClient.get().get(requestUrl);
+    var document = parse(future.data);
+    List<AnimeDramasData> dramasList = [];
+    var elements = document.querySelectorAll("div.movurl > ul > li");
+    var animeDramas = AnimeDramasData();
+    animeDramas.listTitle = "默认播放列表";
+    if (elements.isNotEmpty) {
+      List<AnimeDramasDetailsData> details = [];
+      for (var element in elements) {
+        var title = element.querySelector("a")?.text;
+        var url = element.querySelector("a")?.attributes["href"];
+        details.add(AnimeDramasDetailsData(title, url));
+      }
+      animeDramas.list = details;
+      dramasList.add(animeDramas);
+      animaPlay.animeDramas = dramasList;
+
+      var seasonElements = document.querySelectorAll("div.img > ul > li");
+      if (seasonElements.isNotEmpty) {
+        List<AnimeRecommendData> seasons = [];
+        for (var element in seasonElements) {
+          var title = element.querySelector("p.tname > a")?.text;
+          var logo = element.querySelector("img")?.attributes["src"];
+          var url = element.querySelector("p.tname > a")?.attributes["href"];
+          seasons.add(AnimeRecommendData(title, logo, url));
+        }
+        animaPlay.animeSeasons = seasons;
+      }
+
+      var recommendElements = document.querySelectorAll("div.pics > ul > li");
+      if (recommendElements.isNotEmpty) {
+        List<AnimeRecommendData> recommends = [];
+        for (var element in recommendElements) {
+          var title = element.querySelector("h2 > a")?.text;
+          var logo = element.querySelector("img")?.attributes["src"];
+          var url = element.querySelector("h2 > a")?.attributes["href"];
+          recommends.add(AnimeRecommendData(title, logo, url));
+        }
+        animaPlay.animeRecommend = recommends;
+      }
+    }
+    return animaPlay;
   }
 }

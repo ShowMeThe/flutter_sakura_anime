@@ -39,6 +39,7 @@ dependencies:
   dio: ^4.0.6
   flutter_riverpod: ^2.0.2
   html: ^0.15.1
+  palette_generator: ^0.3.3+2
 
 dev_dependencies:
   flutter_test:

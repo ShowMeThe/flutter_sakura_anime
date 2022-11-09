@@ -57,8 +57,6 @@ class _FoldTextViewState extends State<FoldTextView> {
   _moreText() => GestureDetector(
       child: _transparentWid01(),
       onTap: () => setState(() {
-            debugPrint("$_temLines");
-            debugPrint("$_maxLines");
             if (_temLines > _maxLines) {
               if (_lines.last.width + _kMoreWidth >= widget.maxWidth) {
                 _maxLines = _temLines + 1;

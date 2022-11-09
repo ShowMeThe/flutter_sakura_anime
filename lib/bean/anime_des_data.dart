@@ -7,11 +7,12 @@ class AnimeDesData{
   String? des;
   String? score;
   String? logo;
+  String? updateTime;
   List<Tags> tags = [];
 
   @override
   String toString() {
-    return 'AnimeDesData{title: $title, url: $url, des: $des, score: $score, logo: $logo, tags: $tags}';
+    return 'AnimeDesData{title: $title, url: $url, des: $des, score: $score, logo: $logo, updateTime: $updateTime, tags: $tags}';
   }
 }
 
@@ -27,3 +28,4 @@ class Tags{
     return 'Tags{title: $title, url: $url}';
   }
 }
+

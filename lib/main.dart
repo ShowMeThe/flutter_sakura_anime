@@ -5,6 +5,11 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
+  var style = const SystemUiOverlayStyle(statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent);
+  SystemChrome.setSystemUIOverlayStyle(style);
 }
 
 class MyApp extends StatelessWidget {
@@ -12,11 +17,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = const SystemUiOverlayStyle(statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.transparent);
-    SystemChrome.setSystemUIOverlayStyle(style);
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
