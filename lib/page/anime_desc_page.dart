@@ -1,6 +1,6 @@
 import 'dart:ui';
+
 import 'package:flutter_sakura_anime/page/anime_play_page.dart';
-import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
@@ -29,6 +29,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
     _desDataProvider = FutureProvider.autoDispose<AnimeDesData>((_) async {
       var result = await Api.getAnimeDes(widget.animeShowUrl);
       ref.refresh(_playDataProvider);
@@ -284,7 +287,10 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         borderRadius: BorderRadius.circular(8.0)),
                     color: ColorRes.mainColor,
                     onPressed: () {
-                      Navigator.of(context).push(FadeRoute(AnimePlayPage(element.list[index].url!)));
+                      var largeTitle = ref.read(_desDataProvider).value?.title;
+                      var title = largeTitle! + element.list[index].title!;
+                      Navigator.of(context).push(FadeRoute(
+                          AnimePlayPage(element.list[index].url!, title)));
                     },
                     child: Text(element.list[index].title!)),
               );

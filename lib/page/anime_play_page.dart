@@ -1,3 +1,4 @@
+import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -5,8 +6,9 @@ import 'package:video_player/video_player.dart';
 
 class AnimePlayPage extends ConsumerStatefulWidget {
   final String url;
+  final String title;
 
-  const AnimePlayPage(this.url, {super.key});
+  const AnimePlayPage(this.url, this.title, {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AnimePlayState();
@@ -27,6 +29,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
       return playerUrl;
     });
     ref.refresh(_playNowUrlProvider);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   }
@@ -38,6 +41,8 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
     if (_controller != null) {
       _controller?.dispose();
     }
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
@@ -57,26 +62,78 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
       var watch = ref.watch(_playNowUrlProvider);
-      var isInit = ref.watch(_initProvider) != null;
-      if (watch.isLoading && isInit) {
+      var provider = ref.watch(_initProvider);
+      if (watch.isRefreshing || provider == null) {
         return Container(
           color: Colors.black,
           width: double.infinity,
           height: double.infinity,
           child: const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: ColorRes.pink400,
+            ),
           ),
         );
       } else {
-        debugPrint("controller $_controller");
-        return Padding(
-          padding: const EdgeInsets.only(left: 65.0, right: 65.0),
-          child: AspectRatio(
-            aspectRatio: _controller!.value.aspectRatio,
-            child: VideoPlayer(_controller!),
-          ),
+        return Stack(
+          children: [
+            Positioned(
+                left: 65.0,
+                top: 0,
+                right: 65.0,
+                bottom: 0,
+                child: AspectRatio(
+                  aspectRatio: provider.value.aspectRatio,
+                  child: VideoPlayer(provider),
+                )),
+            Positioned(
+                left: 0.0,
+                top: 0,
+                right: 0.0,
+                bottom: 0,
+                child: PlayUiStateWidget(provider, widget.title))
+          ],
         );
       }
     });
+  }
+}
+
+class PlayUiStateWidget extends ConsumerStatefulWidget {
+  final VideoPlayerController _controller;
+  final String title;
+
+  const PlayUiStateWidget(this._controller, this.title, {super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _PlayUiState();
+}
+
+class _PlayUiState extends ConsumerState<PlayUiStateWidget> {
+  String get title => widget.title;
+
+  VideoPlayerController get controller => widget._controller;
+
+
+  late ChewieController chewieController = ChewieController(
+    videoPlayerController: controller,
+    autoPlay: true,
+    looping: true,
+  );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Chewie(
+        controller: chewieController,
+      ),
+    );
   }
 }

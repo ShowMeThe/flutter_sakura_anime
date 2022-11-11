@@ -21,6 +21,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+
     _disposeFutureProvider = FutureProvider.autoDispose<HomeData>((_) async {
       var result = await Api.getHomeData();
       ref.read(_stateProvider.state).state = true;
