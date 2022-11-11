@@ -16,9 +16,10 @@ class AnimePlayPage extends ConsumerStatefulWidget {
 
 class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   late AutoDisposeFutureProvider<String> _playNowUrlProvider;
-  final AutoDisposeStateProvider<VideoPlayerController?> _initProvider =
-      StateProvider.autoDispose<VideoPlayerController?>((ref) => null);
+  final AutoDisposeStateProvider<ChewieController?> _initProvider =
+      StateProvider.autoDispose<ChewieController?>((ref) => null);
   VideoPlayerController? _controller;
+  ChewieController? _chewieController;
 
   @override
   void initState() {
@@ -38,32 +39,37 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    if (_controller != null) {
-      _controller?.dispose();
-    }
+    _controller?.dispose();
+    _chewieController?.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
-  void refreshController(String playerUrl) {
+  void refreshController(String playerUrl) async {
     if (_controller != null) {
       _controller?.dispose();
     }
-    _controller = VideoPlayerController.network(playerUrl)
-      ..initialize().then((_) {
-        _controller?.play();
-      });
-    ref.read(_initProvider.state).state = _controller;
+    var controller = VideoPlayerController.network(playerUrl);
+    _controller = controller;
+    await controller.initialize();
+    var chewieController = ChewieController(
+      aspectRatio: controller.value.aspectRatio,
+      videoPlayerController: controller,
+      autoPlay: true,
+      looping: true,
+    );
+    _chewieController = chewieController;
+    ref.read(_initProvider.state).state = chewieController;
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
       var watch = ref.watch(_playNowUrlProvider);
-      var provider = ref.watch(_initProvider);
-      if (watch.isRefreshing || provider == null) {
+      var controller = ref.watch(_initProvider);
+      if (watch.isRefreshing || controller == null) {
         return Container(
           color: Colors.black,
           width: double.infinity,
@@ -75,65 +81,13 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
           ),
         );
       } else {
-        return Stack(
-          children: [
-            Positioned(
-                left: 65.0,
-                top: 0,
-                right: 65.0,
-                bottom: 0,
-                child: AspectRatio(
-                  aspectRatio: provider.value.aspectRatio,
-                  child: VideoPlayer(provider),
-                )),
-            Positioned(
-                left: 0.0,
-                top: 0,
-                right: 0.0,
-                bottom: 0,
-                child: PlayUiStateWidget(provider, widget.title))
-          ],
+        return Material(
+          color: Colors.transparent,
+          child: Chewie(
+            controller: controller,
+          ),
         );
       }
     });
-  }
-}
-
-class PlayUiStateWidget extends ConsumerStatefulWidget {
-  final VideoPlayerController _controller;
-  final String title;
-
-  const PlayUiStateWidget(this._controller, this.title, {super.key});
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _PlayUiState();
-}
-
-class _PlayUiState extends ConsumerState<PlayUiStateWidget> {
-  String get title => widget.title;
-
-  VideoPlayerController get controller => widget._controller;
-
-
-  late ChewieController chewieController = ChewieController(
-    videoPlayerController: controller,
-    autoPlay: true,
-    looping: true,
-  );
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Chewie(
-        controller: chewieController,
-      ),
-    );
   }
 }
