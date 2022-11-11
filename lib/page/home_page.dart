@@ -90,36 +90,48 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget buildIcon(int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        MaterialButton(
-          elevation: 1.5,
-          color: ColorRes.pink400,
-          highlightColor: ColorRes.pink50,
-          shape: const CircleBorder(),
-          height: 50,
-          onPressed: () {
-            onTap(index);
-          },
-          child: Center(
-            child: Image.asset(
-              getImageIndex(index),
-              color: Colors.white,
-              width: 30,
-              height: 30,
-              fit: BoxFit.fitWidth,
+    return GestureDetector(
+      onTap: (){
+        onTap(index);
+      },
+      child: SizedBox(
+        width: 68,
+        height: 68,
+        child: Material(
+          child: Ink(
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+                border: Border.all(width: 1, color: ColorRes.pink600)),
+            child: InkResponse(
+              borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+              highlightShape: BoxShape.rectangle,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Center(
+                      child: Image.asset(
+                        getImageIndex(index),
+                        color: ColorRes.pink400,
+                        width: 30,
+                        height: 30,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6.0),
+                    child: Text(
+                      getTextIndex(index),
+                      style: const TextStyle(color: ColorRes.pink400),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            getTextIndex(index),
-            style: const TextStyle(color: ColorRes.pink50),
-          ),
-        )
-      ],
+      ),
     );
   }
 

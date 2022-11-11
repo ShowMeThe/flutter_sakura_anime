@@ -1,12 +1,8 @@
 import 'dart:ui';
-
+import 'package:flutter_sakura_anime/page/anime_play_page.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
-import 'package:palette_generator/palette_generator.dart';
-
-import '../util/fade_route.dart';
-import '../widget/score_shape_border.dart';
 
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
@@ -18,8 +14,6 @@ class AnimeDesPage extends ConsumerStatefulWidget {
 }
 
 class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
-  final AutoDisposeStateProvider<bool> _stateProvider =
-      StateProvider.autoDispose((ref) => false);
   late AutoDisposeFutureProvider<AnimeDesData> _desDataProvider;
   final ScrollController _scrollController = ScrollController();
 
@@ -37,7 +31,6 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     super.initState();
     _desDataProvider = FutureProvider.autoDispose<AnimeDesData>((_) async {
       var result = await Api.getAnimeDes(widget.animeShowUrl);
-      ref.read(_stateProvider.state).state = true;
       ref.refresh(_playDataProvider);
       return result;
     });
@@ -61,15 +54,30 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
           height: double.infinity,
           child: Consumer(
             builder: (context, ref, _) {
-              var loaded = ref.watch(_stateProvider);
-              if (!loaded) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
+              var watch = ref.watch(_desDataProvider);
+              if (watch.isLoading) {
+                return Stack(
+                  children: [
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(),
+                    ),
+                    Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                              Colors.black.withAlpha(15),
+                              Colors.black.withAlpha(125),
+                              Colors.black
+                            ])))
+                  ],
                 );
               } else {
-                return buildChild(ref.watch(_desDataProvider).value);
+                return buildChild(watch.value);
               }
             },
           ),
@@ -83,8 +91,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     var size = MediaQuery.of(context).size;
     return Stack(
       children: [
-        Image.network(
-          data.logo!,
+        Image(
+          image: ExtendedNetworkImageProvider(data.logo!),
           width: double.infinity,
           height: double.infinity,
           fit: BoxFit.cover,
@@ -125,8 +133,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   width: size.width / 3,
                   child: Stack(
                     children: [
-                      Image.network(
-                        data.logo!,
+                      Image(
+                        image: ExtendedNetworkImageProvider(data.logo!),
                         width: double.infinity,
                         fit: BoxFit.fitWidth,
                       ),
@@ -275,7 +283,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
                     color: ColorRes.mainColor,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(FadeRoute(AnimePlayPage(element.list[index].url!)));
+                    },
                     child: Text(element.list[index].title!)),
               );
             }),
@@ -296,7 +306,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     ));
     child.add(SizedBox(
       width: double.infinity,
-      height: 180.0,
+      height: 210.0,
       child: ListView.builder(
           physics: const BouncingScrollPhysics(),
           scrollDirection: Axis.horizontal,
@@ -305,38 +315,50 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
             return Padding(
               padding: const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
               child: GestureDetector(
-                onTap: (){
+                onTap: () {
                   var url = list[index].url;
                   Navigator.of(context).push(FadeRoute(AnimeDesPage(url!)));
                 },
                 child: SizedBox(
                   width: 90,
                   height: double.infinity,
-                  child: Card(
-                    elevation: 0.0,
-                    clipBehavior: Clip.hardEdge,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0)),
-                    color: ColorRes.mainColor,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          list[index].logo!,
+                  child: Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(8.0),
+                            topLeft: Radius.circular(8.0)),
+                        child: Image(
+                          image:
+                              ExtendedNetworkImageProvider(list[index].logo!),
+                          width: double.infinity,
+                          height: 150,
                           fit: BoxFit.cover,
                         ),
-                        Center(
+                      ),
+                      Expanded(
+                          child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(8.0),
+                            bottomRight: Radius.circular(8.0)),
+                        child: Container(
+                          color: ColorRes.mainColor,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              list[index].title!,
-                              maxLines: 2,
-                              style: const TextStyle(fontSize: 10.0,overflow: TextOverflow.ellipsis),
+                            child: Center(
+                              child: Text(
+                                list[index].title!,
+                                style: const TextStyle(
+                                  fontSize: 10.0,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                maxLines: 2,
+                              ),
                             ),
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      ))
+                    ],
                   ),
                 ),
               ),

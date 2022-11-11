@@ -135,4 +135,23 @@ class Api {
     }
     return animaPlay;
   }
+
+
+  static Future<String> getAnimePlayUrl(String url) async{
+    var requestUrl = baseUrl + url;
+    debugPrint("url = $requestUrl");
+    var future = await HttpClient.get().get(requestUrl);
+    var document = parse(future.data);
+    debugPrint("future = $future");
+    var element = document.getElementById("play_1");
+    if(element!=null){
+      var onClickUrl = element.attributes["onclick"];
+      var playUrl = onClickUrl!.replaceAll("changeplay('", "").replaceAll("');", "").replaceAll("\$mp4", "");
+      debugPrint("playUrl = $playUrl");
+      return playUrl;
+    }
+    return "";
+  }
+
+
 }
