@@ -26,13 +26,43 @@ class Api {
         }
       }
     }
+    homeData.homeList = [];
+    var titles = document.querySelectorAll("div.firs > div.dtit");
+    var data = document.querySelectorAll("div.firs > div.img");
+    for (int i = 0, size = titles.length; i < size; i++) {
+      var titleChild = titles[i];
+      HomeListData listData = HomeListData();
+      listData.title = titleChild
+          .querySelector("h2 > a")
+          ?.text ?? "";
+      listData.moreUrl =
+          titleChild
+              .querySelector("h2 > a")
+              ?.attributes["href"] ?? "";
+
+      var animes = data[i].querySelectorAll("ul > li");
+      for (var anime in animes) {
+        HomeListItem item = HomeListItem();
+        var info = anime.querySelectorAll("a");
+        item.title = info[1].text;
+        item.url = info[1].attributes["href"];
+        item.img = info[0]
+            .querySelector("img")
+            ?.attributes["src"];
+        item.episodes = info.length == 3 ? info[2].text : "";
+        listData.data.add(item);
+      }
+      homeData.homeList.add(listData);
+    }
     return homeData;
   }
 
   static List<TimeTableData> parseWeek(List<dom.Element> els) {
     List<TimeTableData> week = [];
     for (int i = 0, size = els.length; i < size; i++) {
-      if (els[i].querySelectorAll("a").length > 1) {
+      if (els[i]
+          .querySelectorAll("a")
+          .length > 1) {
         var query1 = els[i].querySelectorAll("a")[1];
         var title = query1.text;
         var url = query1.attributes["href"];
@@ -80,10 +110,19 @@ class Api {
     }
     data
       ..url = url
-      ..title = document.querySelector("h1")?.text
-      ..des = document.querySelector("div.info")?.text.replaceAll("\n", "")
-      ..score = document.querySelector("div.score > em")?.text
-      ..logo = document.querySelector("div.thumb > img")?.attributes["src"]
+      ..title = document
+          .querySelector("h1")
+          ?.text
+      ..des = document
+          .querySelector("div.info")
+          ?.text
+          .replaceAll("\n", "")
+      ..score = document
+          .querySelector("div.score > em")
+          ?.text
+      ..logo = document
+          .querySelector("div.thumb > img")
+          ?.attributes["src"]
       ..tags = tags;
     debugPrint("data = $data");
     return data;
@@ -101,8 +140,12 @@ class Api {
     if (elements.isNotEmpty) {
       List<AnimeDramasDetailsData> details = [];
       for (var element in elements) {
-        var title = element.querySelector("a")?.text;
-        var url = element.querySelector("a")?.attributes["href"];
+        var title = element
+            .querySelector("a")
+            ?.text;
+        var url = element
+            .querySelector("a")
+            ?.attributes["href"];
         details.add(AnimeDramasDetailsData(title, url));
       }
       animeDramas.list = details;
@@ -113,9 +156,15 @@ class Api {
       if (seasonElements.isNotEmpty) {
         List<AnimeRecommendData> seasons = [];
         for (var element in seasonElements) {
-          var title = element.querySelector("p.tname > a")?.text;
-          var logo = element.querySelector("img")?.attributes["src"];
-          var url = element.querySelector("p.tname > a")?.attributes["href"];
+          var title = element
+              .querySelector("p.tname > a")
+              ?.text;
+          var logo = element
+              .querySelector("img")
+              ?.attributes["src"];
+          var url = element
+              .querySelector("p.tname > a")
+              ?.attributes["href"];
           seasons.add(AnimeRecommendData(title, logo, url));
         }
         animaPlay.animeSeasons = seasons;
@@ -125,9 +174,15 @@ class Api {
       if (recommendElements.isNotEmpty) {
         List<AnimeRecommendData> recommends = [];
         for (var element in recommendElements) {
-          var title = element.querySelector("h2 > a")?.text;
-          var logo = element.querySelector("img")?.attributes["src"];
-          var url = element.querySelector("h2 > a")?.attributes["href"];
+          var title = element
+              .querySelector("h2 > a")
+              ?.text;
+          var logo = element
+              .querySelector("img")
+              ?.attributes["src"];
+          var url = element
+              .querySelector("h2 > a")
+              ?.attributes["href"];
           recommends.add(AnimeRecommendData(title, logo, url));
         }
         animaPlay.animeRecommend = recommends;
@@ -136,22 +191,22 @@ class Api {
     return animaPlay;
   }
 
-
-  static Future<String> getAnimePlayUrl(String url) async{
+  static Future<String> getAnimePlayUrl(String url) async {
     var requestUrl = baseUrl + url;
     debugPrint("url = $requestUrl");
     var future = await HttpClient.get().get(requestUrl);
     var document = parse(future.data);
     debugPrint("future = $future");
     var element = document.getElementById("play_1");
-    if(element!=null){
+    if (element != null) {
       var onClickUrl = element.attributes["onclick"];
-      var playUrl = onClickUrl!.replaceAll("changeplay('", "").replaceAll("');", "").replaceAll("\$mp4", "");
+      var playUrl = onClickUrl!
+          .replaceAll("changeplay('", "")
+          .replaceAll("');", "")
+          .replaceAll("\$mp4", "");
       debugPrint("playUrl = $playUrl");
       return playUrl;
     }
     return "";
   }
-
-
 }

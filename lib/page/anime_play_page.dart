@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:video_player/video_player.dart';
+import 'package:perfect_volume_control/perfect_volume_control.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 
 class AnimePlayPage extends ConsumerStatefulWidget {
   final String url;
@@ -27,8 +31,14 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   var _slideValue = 0.0;
   var _downPosition = 0;
   var _downVolume = 0.0;
-  var _volumeValue = 0.0;
+  var _downX = 0.0;
+  var _downY = 0.0;
+  var _downBrightness = 0.0;
+  var _isSeeking = false;
+  var _isSeekingChange = false;
+  var _isBrightness = false;
   VideoPlayerValue? _videoPlayerValue;
+  late StreamSubscription<double> _subscription;
 
   @override
   void initState() {
@@ -42,12 +52,18 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+
+    DeviceDisplayBrightness.getBrightness().then((value) {});
+    _subscription = PerfectVolumeControl.stream.listen((value) {});
+    PerfectVolumeControl.hideUI = false;
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    DeviceDisplayBrightness.resetBrightness();
+    _subscription.cancel();
     flickManager?.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
@@ -81,6 +97,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
       var controller = ref.watch(_initProvider);
       var media = MediaQuery.of(context);
       var sizeHeight = (media.size.width - media.padding.top) / 2.0;
+      var sizeWidth = media.size.height;
       if (watch.isRefreshing || controller == null) {
         return Container(
           color: Colors.black,
@@ -113,56 +130,115 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
               Positioned(
                   left: 55,
                   right: sizeHeight + 55,
-                  top: 125,
-                  bottom: 125,
+                  top: 105,
+                  bottom: 105,
                   child: GestureDetector(
-                    onPanDown: (detail){
-                      _downVolume = controller.flickVideoManager?.videoPlayerValue?.volume?? 0.5;
+                    onTap: () {
+                      var isShow = flickManager
+                              ?.flickDisplayManager?.showPlayerControls ??
+                          false;
+                      if (!isShow) {
+                        flickManager?.flickDisplayManager
+                            ?.handleShowPlayerControls();
+                      }
                     },
-                    onPanUpdate: (details){
-                      // _volumeValue +=
-                      // controller.flickControlManager.setVolume(volume)
+                    onPanDown: (detail) {
+                      _downVolume = detail.globalPosition.dy;
+                    },
+                    onPanUpdate: (details) async {
+                      _downVolume += details.delta.dy;
+                      var nextVolume = (sizeWidth - _downVolume) / sizeWidth;
+                      debugPrint("onPanUpdate $nextVolume");
+                      if (nextVolume >= 1) {
+                        nextVolume = 1.0;
+                      } else if (nextVolume <= 0) {
+                        nextVolume = 0;
+                      }
+                      await PerfectVolumeControl.setVolume(nextVolume);
                     },
                     behavior: HitTestBehavior.opaque,
-                    child: Container(color:Colors.white,),
+                    child: Container(),
                   )),
               Positioned(
                 left: sizeHeight + 55,
                 right: 55,
-                top: 125,
-                bottom: 125,
+                top: 105,
+                bottom: 105,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onPanDown: (details) {
                     _slideValue = 0;
+                    _downX = details.globalPosition.dy;
+                    _downY = details.globalPosition.dx;
+                    _downBrightness = details.globalPosition.dy;
                     _downPosition = controller.flickVideoManager
                             ?.videoPlayerValue?.position.inMilliseconds ??
                         0;
                     ref.read(_slideX.state).update(
                         (state) => Duration(milliseconds: _downPosition));
                   },
+                  onTap: () {
+                    var isShow =
+                        flickManager?.flickDisplayManager?.showPlayerControls ??
+                            false;
+                    if (!isShow) {
+                      flickManager?.flickDisplayManager
+                          ?.handleShowPlayerControls();
+                    }
+                  },
                   onPanUpdate: (details) {
-                    // debugPrint("onPanUpdate ${details.delta.dx}");
-                    _slideValue += details.delta.dx;
-                    if (_slideValue.abs() > 12.0) {
-                      ref
-                          .read(_isShowSlideDialog.state)
-                          .update((state) => true);
+                    var dy = details.delta.dy;
+                    var dx = details.delta.dx;
+
+                    var nextX = details.globalPosition.dy - _downX;
+                    var nextY = details.globalPosition.dx - _downY;
+
+                    if (nextX.abs() < 6 && nextY.abs() < 6) return;
+
+                    if (!_isSeeking && !_isBrightness) {
+                      if (nextX.abs() > nextY.abs()) {
+                        _isBrightness = true;
+                      } else {
+                        _isSeeking = true;
+                      }
                     }
-                    var offset = 60 * 1000 * _slideValue ~/ sizeHeight;
-                    var nextValue = (_downPosition + offset);
-                    if (nextValue >= _totalDuration) {
-                      nextValue = _totalDuration;
-                    } else if (nextValue <= 0) {
-                      nextValue = 0;
+
+                    if (_isSeeking) {
+                      _slideValue += dx;
+                      if (_slideValue.abs() > 45.0) {
+                        _isSeekingChange = true;
+                        ref
+                            .read(_isShowSlideDialog.state)
+                            .update((state) => true);
+                        var offset = 60 * 1000 * _slideValue ~/ sizeHeight;
+                        var nextValue = (_downPosition + offset);
+                        if (nextValue >= _totalDuration) {
+                          nextValue = _totalDuration;
+                        } else if (nextValue <= 0) {
+                          nextValue = 0;
+                        }
+                        ref.read(_slideX.state).update(
+                            (state) => Duration(milliseconds: nextValue));
+                      }
+                    } else if (_isBrightness) {
+                      _downBrightness += dy;
+                      var nextBrightness =
+                          (sizeWidth - _downBrightness) / sizeWidth;
+                      debugPrint("$nextBrightness");
+                      DeviceDisplayBrightness.setBrightness(nextBrightness);
                     }
-                    ref
-                        .read(_slideX.state)
-                        .update((state) => Duration(milliseconds: nextValue));
                   },
                   onPanEnd: (details) {
-                    ref.read(_isShowSlideDialog.state).update((state) => false);
-                    controller.flickControlManager?.seekTo(ref.watch(_slideX));
+                    if (_isSeeking && _isSeekingChange) {
+                      ref
+                          .read(_isShowSlideDialog.state)
+                          .update((state) => false);
+                      controller.flickControlManager
+                          ?.seekTo(ref.watch(_slideX));
+                    }
+                    _isSeekingChange = false;
+                    _isBrightness = false;
+                    _isSeeking = false;
                   },
                   child: Container(),
                 ),
@@ -170,14 +246,16 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
               IgnorePointer(
                 ignoring: true,
                 child: Align(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 250),
-                    opacity: ref.watch(_isShowSlideDialog) ? 1.0 : 0.0,
-                    child: Text(
-                      "${getTimeInDuration(ref.watch(_slideX))}/${getTimeInDuration(Duration(milliseconds: _totalDuration))}",
-                      style: const TextStyle(fontSize: 25.0, color: Colors.white),
-                    ),
-                  ),
+                  child: Consumer(builder: (context, ref, _) {
+                    return AnimatedOpacity(
+                      duration: const Duration(milliseconds: 250),
+                      opacity: ref.watch(_isShowSlideDialog) ? 1.0 : 0.0,
+                      child: Text(
+                        "${getTimeInDuration(ref.watch(_slideX))}/${getTimeInDuration(Duration(milliseconds: _totalDuration))}",
+                        style: const TextStyle(fontSize: 30.0, color: Colors.white),
+                      ),
+                    );
+                  }),
                 ),
               )
             ],

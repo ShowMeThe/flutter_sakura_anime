@@ -4,6 +4,8 @@ import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/fade_route.dart';
 
+import 'anime_desc_page.dart';
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -76,7 +78,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                           )),
                     ];
                   },
-                  body: Text(""),
+                  body: Container(
+                    color: Colors.white,
+                    child: ListView(
+                      padding: const EdgeInsets.only(top: 0),
+                      children: buildBody(ref.watch(_disposeFutureProvider).value),
+                    ),
+                  ),
                 ))
               ],
             );
@@ -90,9 +98,88 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  List<Widget> buildBody(HomeData? homeData) {
+    List<Widget> widget = [];
+    if (homeData != null) {
+      var list = homeData.homeList;
+      for (var element in list) {
+        var childList = element.data;
+        widget.add(Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(element.title,style: const TextStyle(fontSize: 20),),
+        ));
+        widget.add(GridView.builder(
+            padding: const EdgeInsets.only(top: 0),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                childAspectRatio: 0.55),
+            itemCount: childList.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding:
+                const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                child: GestureDetector(
+                  onTap: () {
+                    var url = childList[index].url;
+                    Navigator.of(context).push(FadeRoute(AnimeDesPage(url!)));
+                  },
+                  child: SizedBox(
+                    width: 90,
+                    height: double.infinity,
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(8.0),
+                              topLeft: Radius.circular(8.0)),
+                          child: Image(
+                            image: ExtendedNetworkImageProvider(
+                                childList[index].img!),
+                            width: double.infinity,
+                            height: 150,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Expanded(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(8.0),
+                                  bottomRight: Radius.circular(8.0)),
+                              child: Container(
+                                color: ColorRes.mainColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: Text(
+                                      childList[index].title!,
+                                      style: const TextStyle(
+                                        fontSize: 10.0,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      maxLines: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ))
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }));
+      }
+    }
+    return widget;
+  }
+
   Widget buildIcon(int index) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         onTap(index);
       },
       child: SizedBox(
