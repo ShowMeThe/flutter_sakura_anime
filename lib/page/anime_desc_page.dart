@@ -74,7 +74,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   return Container();
                 } else {
                   return Image(
-                    image: ExtendedNetworkImageProvider(logo),
+                    image: ExtendedNetworkImageProvider(logo, cache:true),
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
@@ -126,7 +126,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                     tag: logo + widget.heroTag,
                                     child: Image(
                                       image: ExtendedNetworkImageProvider(
-                                          logo),
+                                          logo, cache:true),
                                       width: double.infinity,
                                       fit: BoxFit.cover,
                                       height: 200,

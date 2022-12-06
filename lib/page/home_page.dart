@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_sakura_anime/page/anime_movie_page.dart';
 import 'package:flutter_sakura_anime/page/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -42,53 +43,57 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Material(
-        child: Consumer(builder: (context, ref, _) {
-          var provider = ref.watch(_disposeFutureProvider);
-          if (!provider.isLoading) {
-            return Column(
-              children: [
-                Container(
-                  height: top,
-                  color: Colors.white,
-                ),
-                Expanded(
-                    child: NestedScrollView(
-                  controller: _controller,
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      SliverAppBar(
-                        pinned: true,
-                        backgroundColor: Colors.white,
-                        flexibleSpace: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Center(
-                              child: buildIcon(0),
-                            ),
-                          ],
-                        ),
+          child: Column(
+        children: [
+          Container(
+            height: top,
+            color: Colors.white,
+          ),
+          Expanded(
+              child: NestedScrollView(
+            controller: _controller,
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  pinned: true,
+                  backgroundColor: Colors.white,
+                  flexibleSpace: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: buildIcon(0),
                       ),
-                    ];
-                  },
-                  body: Container(
-                    color: Colors.white,
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(top: 0),
-                      children: buildBody(provider.value),
-                    ),
+                      Center(
+                        child: buildIcon(1),
+                      ),
+                    ],
                   ),
-                ))
-              ],
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        }),
-      ),
+                ),
+              ];
+            },
+            body: Container(
+              color: Colors.white,
+              child: Consumer(
+                builder: (context, ref, _) {
+                  var provider = ref.watch(_disposeFutureProvider);
+                  if(!provider.isLoading && !provider.hasError){
+                      return ListView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.only(top: 0),
+                        children: buildBody(provider.value),
+                      );
+                  }else {
+                     return const Center(
+                         child: CircularProgressIndicator(),
+                     );
+                  }
+                },
+              ),
+            ),
+          ))
+        ],
+      )),
     );
   }
 
@@ -139,7 +144,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 tag: childList[index].img!,
                                 child: Image(
                                   image: ExtendedNetworkImageProvider(
-                                      childList[index].img!),
+                                      childList[index].img!,
+                                      cache: true),
                                   width: double.infinity,
                                   height: 150,
                                   fit: BoxFit.fitWidth,
@@ -224,12 +230,19 @@ class _HomePageState extends ConsumerState<HomePage> {
        * 更新列表
        */
       Navigator.of(context).push(FadeRoute(const TimeTablePage()));
+    } else if (index == 1) {
+      /**
+       * 更新列表
+       */
+      Navigator.of(context).push(FadeRoute(const AnimeMoviePage()));
     } else {}
   }
 
   String getImageIndex(int index) {
     if (index == 0) {
       return A.assets_ic_time_table;
+    } else if (index == 1) {
+      return A.assets_ic_sakura_movie;
     } else {
       return "";
     }
@@ -238,6 +251,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   String getTextIndex(int index) {
     if (index == 0) {
       return "时间表";
+    } else if (index == 1) {
+      return "电影";
     } else {
       return "";
     }

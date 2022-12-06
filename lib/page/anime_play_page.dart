@@ -36,6 +36,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   var _downBrightness = 0.0;
   var _isSeeking = false;
   var _isSeekingChange = false;
+  var _isVolume = false;
   var _isBrightness = false;
   VideoPlayerValue? _videoPlayerValue;
   late StreamSubscription<double> _subscription;
@@ -143,18 +144,15 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                       }
                     },
                     onPanDown: (detail) {
-                      _downVolume = detail.globalPosition.dy;
+                      _downBrightness = detail.globalPosition.dy;
                     },
                     onPanUpdate: (details) async {
-                      _downVolume += details.delta.dy;
-                      var nextVolume = (sizeWidth - _downVolume) / sizeWidth;
-                      debugPrint("onPanUpdate $nextVolume");
-                      if (nextVolume >= 1) {
-                        nextVolume = 1.0;
-                      } else if (nextVolume <= 0) {
-                        nextVolume = 0;
-                      }
-                      await PerfectVolumeControl.setVolume(nextVolume);
+                      var dy = details.delta.dy;
+                      _downBrightness += dy;
+                      var nextBrightness =
+                          (sizeWidth - _downBrightness) / sizeWidth;
+                      debugPrint("$nextBrightness");
+                      DeviceDisplayBrightness.setBrightness(nextBrightness);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Container(),
@@ -167,10 +165,10 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onPanDown: (details) {
+                    _downVolume = details.globalPosition.dy;
                     _slideValue = 0;
                     _downX = details.globalPosition.dy;
                     _downY = details.globalPosition.dx;
-                    _downBrightness = details.globalPosition.dy;
                     _downPosition = controller.flickVideoManager
                             ?.videoPlayerValue?.position.inMilliseconds ??
                         0;
@@ -186,8 +184,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                           ?.handleShowPlayerControls();
                     }
                   },
-                  onPanUpdate: (details) {
-                    var dy = details.delta.dy;
+                  onPanUpdate: (details) async {
                     var dx = details.delta.dx;
 
                     var nextX = details.globalPosition.dy - _downX;
@@ -197,7 +194,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
 
                     if (!_isSeeking && !_isBrightness) {
                       if (nextX.abs() > nextY.abs()) {
-                        _isBrightness = true;
+                        _isVolume = true;
                       } else {
                         _isSeeking = true;
                       }
@@ -220,12 +217,16 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                         ref.read(_slideX.state).update(
                             (state) => Duration(milliseconds: nextValue));
                       }
-                    } else if (_isBrightness) {
-                      _downBrightness += dy;
-                      var nextBrightness =
-                          (sizeWidth - _downBrightness) / sizeWidth;
-                      debugPrint("$nextBrightness");
-                      DeviceDisplayBrightness.setBrightness(nextBrightness);
+                    } else if (_isVolume) {
+                      _downVolume += details.delta.dy;
+                      var nextVolume = (sizeWidth - _downVolume) / sizeWidth;
+                      debugPrint("onPanUpdate $nextVolume");
+                      if (nextVolume >= 1) {
+                        nextVolume = 1.0;
+                      } else if (nextVolume <= 0) {
+                        nextVolume = 0;
+                      }
+                      await PerfectVolumeControl.setVolume(nextVolume);
                     }
                   },
                   onPanEnd: (details) {
