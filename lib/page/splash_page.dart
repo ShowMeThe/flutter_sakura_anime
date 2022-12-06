@@ -33,10 +33,9 @@ class _SplashPageState extends State<SplashPage>
   }
 
   Timer delayToPage() {
-    return Timer.periodic(const Duration(milliseconds: 300), (timer) {
+    return Timer(const Duration(milliseconds: 300), () {
       var router = FadeRoute(const HomePage());
       Navigator.of(context).pushAndRemoveUntil(router, (route) => false);
-      timer.cancel();
     });
   }
 

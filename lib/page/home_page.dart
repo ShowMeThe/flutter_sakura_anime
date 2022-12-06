@@ -17,8 +17,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late ScrollController _controller;
   late AutoDisposeFutureProvider<HomeData> _disposeFutureProvider;
-  final AutoDisposeStateProvider<bool> _stateProvider =
-      StateProvider.autoDispose((ref) => false);
 
   @override
   void initState() {
@@ -26,10 +24,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     _disposeFutureProvider = FutureProvider.autoDispose<HomeData>((_) async {
       var result = await Api.getHomeData();
-      ref.read(_stateProvider.state).state = true;
       return result;
     });
-    ref.refresh(_disposeFutureProvider);
     _controller = ScrollController();
   }
 
@@ -47,8 +43,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       backgroundColor: Colors.white,
       body: Material(
         child: Consumer(builder: (context, ref, _) {
-          var loaded = ref.watch(_stateProvider);
-          if (loaded) {
+          var provider = ref.watch(_disposeFutureProvider);
+          if (!provider.isLoading) {
             return Column(
               children: [
                 Container(
@@ -60,29 +56,27 @@ class _HomePageState extends ConsumerState<HomePage> {
                   controller: _controller,
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
-                      SliverOverlapAbsorber(
-                          handle:
-                              NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context),
-                          sliver: SliverAppBar(
-                            backgroundColor: Colors.white,
-                            flexibleSpace: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Center(
-                                  child: buildIcon(0),
-                                ),
-                              ],
+                      SliverAppBar(
+                        pinned: true,
+                        backgroundColor: Colors.white,
+                        flexibleSpace: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: buildIcon(0),
                             ),
-                          )),
+                          ],
+                        ),
+                      ),
                     ];
                   },
                   body: Container(
                     color: Colors.white,
                     child: ListView(
+                      physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(top: 0),
-                      children: buildBody(ref.watch(_disposeFutureProvider).value),
+                      children: buildBody(provider.value),
                     ),
                   ),
                 ))
@@ -106,7 +100,10 @@ class _HomePageState extends ConsumerState<HomePage> {
         var childList = element.data;
         widget.add(Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(element.title,style: const TextStyle(fontSize: 20),),
+          child: Text(
+            element.title,
+            style: const TextStyle(fontSize: 20),
+          ),
         ));
         widget.add(GridView.builder(
             padding: const EdgeInsets.only(top: 0),
@@ -121,54 +118,52 @@ class _HomePageState extends ConsumerState<HomePage> {
             itemBuilder: (context, index) {
               return Padding(
                 padding:
-                const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                    const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
                 child: GestureDetector(
                   onTap: () {
                     var url = childList[index].url;
-                    Navigator.of(context).push(FadeRoute(AnimeDesPage(url!)));
+                    Navigator.of(context).push(
+                        FadeRoute(AnimeDesPage(url!, childList[index].img!)));
                   },
                   child: SizedBox(
-                    width: 90,
-                    height: double.infinity,
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(8.0),
-                              topLeft: Radius.circular(8.0)),
-                          child: Image(
-                            image: ExtendedNetworkImageProvider(
-                                childList[index].img!),
-                            width: double.infinity,
-                            height: 150,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(8.0),
-                                  bottomRight: Radius.circular(8.0)),
-                              child: Container(
-                                color: ColorRes.mainColor,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Center(
-                                    child: Text(
-                                      childList[index].title!,
-                                      style: const TextStyle(
-                                        fontSize: 10.0,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      maxLines: 2,
+                      width: 90,
+                      height: double.infinity,
+                      child: Card(
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.0))),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            Hero(
+                                tag: childList[index].img!,
+                                child: Image(
+                                  image: ExtendedNetworkImageProvider(
+                                      childList[index].img!),
+                                  width: double.infinity,
+                                  height: 150,
+                                  fit: BoxFit.fitWidth,
+                                )),
+                            Expanded(
+                                child: Container(
+                              color: ColorRes.mainColor,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child: Text(
+                                    childList[index].title!,
+                                    style: const TextStyle(
+                                      fontSize: 10.0,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                    maxLines: 2,
                                   ),
                                 ),
                               ),
                             ))
-                      ],
-                    ),
-                  ),
+                          ],
+                        ),
+                      )),
                 ),
               );
             }));

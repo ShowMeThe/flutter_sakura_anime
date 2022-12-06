@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter_sakura_anime/page/anime_play_page.dart';
@@ -6,18 +8,24 @@ import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
+  final String logo;
+  String heroTag = "";
 
-  const AnimeDesPage(this.animeShowUrl, {super.key});
+  AnimeDesPage(this.animeShowUrl, this.logo, {super.key,this.heroTag = ""});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AnimeDesPageState();
 }
 
 class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
+
+  static const _HeroTag = "des";
+
   late AutoDisposeFutureProvider<AnimeDesData> _desDataProvider;
   final ScrollController _scrollController = ScrollController();
 
   late AutoDisposeFutureProvider<AnimePlayListData> _playDataProvider;
+  late AutoDisposeStateProvider<String> _logoProvider;
 
   @override
   void dispose() {
@@ -31,14 +39,16 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     super.initState();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    _logoProvider = StateProvider.autoDispose((ref) {
+      return widget.logo;
+    });
 
     _desDataProvider = FutureProvider.autoDispose<AnimeDesData>((_) async {
       var result = await Api.getAnimeDes(widget.animeShowUrl);
-      ref.refresh(_playDataProvider);
+      //ref.refresh(_playDataProvider);
+      ref.read(_logoProvider.state).update((state) => result.logo!);
       return result;
     });
-    ref.refresh(_desDataProvider);
-
     _playDataProvider =
         FutureProvider.autoDispose<AnimePlayListData>((_) async {
       var url = ref.watch(_desDataProvider).value?.url;
@@ -49,40 +59,196 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
         child: SizedBox(
           width: double.infinity,
           height: double.infinity,
-          child: Consumer(
-            builder: (context, ref, _) {
-              var watch = ref.watch(_desDataProvider);
-              if (watch.isLoading) {
-                return Stack(
+          child: Stack(
+            children: [
+              Consumer(builder: (context, watch, _) {
+                var logo = watch.watch(_logoProvider);
+                if (logo.isEmpty) {
+                  return Container();
+                } else {
+                  return Image(
+                    image: ExtendedNetworkImageProvider(logo),
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  );
+                }
+              }),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(),
+              ),
+              Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                        Colors.black.withAlpha(15),
+                        Colors.black.withAlpha(125),
+                        Colors.black
+                      ]))),
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(),
+                    SafeArea(
+                      child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          )),
                     ),
-                    Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                              Colors.black.withAlpha(15),
-                              Colors.black.withAlpha(125),
-                              Colors.black
-                            ])))
+                    Center(
+                      child: SizedBox(
+                        width: size.width / 3,
+                        child: Stack(
+                          children: [
+                            Consumer(builder: (context, watch, _) {
+                              var logo = watch.watch(_logoProvider);
+                              if (logo.isEmpty) {
+                                return Container();
+                              } else {
+                                return Hero(
+                                    tag: logo + widget.heroTag,
+                                    child: Image(
+                                      image: ExtendedNetworkImageProvider(
+                                          logo),
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      height: 200,
+                                    ));
+                              }
+                            }),
+                            Consumer(builder: (context, watch, _) {
+                              var provider = watch.watch(_desDataProvider);
+                              if (provider.isLoading) {
+                                return Container();
+                              } else {
+                                var data = provider.value!;
+                                return SizedBox(
+                                  width: size.width / 3,
+                                  height: 200,
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                          child: SizedBox(
+                                        width: 45.0,
+                                        height: 35.0,
+                                        child: CustomPaint(
+                                          painter: ScoreShapeBorder(
+                                              ColorRes.pink400.withAlpha(200)),
+                                        ),
+                                      )),
+                                      Positioned(
+                                          left: 10,
+                                          child: Text(
+                                            data.score!,
+                                            style: const TextStyle(
+                                                color: Colors.white),
+                                          )),
+                                      Positioned(
+                                          left: 0,
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            alignment: Alignment.centerRight,
+                                            width: double.infinity,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                    begin: Alignment.topCenter,
+                                                    end: Alignment.bottomCenter,
+                                                    colors: [
+                                                  Colors.black12.withAlpha(30),
+                                                  Colors.black12.withAlpha(125)
+                                                ])),
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 4.0),
+                                              child: Text(
+                                                data.updateTime!,
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12.0),
+                                              ),
+                                            ),
+                                          ))
+                                    ],
+                                  ),
+                                );
+                              }
+                            })
+                          ],
+                        ),
+                      ),
+                    ),
+                    Consumer(builder: (context, watch, _) {
+                      var provider = watch.watch(_desDataProvider);
+                      if (provider.isLoading) {
+                        return Container();
+                      } else {
+                        var data = provider.value!;
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 8.0, right: 8.0, top: 12.0),
+                              child: Center(
+                                child: Text(
+                                  data.title == null ? "" : data.title!,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 15.0),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Wrap(
+                                  spacing: 5.0,
+                                  runSpacing: 5.0,
+                                  alignment: WrapAlignment.start,
+                                  children: buildTag(data),
+                                ),
+                              ),
+                            ),
+                            Center(
+                                child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 8.0, right: 8.0, top: 0.0),
+                              child: FoldTextView(
+                                  data.des == null ? "" : data.des!,
+                                  4,
+                                  const TextStyle(
+                                      color: Colors.white, fontSize: 12.0),
+                                  320),
+                            )),
+                            SizedBox(
+                              width: double.infinity,
+                              child: buildDrams(),
+                            )
+                          ],
+                        );
+                      }
+                    })
                   ],
-                );
-              } else {
-                return buildChild(watch.value);
-              }
-            },
+                ),
+              )
+            ],
           ),
         ),
       ),
@@ -93,133 +259,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     if (data == null) return Container();
     var size = MediaQuery.of(context).size;
     return Stack(
-      children: [
-        Image(
-          image: ExtendedNetworkImageProvider(data.logo!),
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.cover,
-        ),
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(),
-        ),
-        Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                  Colors.black.withAlpha(15),
-                  Colors.black.withAlpha(125),
-                  Colors.black
-                ]))),
-        SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SafeArea(
-                child: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    )),
-              ),
-              Center(
-                child: SizedBox(
-                  width: size.width / 3,
-                  child: Stack(
-                    children: [
-                      Image(
-                        image: ExtendedNetworkImageProvider(data.logo!),
-                        width: double.infinity,
-                        fit: BoxFit.fitWidth,
-                      ),
-                      Positioned(
-                          child: SizedBox(
-                        width: 45.0,
-                        height: 35.0,
-                        child: CustomPaint(
-                          painter:
-                              ScoreShapeBorder(ColorRes.pink400.withAlpha(200)),
-                        ),
-                      )),
-                      Positioned(
-                          left: 10,
-                          child: Text(
-                            data.score!,
-                            style: const TextStyle(color: Colors.white),
-                          )),
-                      Positioned(
-                          left: 0,
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            alignment: Alignment.centerRight,
-                            width: double.infinity,
-                            height: 20,
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                  Colors.black12.withAlpha(30),
-                                  Colors.black12.withAlpha(125)
-                                ])),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 4.0),
-                              child: Text(
-                                data.updateTime!,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 12.0),
-                              ),
-                            ),
-                          )),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 8.0, right: 8.0, top: 12.0),
-                child: Center(
-                  child: Text(
-                    data.title == null ? "" : data.title!,
-                    style: const TextStyle(color: Colors.white, fontSize: 15.0),
-                  ),
-                ),
-              ),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Wrap(
-                    spacing: 5.0,
-                    runSpacing: 5.0,
-                    alignment: WrapAlignment.start,
-                    children: buildTag(data),
-                  ),
-                ),
-              ),
-              Center(
-                  child: Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 0.0),
-                child: FoldTextView(data.des == null ? "" : data.des!, 4,
-                    const TextStyle(color: Colors.white, fontSize: 12.0), 320),
-              )),
-              SizedBox(
-                width: double.infinity,
-                child: buildDrams(),
-              )
-            ],
-          ),
-        )
-      ],
+      children: [],
     );
   }
 
@@ -323,7 +363,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
               child: GestureDetector(
                 onTap: () {
                   var url = list[index].url;
-                  Navigator.of(context).push(FadeRoute(AnimeDesPage(url!)));
+                  Navigator.of(context)
+                      .push(FadeRoute(AnimeDesPage(url!, list[index].logo!,heroTag: _HeroTag)));
                 },
                 child: SizedBox(
                   width: 90,
@@ -334,12 +375,15 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         borderRadius: const BorderRadius.only(
                             topRight: Radius.circular(8.0),
                             topLeft: Radius.circular(8.0)),
-                        child: Image(
-                          image:
-                              ExtendedNetworkImageProvider(list[index].logo!),
-                          width: double.infinity,
-                          height: 150,
-                          fit: BoxFit.cover,
+                        child: Hero(
+                          tag:list[index].logo! + _HeroTag,
+                          child: Image(
+                            image:
+                            ExtendedNetworkImageProvider(list[index].logo!),
+                            width: double.infinity,
+                            height: 150,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                       Expanded(
