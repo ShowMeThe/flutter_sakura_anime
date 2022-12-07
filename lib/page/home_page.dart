@@ -1,3 +1,4 @@
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/anime_movie_page.dart';
 import 'package:flutter_sakura_anime/page/time_table_page.dart';
@@ -77,16 +78,18 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: Consumer(
                 builder: (context, ref, _) {
                   var provider = ref.watch(_disposeFutureProvider);
-                  if(!provider.isLoading && !provider.hasError){
-                      return ListView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 0),
-                        children: buildBody(provider.value),
-                      );
-                  }else {
-                     return const Center(
-                         child: CircularProgressIndicator(),
-                     );
+                  if (!(provider.isLoading || provider.hasError)) {
+                    return ListView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 0),
+                      children: buildBody(provider.value),
+                    );
+                  } else {
+                    return ListView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 0),
+                      children: buildLoadingBody(),
+                    );
                   }
                 },
               ),
@@ -95,6 +98,68 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       )),
     );
+  }
+
+  List<Widget> buildLoadingBody() {
+    List<Widget> widget = [];
+    for (int index = 0, size = 4; index < size; index++) {
+      widget.add(
+        const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: FadeShimmer(
+                height: 20,
+                width: 10,
+                radius: 12,
+                millisecondsDelay: 50,
+                highlightColor: Color(0xffF9F9FB),
+                baseColor: Color(0xffE6E8EB),
+                fadeTheme: FadeTheme.light)),
+      );
+      widget.add(GridView.builder(
+          padding: const EdgeInsets.only(top: 0),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 5,
+              childAspectRatio: 0.55),
+          itemCount: 9,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+              child: SizedBox(
+                  width: 90,
+                  height: double.infinity,
+                  child: Card(
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        const FadeShimmer(
+                            height: 150,
+                            width: double.infinity,
+                            radius: 0,
+                            millisecondsDelay: 50,
+                            fadeTheme: FadeTheme.light),
+                        Expanded(
+                            child: Container(
+                          color: ColorRes.mainColor,
+                          child: const FadeShimmer(
+                              height: double.infinity,
+                              width: double.infinity,
+                              radius: 0,
+                              millisecondsDelay: 50,
+                              fadeTheme: FadeTheme.light),
+                        ))
+                      ],
+                    ),
+                  )),
+            );
+          }));
+    }
+    return widget;
   }
 
   List<Widget> buildBody(HomeData? homeData) {
@@ -159,7 +224,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   child: Text(
                                     childList[index].title!,
                                     style: const TextStyle(
-                                      fontSize: 10.0,
+                                      fontSize: 13.0,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     maxLines: 2,

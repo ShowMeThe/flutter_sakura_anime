@@ -92,6 +92,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.4.0"
+  fade_shimmer:
+    dependency: "direct main"
+    description:
+      name: fade_shimmer
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.0"
   fake_async:
     dependency: transitive
     description:

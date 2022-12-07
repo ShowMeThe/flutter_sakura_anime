@@ -1,3 +1,4 @@
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -14,10 +15,12 @@ class AnimeMoviePage extends ConsumerStatefulWidget {
 
 class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
   late AutoDisposeFutureProvider<AnimeMovieData> _futureProvider;
+
   bool _isLoading = false;
   var nowPage = 1;
   var maxPage = 0;
   final List<AnimeMovieListData> _movies = [];
+
 
   @override
   void initState() {
@@ -65,7 +68,7 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
         builder: (context, ref, _) {
           var provider = ref.watch(_futureProvider);
           if (provider.value == null) {
-            return Container();
+            return buildLoadingBody();
           } else {
             var data = provider.value!;
             if (nowPage == 1) {
@@ -108,7 +111,9 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
                                           tag: _movies[index].logo!,
                                           child: Image(
                                             image: ExtendedNetworkImageProvider(
-                                                _movies[index].logo!, cache:true,),
+                                              _movies[index].logo!,
+                                              cache: true,
+                                            ),
                                             width: double.infinity,
                                             height: 150,
                                             fit: BoxFit.fitWidth,
@@ -135,7 +140,9 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
                                 )),
                           ),
                         );
-                      }, childCount: _movies.length),
+                      },
+                          addAutomaticKeepAlives: false,
+                          childCount: _movies.length),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
@@ -149,5 +156,51 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
         },
       ),
     );
+  }
+
+  Widget buildLoadingBody() {
+    return GridView.builder(
+        padding: const EdgeInsets.only(top: 0),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 5,
+            childAspectRatio: 0.55),
+        itemCount: 40,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+            child: SizedBox(
+                width: 90,
+                height: double.infinity,
+                child: Card(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      const FadeShimmer(
+                          height: 150,
+                          width: double.infinity,
+                          radius: 0,
+                          millisecondsDelay: 50,
+                          fadeTheme: FadeTheme.light),
+                      Expanded(
+                          child: Container(
+                        color: ColorRes.mainColor,
+                        child: const FadeShimmer(
+                            height: double.infinity,
+                            width: double.infinity,
+                            radius: 0,
+                            millisecondsDelay: 50,
+                            fadeTheme: FadeTheme.light),
+                      ))
+                    ],
+                  ),
+                )),
+          );
+        });
   }
 }
