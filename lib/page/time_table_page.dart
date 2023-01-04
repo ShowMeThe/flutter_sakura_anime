@@ -42,20 +42,24 @@ class _TimeTableState extends ConsumerState<TimeTablePage>
 
   List<Widget> tabs() {
     var tabs = <Widget>[];
-    for (var element in Api.homeData.homeTimeTable) {
-      tabs.add(Tab(
-        text: element.week,
-      ));
+    if (Api.homeData?.homeTimeTable != null) {
+      for (var element in Api.homeData?.homeTimeTable ?? []) {
+        tabs.add(Tab(
+          text: element.week,
+        ));
+      }
     }
     return tabs;
   }
 
   List<Widget> tabViews() {
     var tabView = <Widget>[];
-    for (int index = 0, size = Api.homeData.homeTimeTable.length;
-        index < size;
-        index++) {
-      tabView.add(_WeekTabPage(index));
+    if (Api.homeData?.homeTimeTable != null) {
+      for (int index = 0, size = Api.homeData?.homeTimeTable.length ?? 0;
+      index < size;
+      index++) {
+        tabView.add(_WeekTabPage(index));
+      }
     }
     return tabView;
   }
@@ -78,7 +82,9 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
   @override
   void initState() {
     super.initState();
-    list = Api.homeData.homeTimeTable[widget.page].timeData;
+    if (Api.homeData != null) {
+      list = Api.homeData!.homeTimeTable[widget.page].timeData;
+    }
   }
 
   @override
@@ -95,9 +101,9 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
   Widget buildChild(int index) {
     var item = list[index];
     return GestureDetector(
-      onTap: (){
-        if(item.url!=null){
-          Navigator.of(context).push(FadeRoute(AnimeDesPage(item.url!,"")));
+      onTap: () {
+        if (item.url != null) {
+          Navigator.of(context).push(FadeRoute(AnimeDesPage(item.url!, "")));
         }
       },
       child: Card(

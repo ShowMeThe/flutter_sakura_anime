@@ -1,5 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_sakura_anime/page/anime_jc_page.dart';
 import 'package:flutter_sakura_anime/page/anime_movie_page.dart';
 import 'package:flutter_sakura_anime/page/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
@@ -67,6 +68,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       Center(
                         child: buildIcon(1),
+                      ),
+                      Center(
+                        child: buildIcon(2),
                       ),
                     ],
                   ),
@@ -294,12 +298,19 @@ class _HomePageState extends ConsumerState<HomePage> {
       /**
        * 更新列表
        */
-      Navigator.of(context).push(FadeRoute(const TimeTablePage()));
+      if (Api.homeData != null) {
+        Navigator.of(context).push(FadeRoute(const TimeTablePage()));
+      }
     } else if (index == 1) {
       /**
-       * 更新列表
+       * 电影
        */
       Navigator.of(context).push(FadeRoute(const AnimeMoviePage()));
+    } else if (index == 2) {
+      /**
+       * 剧场
+       */
+      Navigator.of(context).push(FadeRoute(const AnimeJcPage()));
     } else {}
   }
 
@@ -308,6 +319,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       return A.assets_ic_time_table;
     } else if (index == 1) {
       return A.assets_ic_sakura_movie;
+    } else if (index == 2) {
+      return A.assets_ic_sakura_tv;
     } else {
       return "";
     }
@@ -318,6 +331,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       return "时间表";
     } else if (index == 1) {
       return "电影";
+    } else if (index == 2) {
+      return "剧场版";
     } else {
       return "";
     }

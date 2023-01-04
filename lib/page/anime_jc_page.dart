@@ -6,14 +6,14 @@ import 'package:flutter_sakura_anime/widget/load_refresh_indicator.dart';
 
 import 'anime_desc_page.dart';
 
-class AnimeMoviePage extends ConsumerStatefulWidget {
-  const AnimeMoviePage({super.key});
+class AnimeJcPage extends ConsumerStatefulWidget {
+  const AnimeJcPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _AnimeMoviePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _AnimeJcPageState();
 }
 
-class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
+class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
   late AutoDisposeFutureProvider<AnimeMovieData> _futureProvider;
   static const _HeroTag = "des";
   bool _isLoading = false;
@@ -27,9 +27,9 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
     super.initState();
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
-      debugPrint("$nowPage");
-      var result = await Api.getMovieAnimeList(nowPage: nowPage);
+      var result = await Api.getJCAnimeList(nowPage: nowPage);
       maxPage = result.pageCount;
+      debugPrint("isLoading $_isLoading");
       _isLoading = false;
       lastPage = nowPage;
       return result;
@@ -64,7 +64,7 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("电影"),
+        title: const Text("剧场版"),
       ),
       body: Consumer(
         builder: (context, ref, _) {
@@ -84,6 +84,7 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
                 slivers: [
                   CupertinoSliverRefreshControl(
                     onRefresh: () async {
+                      nowPage = 1;
                       if(nowPage != lastPage){
                         ref.refresh(_futureProvider);
                       }
