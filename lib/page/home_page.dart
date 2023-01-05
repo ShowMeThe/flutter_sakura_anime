@@ -2,6 +2,7 @@ import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/anime_jc_page.dart';
 import 'package:flutter_sakura_anime/page/anime_movie_page.dart';
+import 'package:flutter_sakura_anime/page/search_page.dart';
 import 'package:flutter_sakura_anime/page/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -39,11 +40,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     _controller.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     var top = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(FadeRoute(const SearchPage()));
+        },
+        child: const Icon(
+          Icons.search,
+          color: Colors.white,
+        ),
+      ),
       body: Material(
           child: Column(
         children: [
