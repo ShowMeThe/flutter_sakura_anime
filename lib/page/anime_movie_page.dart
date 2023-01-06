@@ -34,7 +34,6 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
       lastPage = nowPage;
       return result;
     });
-    ref.refresh(_futureProvider);
   }
 
   @override

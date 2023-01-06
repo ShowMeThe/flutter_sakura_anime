@@ -29,12 +29,10 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
       _isLoading = true;
       var result = await Api.getJCAnimeList(nowPage: nowPage);
       maxPage = result.pageCount;
-      debugPrint("isLoading $_isLoading");
       _isLoading = false;
       lastPage = nowPage;
       return result;
     });
-    ref.refresh(_futureProvider);
   }
 
   @override

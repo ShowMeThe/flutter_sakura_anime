@@ -8,6 +8,7 @@ class Api {
   static const String baseUrl = "http://www.yinghuacd.com";
   static const String movieUrl = "$baseUrl/movie/";
   static const String jcUrl = "$baseUrl/37/";
+  static const String searchUrl = "$baseUrl/search/";
 
   static HomeData? homeData;
 
@@ -191,6 +192,11 @@ class Api {
 
   static Future<AnimeMovieData> getMovieAnimeList({int nowPage = 1}) async {
     return _getAnimeList(movieUrl, true, nowPage: nowPage);
+  }
+
+  static Future<AnimeMovieData> getSearchAnimeList(String word,{int nowPage = 1}) async {
+    var requestUrl = searchUrl + word;
+    return _getAnimeList(requestUrl, false, nowPage: nowPage);
   }
 
   static Future<AnimeMovieData> _getAnimeList(String url, bool isMovie,
