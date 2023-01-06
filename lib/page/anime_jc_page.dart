@@ -16,10 +16,10 @@ class AnimeJcPage extends ConsumerStatefulWidget {
 class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
   late AutoDisposeFutureProvider<AnimeMovieData> _futureProvider;
   static const _HeroTag = "des";
-  bool _isLoading = false;
   var nowPage = 1;
-  var lastPage = 1;
   var maxPage = 0;
+  var _canLoadMore = true;
+  var _isLoading = false;
   final List<AnimeMovieListData> _movies = [];
 
   @override
@@ -27,10 +27,9 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
     super.initState();
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
+      debugPrint("nowPage $nowPage");
       var result = await Api.getJCAnimeList(nowPage: nowPage);
       maxPage = result.pageCount;
-      _isLoading = false;
-      lastPage = nowPage;
       return result;
     });
   }
@@ -42,15 +41,14 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent > notification.metrics.pixels &&
-          notification.metrics.maxScrollExtent - notification.metrics.pixels <=
-              notification.metrics.maxScrollExtent * 1 / 3) {
-        if (!_isLoading) {
-          _isLoading = true;
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels < 210) {
+        if (!_isLoading && _canLoadMore) {
           nowPage++;
-          lastPage = nowPage;
+          debugPrint("load more $nowPage");
           if (nowPage <= maxPage) {
             ref.refresh(_futureProvider);
+          }else{
+            _canLoadMore = false;
           }
         }
       }
@@ -71,10 +69,14 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
             return buildLoadingBody();
           } else {
             var data = provider.value!;
-            if (nowPage == 1) {
-              _movies.clear();
+            if(!provider.isLoading){
+              if (nowPage == 1) {
+                _movies.clear();
+              }
+              _movies.addAll(data.movies);
+              debugPrint("${_movies.length}");
+              _isLoading = false;
             }
-            _movies.addAll(data.movies);
             return NotificationListener<ScrollNotification>(
               onNotification: _handleLoadMoreScroll,
               child: CustomScrollView(
@@ -82,10 +84,10 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
                 slivers: [
                   CupertinoSliverRefreshControl(
                     onRefresh: () async {
+                      _canLoadMore = true;
+                      debugPrint("onRefresh");
                       nowPage = 1;
-                      if(nowPage != lastPage){
-                        ref.refresh(_futureProvider);
-                      }
+                      ref.refresh(_futureProvider);
                     },
                   ),
                   SliverGrid(

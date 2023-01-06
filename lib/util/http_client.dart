@@ -26,13 +26,13 @@ class HttpClient {
 
   static Future<Dio> get() async {
     _dio ??= Dio(_option)
-      ..interceptors.add(DioCacheInterceptor(
+     /* ..interceptors.add(DioCacheInterceptor(
           options: CacheOptions(
         maxStale: const Duration(days: 7),
         store: HiveCacheStore(await getAppDir()),
         policy: CachePolicy.forceCache,
         hitCacheOnErrorExcept:  [401, 403, 404], // for offline behaviour
-      )));
+      )))*/;
     return _dio!;
   }
 }

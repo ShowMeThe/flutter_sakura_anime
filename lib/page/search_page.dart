@@ -14,12 +14,12 @@ class SearchPage extends ConsumerStatefulWidget {
 
 class _SearchPageState extends ConsumerState<SearchPage> {
   var editController = TextEditingController(text: "");
-  static const _HeroTag = "des";
+  static const _HeroTag = "search";
   final _opacityProvider = StateProvider.autoDispose((ref) => 0.0);
   late AutoDisposeFutureProvider<AnimeMovieData?> _futureProvider;
-  bool _isLoading = false;
+  var _canLoadMore = true;
+  var _isLoading = false;
   var nowPage = 1;
-  var lastPage = 1;
   var maxPage = 0;
   final List<AnimeMovieListData> _movies = [];
   final _showEmpty = StateProvider.autoDispose<bool>((ref) => true);
@@ -36,24 +36,21 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       var result =
           await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
       maxPage = result.pageCount;
-      _isLoading = false;
       ref.read(_showEmpty.state).state = false;
-      lastPage = nowPage;
       return result;
     });
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent > notification.metrics.pixels &&
-          notification.metrics.maxScrollExtent - notification.metrics.pixels <=
-              notification.metrics.maxScrollExtent * 1 / 3) {
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels < 210) {
         if (!_isLoading) {
           _isLoading = true;
           nowPage++;
-          lastPage = nowPage;
           if (nowPage <= maxPage) {
             ref.refresh(_futureProvider);
+          }else{
+            _canLoadMore = false;
           }
         }
       }
@@ -132,11 +129,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           if (provider.value == null || showEmpty) {
             return Container();
           } else {
-            var data = provider.value!;
-            if (nowPage == 1) {
-              _movies.clear();
+            if(!provider.isLoading){
+              var data = provider.value!;
+              if (nowPage == 1) {
+                _movies.clear();
+              }
+              _movies.addAll(data.movies);
+              _isLoading = false;
             }
-            _movies.addAll(data.movies);
             return NotificationListener<ScrollNotification>(
               onNotification: _handleLoadMoreScroll,
               child: CustomScrollView(
@@ -145,9 +145,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   CupertinoSliverRefreshControl(
                     onRefresh: () async {
                       nowPage = 1;
-                      if (nowPage != lastPage) {
-                        ref.refresh(_futureProvider);
-                      }
+                      _canLoadMore = true;
+                      ref.refresh(_futureProvider);
                     },
                   ),
                   SliverGrid(
