@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:flutter_sakura_anime/widget/SearchAppBar.dart';
+import 'package:flutter_sakura_anime/widget/search_app_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../bean/anime_movie_data.dart';
 import 'anime_desc_page.dart';
@@ -15,6 +16,7 @@ class SearchPage extends ConsumerStatefulWidget {
 class _SearchPageState extends ConsumerState<SearchPage> {
   var editController = TextEditingController(text: "");
   static const _HeroTag = "search";
+  static const SEARCH_HIS = "SEARCH_HIS";
   final _opacityProvider = StateProvider.autoDispose((ref) => 0.0);
   late AutoDisposeFutureProvider<AnimeMovieData?> _futureProvider;
   var _canLoadMore = true;
@@ -23,33 +25,43 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   var maxPage = 0;
   final List<AnimeMovieListData> _movies = [];
   final _showEmpty = StateProvider.autoDispose<bool>((ref) => true);
+  final _showHis = StateProvider.autoDispose<bool>((ref) => true);
+  late AutoDisposeFutureProvider<List<String>> _hisSearchProvider;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     super.initState();
     _futureProvider = FutureProvider.autoDispose((ref) async {
-      if(editController.text.isEmpty){
-        ref.read(_showEmpty.state).state = true;
+      if (editController.text.isEmpty) {
+        ref.read(_showHis.state).state = true;
+        ref.read(_showEmpty.state).state = false;
         return null;
       }
       _isLoading = true;
       var result =
           await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
       maxPage = result.pageCount;
+      ref.read(_showHis.state).state = false;
       ref.read(_showEmpty.state).state = false;
       return result;
+    });
+
+    _hisSearchProvider = FutureProvider.autoDispose<List<String>>((ref) async {
+      return (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
     });
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent - notification.metrics.pixels < 210) {
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
+          210) {
         if (!_isLoading) {
           _isLoading = true;
           nowPage++;
           if (nowPage <= maxPage) {
             ref.refresh(_futureProvider);
-          }else{
+          } else {
             _canLoadMore = false;
           }
         }
@@ -74,8 +86,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           onChange: (word) {
             if (word.isNotEmpty) {
               ref.read(_opacityProvider.state).update((state) => 1.0);
+              ref.read(_showHis.state).update((state) => false);
             } else {
               ref.read(_opacityProvider.state).update((state) => 0.0);
+              ref.read(_showHis.state).update((state) => true);
             }
           },
           leading: GestureDetector(
@@ -126,10 +140,18 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         builder: (context, ref, _) {
           var showEmpty = ref.watch(_showEmpty);
           var provider = ref.watch(_futureProvider);
-          if (provider.value == null || showEmpty) {
+          var showHis = ref.watch(_showHis);
+          if (showHis) {
+            var searchList = ref.watch(_hisSearchProvider);
+            return Column(
+              children: [
+                Text("搜索历史")
+              ],
+            );
+          } else if (provider.value == null || showEmpty) {
             return Container();
           } else {
-            if(!provider.isLoading){
+            if (!provider.isLoading) {
               var data = provider.value!;
               if (nowPage == 1) {
                 _movies.clear();
