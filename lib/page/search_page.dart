@@ -28,28 +28,51 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final _showHis = StateProvider.autoDispose<bool>((ref) => true);
   late AutoDisposeFutureProvider<List<String>> _hisSearchProvider;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  var localList = <String>[];
 
   @override
   void initState() {
     super.initState();
     _futureProvider = FutureProvider.autoDispose((ref) async {
       if (editController.text.isEmpty) {
-        ref.read(_showHis.state).state = true;
-        ref.read(_showEmpty.state).state = false;
+        ref
+            .read(_showHis.state)
+            .state = true;
+        ref
+            .read(_showEmpty.state)
+            .state = false;
         return null;
       }
       _isLoading = true;
       var result =
-          await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
+      await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
       maxPage = result.pageCount;
-      ref.read(_showHis.state).state = false;
-      ref.read(_showEmpty.state).state = false;
+      ref
+          .read(_showHis.state)
+          .state = false;
+      ref
+          .read(_showEmpty.state)
+          .state = false;
       return result;
     });
 
     _hisSearchProvider = FutureProvider.autoDispose<List<String>>((ref) async {
-      return (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
+      localList = (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
+      return localList;
     });
+  }
+
+  void saveToHist(String newKey) async {
+    if (!localList.contains(newKey)) {
+      localList.add(newKey);
+      (await _prefs).setStringList(SEARCH_HIS, localList);
+    }
+  }
+
+  void clearHist() async {
+    localList.clear();
+    ref.watch(_showHis.state).update((state) => false);
+    (await _prefs).remove(SEARCH_HIS);
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
@@ -68,6 +91,36 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       }
     }
     return false;
+  }
+
+  List<Widget> getHisWidget(Iterable<String> str) {
+    var list = <Widget>[];
+    for (var element in str) {
+      list.add(Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: GestureDetector(
+          onTap: () {
+            editController.text = element;
+            ref.refresh(_futureProvider);
+            ref.read(_opacityProvider.state).update((state) => 1.0);
+            editController.selection =
+                TextSelection.collapsed(offset: element.length);
+          },
+          child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                  border: Border.all(color: ColorRes.pink400, width: 2.0)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  element,
+                  style: const TextStyle(color: ColorRes.pink600),
+                ),
+              )),
+        ),
+      ));
+    }
+    return list;
   }
 
   @override
@@ -112,7 +165,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   if (opacity != 0.0) {
                     editController.clear();
                     ref.read(_opacityProvider.state).update((state) => 0.0);
-                    ref.read(_showEmpty.state).state = true;
+                    ref
+                        .read(_showEmpty.state)
+                        .state = true;
+                    if (localList.isNotEmpty) {
+                      ref
+                          .read(_showHis.state)
+                          .state = true;
+                    }
                   }
                 },
                 child: Padding(
@@ -129,11 +189,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               );
             },
           ),
-          (word) {
+              (word) {
             if (word.isNotEmpty) {
               ref.refresh(_futureProvider);
+              saveToHist(word);
             } else {
-              ref.read(_showEmpty.state).state = true;
+              ref
+                  .read(_showEmpty.state)
+                  .state = true;
+              if (localList.isNotEmpty) {
+                ref
+                    .read(_showHis.state)
+                    .state = true;
+              }
             }
           }),
       body: Consumer(
@@ -142,12 +210,52 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           var provider = ref.watch(_futureProvider);
           var showHis = ref.watch(_showHis);
           if (showHis) {
-            var searchList = ref.watch(_hisSearchProvider);
-            return Column(
-              children: [
-                Text("搜索历史")
-              ],
-            );
+            return Consumer(builder: (context, ref, _) {
+              var searchList = ref
+                  .watch(_hisSearchProvider)
+                  .value;
+              if (searchList == null || searchList.isEmpty) {
+                return Container();
+              } else {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "搜索历史",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Wrap(
+                        children: getHisWidget(searchList.reversed),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          clearHist();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.pink,
+                            ),
+                            Text("删除历史记录")
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              }
+            });
           } else if (provider.value == null || showEmpty) {
             return Container();
           } else {
@@ -208,21 +316,23 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                           )),
                                       Expanded(
                                           child: Container(
-                                        color: ColorRes.mainColor,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                            child: Text(
-                                              _movies[index].title!,
-                                              style: const TextStyle(
-                                                fontSize: 10.0,
-                                                overflow: TextOverflow.ellipsis,
+                                            color: ColorRes.mainColor,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(
+                                                  8.0),
+                                              child: Center(
+                                                child: Text(
+                                                  _movies[index].title!,
+                                                  style: const TextStyle(
+                                                    fontSize: 10.0,
+                                                    overflow: TextOverflow
+                                                        .ellipsis,
+                                                  ),
+                                                  maxLines: 2,
+                                                ),
                                               ),
-                                              maxLines: 2,
                                             ),
-                                          ),
-                                        ),
-                                      ))
+                                          ))
                                     ],
                                   ),
                                 )),
@@ -232,11 +342,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           addAutomaticKeepAlives: false,
                           childCount: _movies.length),
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 5,
-                              mainAxisSpacing: 5,
-                              childAspectRatio: 0.55))
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
+                          childAspectRatio: 0.55))
                 ],
               ),
             );
