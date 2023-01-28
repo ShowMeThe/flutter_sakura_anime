@@ -83,8 +83,8 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
       _controller?.dispose();
     }
     var controller = VideoPlayerController.network(playerUrl);
-    _controller = controller;
     await controller.initialize();
+    _controller = controller;
 
     flickManager = FlickManager(videoPlayerController: controller);
     await flickManager?.flickControlManager?.play();

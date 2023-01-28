@@ -29,30 +29,24 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   late AutoDisposeFutureProvider<List<String>> _hisSearchProvider;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   var localList = <String>[];
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     _futureProvider = FutureProvider.autoDispose((ref) async {
       if (editController.text.isEmpty) {
-        ref
-            .read(_showHis.state)
-            .state = true;
-        ref
-            .read(_showEmpty.state)
-            .state = false;
+        ref.read(_showHis.state).state = true;
+        ref.read(_showEmpty.state).state = false;
         return null;
       }
       _isLoading = true;
       var result =
-      await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
+          await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
       maxPage = result.pageCount;
-      ref
-          .read(_showHis.state)
-          .state = false;
-      ref
-          .read(_showEmpty.state)
-          .state = false;
+      ref.read(_showHis.state).state = false;
+      ref.read(_showEmpty.state).state = false;
       return result;
     });
 
@@ -100,6 +94,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         padding: const EdgeInsets.all(5.0),
         child: GestureDetector(
           onTap: () {
+            _focusNode.unfocus();
             editController.text = element;
             ref.refresh(_futureProvider);
             ref.read(_opacityProvider.state).update((state) => 1.0);
@@ -127,6 +122,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    _focusNode.dispose();
     editController.dispose();
   }
 
@@ -134,7 +130,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: SearchAppBar(
+          focusNode: _focusNode,
           paddingLeft: 15,
+          appBarBackgroundColor: Colors.white,
+          textColor: Colors.black,
+          hintTextColor: Colors.grey,
+          cursorColor: Colors.grey.withAlpha(125),
           controller: editController,
           onChange: (word) {
             if (word.isNotEmpty) {
@@ -153,7 +154,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               padding: EdgeInsets.only(left: 12.0),
               child: Icon(
                 Icons.arrow_back,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ),
@@ -165,13 +166,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   if (opacity != 0.0) {
                     editController.clear();
                     ref.read(_opacityProvider.state).update((state) => 0.0);
-                    ref
-                        .read(_showEmpty.state)
-                        .state = true;
+                    ref.read(_showEmpty.state).state = true;
                     if (localList.isNotEmpty) {
-                      ref
-                          .read(_showHis.state)
-                          .state = true;
+                      ref.read(_showHis.state).state = true;
                     }
                   }
                 },
@@ -182,25 +179,21 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     opacity: opacity,
                     child: const Icon(
                       Icons.close,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ),
               );
             },
           ),
-              (word) {
+          (word) {
             if (word.isNotEmpty) {
               ref.refresh(_futureProvider);
               saveToHist(word);
             } else {
-              ref
-                  .read(_showEmpty.state)
-                  .state = true;
+              ref.read(_showEmpty.state).state = true;
               if (localList.isNotEmpty) {
-                ref
-                    .read(_showHis.state)
-                    .state = true;
+                ref.read(_showHis.state).state = true;
               }
             }
           }),
@@ -211,9 +204,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           var showHis = ref.watch(_showHis);
           if (showHis) {
             return Consumer(builder: (context, ref, _) {
-              var searchList = ref
-                  .watch(_hisSearchProvider)
-                  .value;
+              var searchList = ref.watch(_hisSearchProvider).value;
               if (searchList == null || searchList.isEmpty) {
                 return Container();
               } else {
@@ -316,23 +307,21 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                           )),
                                       Expanded(
                                           child: Container(
-                                            color: ColorRes.mainColor,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(
-                                                  8.0),
-                                              child: Center(
-                                                child: Text(
-                                                  _movies[index].title!,
-                                                  style: const TextStyle(
-                                                    fontSize: 10.0,
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
-                                                  ),
-                                                  maxLines: 2,
-                                                ),
+                                        color: ColorRes.mainColor,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(
+                                            child: Text(
+                                              _movies[index].title!,
+                                              style: const TextStyle(
+                                                fontSize: 10.0,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
+                                              maxLines: 2,
                                             ),
-                                          ))
+                                          ),
+                                        ),
+                                      ))
                                     ],
                                   ),
                                 )),
@@ -342,11 +331,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           addAutomaticKeepAlives: false,
                           childCount: _movies.length),
                       gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                          childAspectRatio: 0.55))
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 5,
+                              childAspectRatio: 0.55))
                 ],
               ),
             );

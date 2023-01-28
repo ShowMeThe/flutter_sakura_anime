@@ -17,8 +17,10 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
       this.autoFocus = true,
       this.appBarElevation = 5,
       this.appBarHeight = 100,
-      this.appBarBackgroundColor});
+      this.appBarBackgroundColor,
+      this.focusNode});
 
+  FocusNode? focusNode;
   late TextEditingController controller;
   ValueChanged<String>? onChange;
   late ValueChanged<String> onSearch;
@@ -73,6 +75,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                       left: widget.paddingLeft,
                       right: widget.paddingRight),
                   child: TextField(
+                    focusNode: widget.focusNode,
                     controller: widget.controller,
                     onChanged: widget.onChange,
                     onSubmitted: widget.onSearch,

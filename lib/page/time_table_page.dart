@@ -27,11 +27,14 @@ class _TimeTableState extends ConsumerState<TimeTablePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorRes.mainColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("时间表"),
         bottom: TabBar(
           isScrollable: true,
+          indicatorColor: ColorRes.pink400,
+          labelColor: ColorRes.pink400,
+          unselectedLabelColor: ColorRes.pink200,
           controller: _tabController,
           tabs: tabs(),
         ),
@@ -112,7 +115,7 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
             borderRadius: BorderRadius.all(Radius.circular(12.0))),
         child: SizedBox(
           width: double.infinity,
-          height: 45.0,
+          height: 55.0,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(

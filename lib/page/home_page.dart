@@ -40,8 +40,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     _controller.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     var top = MediaQuery.of(context).padding.top;
@@ -59,21 +57,18 @@ class _HomePageState extends ConsumerState<HomePage> {
       body: Material(
           child: Column(
         children: [
-          Container(
-            height: top,
-            color: Colors.white,
-          ),
           Expanded(
               child: NestedScrollView(
             controller: _controller,
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
+                  expandedHeight: top + 90,
+                  collapsedHeight: top + 68,
                   pinned: true,
                   backgroundColor: Colors.white,
                   flexibleSpace: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Center(
                         child: buildIcon(0),
@@ -267,38 +262,33 @@ class _HomePageState extends ConsumerState<HomePage> {
       child: SizedBox(
         width: 68,
         height: 68,
-        child: Material(
-          child: Ink(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-                border: Border.all(width: 1, color: ColorRes.pink600)),
-            child: InkResponse(
+        child: Container(
+          decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-              highlightShape: BoxShape.rectangle,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Center(
-                      child: Image.asset(
-                        getImageIndex(index),
-                        color: ColorRes.pink400,
-                        width: 30,
-                        height: 30,
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
+              border: Border.all(width: 1, color: ColorRes.pink600)),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Center(
+                  child: Image.asset(
+                    getImageIndex(index),
+                    color: ColorRes.pink400,
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.fitWidth,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6.0),
-                    child: Text(
-                      getTextIndex(index),
-                      style: const TextStyle(color: ColorRes.pink400),
-                    ),
-                  )
-                ],
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.only(top: 6.0),
+                child: Text(
+                  getTextIndex(index),
+                  style: const TextStyle(color: ColorRes.pink400),
+                ),
+              )
+            ],
           ),
         ),
       ),
