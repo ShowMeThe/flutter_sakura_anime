@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/services.dart';
@@ -28,12 +29,17 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   final _slideX = StateProvider.autoDispose<Duration>(
       (ref) => const Duration(milliseconds: 0));
   final _isShowSlideDialog = StateProvider.autoDispose<bool>((ref) => false);
+  final _isShowBrightDialog = StateProvider.autoDispose<bool>((ref) => false);
+  final _brightness = FutureProvider.autoDispose<double>((ref) async {
+    return await DeviceDisplayBrightness.getBrightness();
+  });
   var _slideValue = 0.0;
   var _downPosition = 0;
   var _downVolume = 0.0;
   var _downX = 0.0;
   var _downY = 0.0;
   var _downBrightness = 0.0;
+  var _nextBrightness = 0.0;
   var _isSeeking = false;
   var _isSeekingChange = false;
   var _isVolume = false;
@@ -131,8 +137,8 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
               Positioned(
                   left: 55,
                   right: sizeHeight + 55,
-                  top: 105,
-                  bottom: 105,
+                  top: 85,
+                  bottom: 85,
                   child: GestureDetector(
                     onTap: () {
                       var isShow = flickManager
@@ -143,16 +149,29 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                             ?.handleShowPlayerControls();
                       }
                     },
-                    onPanDown: (detail) {
-                      _downBrightness = detail.globalPosition.dy;
+                    onPanEnd: (details) {
+                      _isBrightness = false;
+                      ref
+                          .watch(_isShowBrightDialog.state)
+                          .update((state) => false);
+                    },
+                    onPanDown: (detail) async {
+                      _downY = detail.globalPosition.dy;
+                      _downBrightness =
+                          await DeviceDisplayBrightness.getBrightness();
                     },
                     onPanUpdate: (details) async {
-                      var dy = details.delta.dy;
-                      _downBrightness += dy;
-                      var nextBrightness =
-                          (sizeWidth - _downBrightness) / sizeWidth;
-                      debugPrint("$nextBrightness");
-                      DeviceDisplayBrightness.setBrightness(nextBrightness);
+                      if (!_isBrightness) {
+                        ref
+                            .watch(_isShowBrightDialog.state)
+                            .update((state) => true);
+                      }
+                      var dy = details.globalPosition.dy;
+                      var offsetY = (_downY - dy) / sizeWidth;
+                      _nextBrightness =
+                          min(max(0.0, _downBrightness + offsetY * 0.5), 1.0);
+                      DeviceDisplayBrightness.setBrightness(_nextBrightness);
+                      ref.refresh(_brightness);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Container(),
@@ -253,7 +272,24 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                       opacity: ref.watch(_isShowSlideDialog) ? 1.0 : 0.0,
                       child: Text(
                         "${getTimeInDuration(ref.watch(_slideX))}/${getTimeInDuration(Duration(milliseconds: _totalDuration))}",
-                        style: const TextStyle(fontSize: 30.0, color: Colors.white),
+                        style: const TextStyle(
+                            fontSize: 30.0, color: ColorRes.pink100),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              IgnorePointer(
+                ignoring: true,
+                child: Align(
+                  child: Consumer(builder: (context, ref, _) {
+                    return AnimatedOpacity(
+                      duration: const Duration(milliseconds: 250),
+                      opacity: ref.watch(_isShowBrightDialog) ? 1.0 : 0.0,
+                      child: Text(
+                        "${((ref.watch(_brightness).value ?? 0) * 100).toInt()}%",
+                        style: const TextStyle(
+                            fontSize: 30.0, color:ColorRes.pink100),
                       ),
                     );
                   }),
