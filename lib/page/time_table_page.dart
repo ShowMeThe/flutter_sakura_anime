@@ -95,6 +95,7 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
     super.build(context);
     return ListView.builder(
         itemCount: list.length,
+        physics: BouncingScrollPhysics(),
         controller: _scrollController,
         itemBuilder: (context, index) {
           return buildChild(index);
@@ -115,13 +116,12 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
             borderRadius: BorderRadius.all(Radius.circular(12.0))),
         child: SizedBox(
           width: double.infinity,
-          height: 55.0,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(width: 150, child: Text(item.title)),
+                SizedBox(width: 220, child: Text(item.title)),
                 Text(
                   item.episode,
                   style: const TextStyle(color: ColorRes.pink50),

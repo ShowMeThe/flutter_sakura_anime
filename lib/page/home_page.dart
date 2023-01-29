@@ -25,7 +25,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _disposeFutureProvider = FutureProvider.autoDispose<HomeData>((_) async {
       var result = await Api.getHomeData();
       return result;
@@ -63,20 +64,23 @@ class _HomePageState extends ConsumerState<HomePage> {
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
-                  expandedHeight: top + 90,
-                  collapsedHeight: top + 68,
+                  expandedHeight: 110,
+                  collapsedHeight: 95,
                   pinned: true,
                   backgroundColor: Colors.white,
                   flexibleSpace: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Center(
+                      Padding(
+                        padding: EdgeInsets.only(top: top + 15),
                         child: buildIcon(0),
                       ),
-                      Center(
+                      Padding(
+                        padding: EdgeInsets.only(top: top + 15),
                         child: buildIcon(1),
                       ),
-                      Center(
+                      Padding(
+                        padding: EdgeInsets.only(top: top + 15),
                         child: buildIcon(2),
                       ),
                     ],

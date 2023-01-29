@@ -34,6 +34,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _focusNode = FocusNode();
     _futureProvider = FutureProvider.autoDispose((ref) async {
       if (editController.text.isEmpty) {

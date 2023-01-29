@@ -18,6 +18,9 @@ class _SplashPageState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 1000), vsync: this);
     _animationController.addStatusListener((status) {

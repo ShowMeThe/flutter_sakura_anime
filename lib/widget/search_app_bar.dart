@@ -16,7 +16,7 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
       this.textSize = 18,
       this.autoFocus = true,
       this.appBarElevation = 5,
-      this.appBarHeight = 100,
+      this.appBarHeight = 110,
       this.appBarBackgroundColor,
       this.focusNode});
 

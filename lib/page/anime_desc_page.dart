@@ -39,6 +39,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     super.initState();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _logoProvider = StateProvider.autoDispose((ref) {
       return widget.logo;
     });

@@ -25,6 +25,9 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       debugPrint("nowPage $nowPage");
