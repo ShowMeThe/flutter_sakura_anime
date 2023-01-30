@@ -1,6 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/splash_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/util/collect.dart';
+import 'package:sqlite3/sqlite3.dart';
 
 
 void main() async {
@@ -10,6 +12,7 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.transparent);
   SystemChrome.setSystemUIOverlayStyle(style);
+  initDb();
 }
 
 class MyApp extends StatelessWidget {

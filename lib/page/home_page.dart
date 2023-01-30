@@ -83,6 +83,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                         padding: EdgeInsets.only(top: top + 15),
                         child: buildIcon(2),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(top: top + 15),
+                        child: buildIcon(3),
+                      ),
                     ],
                   ),
                 ),
@@ -317,7 +321,9 @@ class _HomePageState extends ConsumerState<HomePage> {
        * 剧场
        */
       Navigator.of(context).push(FadeRoute(const AnimeJcPage()));
-    } else {}
+    } else {
+
+    }
   }
 
   String getImageIndex(int index) {
@@ -327,7 +333,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       return A.assets_ic_sakura_movie;
     } else if (index == 2) {
       return A.assets_ic_sakura_tv;
-    } else {
+    } else if (index == 3)  {
+      return A.assets_ic_sakura_collect;
+    }else {
       return "";
     }
   }
@@ -339,7 +347,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       return "电影";
     } else if (index == 2) {
       return "剧场版";
-    } else {
+    }  else if (index == 3) {
+      return "追番";
+    }else {
       return "";
     }
   }

@@ -6,19 +6,20 @@ import 'package:flutter_sakura_anime/page/anime_play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
+import '../util/collect.dart';
+
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
   final String logo;
   String heroTag = "";
 
-  AnimeDesPage(this.animeShowUrl, this.logo, {super.key,this.heroTag = ""});
+  AnimeDesPage(this.animeShowUrl, this.logo, {super.key, this.heroTag = ""});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AnimeDesPageState();
 }
 
 class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
-
   static const _HeroTag = "des";
 
   late AutoDisposeFutureProvider<AnimeDesData> _desDataProvider;
@@ -26,6 +27,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   late AutoDisposeFutureProvider<AnimePlayListData> _playDataProvider;
   late AutoDisposeStateProvider<String> _logoProvider;
+
+  late AutoDisposeFutureProvider<LocalCollect?> _isCollectFuture;
 
   @override
   void dispose() {
@@ -58,6 +61,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       var result = await Api.getAnimePlayList(url!);
       return result;
     });
+    _isCollectFuture = FutureProvider.autoDispose((_) {
+      return findCollect(widget.animeShowUrl);
+    });
   }
 
   @override
@@ -77,7 +83,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   return Container();
                 } else {
                   return Image(
-                    image: ExtendedNetworkImageProvider(logo, cache:true),
+                    image: ExtendedNetworkImageProvider(logo, cache: true),
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
@@ -103,17 +109,56 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
               SingleChildScrollView(
                 controller: _scrollController,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SafeArea(
-                      child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          )),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              )),
+                          Consumer(builder: (context, ref, _) {
+                            var localCollect =
+                                ref.watch(_isCollectFuture).value;
+                            var logo = ref.watch(_logoProvider);
+                            if (localCollect != null) {
+                              return IconButton(
+                                  onPressed: () {
+                                    unCollect(widget.animeShowUrl);
+                                    ref.refresh(_isCollectFuture);
+                                  },
+                                  icon: Image.asset(
+                                    A.assets_ic_sakura_collected,
+                                    color: ColorRes.pink400,
+                                    width: 30,
+                                    height: 30,
+                                    fit: BoxFit.fitWidth,
+                                  ));
+                            } else {
+                              return IconButton(
+                                  onPressed: () {
+                                    if (widget.animeShowUrl.isNotEmpty && logo.isNotEmpty) {
+                                      collect(
+                                          widget.animeShowUrl, widget.logo);
+                                      ref.refresh(_isCollectFuture);
+                                    }
+                                  },
+                                  icon: Image.asset(
+                                    A.assets_ic_sakura_collect,
+                                    color: ColorRes.pink400,
+                                    width: 30,
+                                    height: 30,
+                                    fit: BoxFit.fitWidth,
+                                  ));
+                            }
+                          })
+                        ],
+                      ),
                     ),
                     Center(
                       child: SizedBox(
@@ -128,8 +173,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                 return Hero(
                                     tag: logo + widget.heroTag,
                                     child: Image(
-                                      image: ExtendedNetworkImageProvider(
-                                          logo, cache:true),
+                                      image: ExtendedNetworkImageProvider(logo,
+                                          cache: true),
                                       width: double.infinity,
                                       fit: BoxFit.cover,
                                       height: 200,
@@ -366,8 +411,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
               child: GestureDetector(
                 onTap: () {
                   var url = list[index].url;
-                  Navigator.of(context)
-                      .push(FadeRoute(AnimeDesPage(url!, list[index].logo!,heroTag: _HeroTag)));
+                  Navigator.of(context).push(FadeRoute(AnimeDesPage(
+                      url!, list[index].logo!,
+                      heroTag: _HeroTag)));
                 },
                 child: SizedBox(
                   width: 90,
@@ -379,10 +425,10 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             topRight: Radius.circular(8.0),
                             topLeft: Radius.circular(8.0)),
                         child: Hero(
-                          tag:list[index].logo! + _HeroTag,
+                          tag: list[index].logo! + _HeroTag,
                           child: Image(
                             image:
-                            ExtendedNetworkImageProvider(list[index].logo!),
+                                ExtendedNetworkImageProvider(list[index].logo!),
                             width: double.infinity,
                             height: 150,
                             fit: BoxFit.cover,

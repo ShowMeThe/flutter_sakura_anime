@@ -1,4 +1,4 @@
-package com.example.flutter_sakura_anime
+package com.show.flutter_sakura_anime
 
 import io.flutter.embedding.android.FlutterActivity
 
