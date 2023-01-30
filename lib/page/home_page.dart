@@ -1,5 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_sakura_anime/page/anime_collect_page.dart';
 import 'package:flutter_sakura_anime/page/anime_jc_page.dart';
 import 'package:flutter_sakura_anime/page/anime_movie_page.dart';
 import 'package:flutter_sakura_anime/page/search_page.dart';
@@ -322,7 +323,10 @@ class _HomePageState extends ConsumerState<HomePage> {
        */
       Navigator.of(context).push(FadeRoute(const AnimeJcPage()));
     } else {
-
+      /**
+       * 追番
+       */
+      Navigator.of(context).push(FadeRoute(const AnimeCollectPage()));
     }
   }
 

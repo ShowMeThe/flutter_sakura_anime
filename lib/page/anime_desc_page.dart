@@ -30,6 +30,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   late AutoDisposeFutureProvider<LocalCollect?> _isCollectFuture;
 
+  late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -63,6 +65,14 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     });
     _isCollectFuture = FutureProvider.autoDispose((_) {
       return findCollect(widget.animeShowUrl);
+    });
+
+    _localHisFuture = FutureProvider.autoDispose((_) async {
+      var result = findLocalHistory(widget.animeShowUrl);
+      var index = result?.chapter ?? 0;
+      _scrollController.animateTo(index * 93.0,
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      return result;
     });
   }
 
@@ -107,7 +117,6 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         Colors.black
                       ]))),
               SingleChildScrollView(
-                controller: _scrollController,
                 child: Column(
                   children: [
                     SafeArea(
@@ -142,9 +151,16 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             } else {
                               return IconButton(
                                   onPressed: () {
-                                    if (widget.animeShowUrl.isNotEmpty && logo.isNotEmpty) {
+                                    if (widget.animeShowUrl.isNotEmpty &&
+                                        logo.isNotEmpty) {
                                       collect(
-                                          widget.animeShowUrl, widget.logo);
+                                          widget.animeShowUrl,
+                                          logo,
+                                          ref
+                                                  .watch(_desDataProvider)
+                                                  .value
+                                                  ?.title ??
+                                              "");
                                       ref.refresh(_isCollectFuture);
                                     }
                                   },
@@ -303,14 +319,6 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     );
   }
 
-  Widget buildChild(AnimeDesData? data) {
-    if (data == null) return Container();
-    var size = MediaQuery.of(context).size;
-    return Stack(
-      children: [],
-    );
-  }
-
   List<Widget> buildTag(AnimeDesData? data) {
     var list = <Widget>[];
     if (data != null) {
@@ -360,27 +368,54 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         ),
       ));
       child.add(SizedBox(
-        width: double.infinity,
-        height: 50.0,
+        height: 58.0,
         child: ListView.builder(
-            physics: const BouncingScrollPhysics(),
+            controller: _scrollController,
             scrollDirection: Axis.horizontal,
             itemCount: element.list.length,
             itemBuilder: (context, index) {
-              return Padding(
-                padding:
-                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
-                child: MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0)),
-                    color: ColorRes.mainColor,
-                    onPressed: () {
-                      var largeTitle = ref.read(_desDataProvider).value?.title;
-                      var title = largeTitle! + element.list[index].title!;
-                      Navigator.of(context).push(FadeRoute(
-                          AnimePlayPage(element.list[index].url!, title)));
-                    },
-                    child: Text(element.list[index].title!)),
+              return Stack(
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                    child: MaterialButton(
+                        minWidth: 85,
+                        height: double.infinity,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0)),
+                        color: ColorRes.mainColor,
+                        onPressed: () async {
+                          var largeTitle =
+                              ref.read(_desDataProvider).value?.title;
+                          var title = largeTitle! + element.list[index].title!;
+                          updateHistory(widget.animeShowUrl, index);
+                          ref.refresh(_localHisFuture);
+                          await Future.delayed(const Duration(milliseconds: 350));
+                          if(!mounted) return;
+                          Navigator.of(context).push(FadeRoute(
+                              AnimePlayPage(element.list[index].url!, title)));
+                        },
+                        child: Text(element.list[index].title!)),
+                  ),
+                  Consumer(builder: (context, ref, _) {
+                    var localHistory = ref.watch(_localHisFuture);
+                    if (localHistory.hasValue &&
+                        (localHistory.value?.chapter ?? -1) == index) {
+                      return const Positioned(
+                        bottom: 5,
+                        left: 30,
+                        child: Text(
+                          "上次观看",
+                          style:
+                              TextStyle(color: ColorRes.pink400, fontSize: 10),
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  })
+                ],
               );
             }),
       ));
