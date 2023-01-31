@@ -23,7 +23,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   static const _HeroTag = "des";
 
   late AutoDisposeFutureProvider<AnimeDesData> _desDataProvider;
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController(keepScrollOffset: false);
 
   late AutoDisposeFutureProvider<AnimePlayListData> _playDataProvider;
   late AutoDisposeStateProvider<String> _logoProvider;
@@ -74,6 +74,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
           duration: const Duration(milliseconds: 300), curve: Curves.ease);
       return result;
     });
+
   }
 
   @override
@@ -391,8 +392,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           var title = largeTitle! + element.list[index].title!;
                           updateHistory(widget.animeShowUrl, index);
                           ref.refresh(_localHisFuture);
-                          await Future.delayed(const Duration(milliseconds: 350));
-                          if(!mounted) return;
+                          await Future.delayed(
+                              const Duration(milliseconds: 350));
+                          if (!mounted) return;
                           Navigator.of(context).push(FadeRoute(
                               AnimePlayPage(element.list[index].url!, title)));
                         },

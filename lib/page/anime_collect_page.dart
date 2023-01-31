@@ -40,71 +40,77 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
           } else {
             _movies.clear();
             _movies.addAll(provider.value!);
-            return GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    childAspectRatio: 0.55),
-                itemCount: _movies.length,
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        var url = _movies[index].showUrl;
-                        Navigator.of(context).push(FadeRoute(AnimeDesPage(
-                          url,
-                          _movies[index].logo,
-                          heroTag: _HeroTag,
-                        )));
-                      },
-                      child: SizedBox(
-                          width: 90,
-                          height: double.infinity,
-                          child: Card(
-                            shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12.0))),
-                            clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              children: [
-                                Hero(
-                                    tag: _movies[index].logo + _HeroTag,
-                                    child: Image(
-                                      image: ExtendedNetworkImageProvider(
-                                        _movies[index].logo,
-                                        cache: true,
-                                      ),
-                                      width: double.infinity,
-                                      height: 150,
-                                      fit: BoxFit.fitWidth,
-                                    )),
-                                Expanded(
-                                    child: Container(
-                                  color: ColorRes.mainColor,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Center(
-                                      child: Text(
-                                        _movies[index].title,
-                                        style: const TextStyle(
-                                          fontSize: 10.0,
-                                          overflow: TextOverflow.ellipsis,
+            if(_movies.isEmpty){
+              return const Center(
+                child: Text("追番列表为空",style: TextStyle(color: Colors.grey),),
+              );
+            }else{
+              return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
+                      childAspectRatio: 0.55),
+                  itemCount: _movies.length,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding:
+                      const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          var url = _movies[index].showUrl;
+                          Navigator.of(context).push(FadeRoute(AnimeDesPage(
+                            url,
+                            _movies[index].logo,
+                            heroTag: _HeroTag,
+                          )));
+                        },
+                        child: SizedBox(
+                            width: 90,
+                            height: double.infinity,
+                            child: Card(
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(12.0))),
+                              clipBehavior: Clip.antiAlias,
+                              child: Column(
+                                children: [
+                                  Hero(
+                                      tag: _movies[index].logo + _HeroTag,
+                                      child: Image(
+                                        image: ExtendedNetworkImageProvider(
+                                          _movies[index].logo,
+                                          cache: true,
                                         ),
-                                        maxLines: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ))
-                              ],
-                            ),
-                          )),
-                    ),
-                  );
-                });
+                                        width: double.infinity,
+                                        height: 150,
+                                        fit: BoxFit.fitWidth,
+                                      )),
+                                  Expanded(
+                                      child: Container(
+                                        color: ColorRes.mainColor,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(
+                                            child: Text(
+                                              _movies[index].title,
+                                              style: const TextStyle(
+                                                fontSize: 10.0,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ))
+                                ],
+                              ),
+                            )),
+                      ),
+                    );
+                  });
+            }
           }
         },
       ),
