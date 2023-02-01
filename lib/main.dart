@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '樱花动漫',
       theme: ThemeData(
         useMaterial3: true,
         platform: TargetPlatform.android,

@@ -28,9 +28,9 @@ class HttpClient {
     _dio ??= Dio(_option)
       ..interceptors.add(DioCacheInterceptor(
           options: CacheOptions(
-        maxStale: const Duration(days: 7),
+        maxStale: const Duration(days: 1),
         store: HiveCacheStore(await getAppDir()),
-        policy: CachePolicy.forceCache,
+        policy: CachePolicy.refreshForceCache,
         hitCacheOnErrorExcept:  [401, 403, 404], // for offline behaviour
       )));
     return _dio!;

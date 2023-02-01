@@ -23,7 +23,6 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   static const _HeroTag = "des";
 
   late AutoDisposeFutureProvider<AnimeDesData> _desDataProvider;
-  final ScrollController _scrollController = ScrollController(keepScrollOffset: false);
 
   late AutoDisposeFutureProvider<AnimePlayListData> _playDataProvider;
   late AutoDisposeStateProvider<String> _logoProvider;
@@ -32,11 +31,16 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
 
+  var controllerStore = <int, ScrollController>{};
+
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _scrollController.dispose();
+    controllerStore.forEach((key, value) {
+      value.dispose();
+    });
+    controllerStore.clear();
   }
 
   @override
@@ -59,27 +63,37 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     });
     _playDataProvider =
         FutureProvider.autoDispose<AnimePlayListData>((_) async {
-      var url = ref.watch(_desDataProvider).value?.url;
-      var result = await Api.getAnimePlayList(url!);
-      return result;
-    });
+          var url = ref
+              .watch(_desDataProvider)
+              .value
+              ?.url;
+          var result = await Api.getAnimePlayList(url!);
+          return result;
+        });
     _isCollectFuture = FutureProvider.autoDispose((_) {
       return findCollect(widget.animeShowUrl);
     });
 
     _localHisFuture = FutureProvider.autoDispose((_) async {
       var result = findLocalHistory(widget.animeShowUrl);
-      var index = result?.chapter ?? 0;
-      _scrollController.animateTo(index * 93.0,
-          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      var index = result?.chapter ?? -1;
+      if (index != -1) {
+        var first = controllerStore[0]!;
+        while(!first.positions.first.hasContentDimensions){
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+        first.animateTo(index * 93.0,
+            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      }
       return result;
     });
-
   }
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    var size = MediaQuery
+        .of(context)
+        .size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -113,10 +127,10 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                        Colors.black.withAlpha(15),
-                        Colors.black.withAlpha(125),
-                        Colors.black
-                      ]))),
+                            Colors.black.withAlpha(15),
+                            Colors.black.withAlpha(125),
+                            Colors.black
+                          ]))),
               SingleChildScrollView(
                 child: Column(
                   children: [
@@ -134,7 +148,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               )),
                           Consumer(builder: (context, ref, _) {
                             var localCollect =
-                                ref.watch(_isCollectFuture).value;
+                                ref
+                                    .watch(_isCollectFuture)
+                                    .value;
                             var logo = ref.watch(_logoProvider);
                             if (localCollect != null) {
                               return IconButton(
@@ -158,9 +174,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                           widget.animeShowUrl,
                                           logo,
                                           ref
-                                                  .watch(_desDataProvider)
-                                                  .value
-                                                  ?.title ??
+                                              .watch(_desDataProvider)
+                                              .value
+                                              ?.title ??
                                               "");
                                       ref.refresh(_isCollectFuture);
                                     }
@@ -211,13 +227,14 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                     children: [
                                       Positioned(
                                           child: SizedBox(
-                                        width: 45.0,
-                                        height: 35.0,
-                                        child: CustomPaint(
-                                          painter: ScoreShapeBorder(
-                                              ColorRes.pink400.withAlpha(200)),
-                                        ),
-                                      )),
+                                            width: 45.0,
+                                            height: 35.0,
+                                            child: CustomPaint(
+                                              painter: ScoreShapeBorder(
+                                                  ColorRes.pink400.withAlpha(
+                                                      200)),
+                                            ),
+                                          )),
                                       Positioned(
                                           left: 10,
                                           child: Text(
@@ -238,9 +255,11 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                                     begin: Alignment.topCenter,
                                                     end: Alignment.bottomCenter,
                                                     colors: [
-                                                  Colors.black12.withAlpha(30),
-                                                  Colors.black12.withAlpha(125)
-                                                ])),
+                                                      Colors.black12.withAlpha(
+                                                          30),
+                                                      Colors.black12.withAlpha(
+                                                          125)
+                                                    ])),
                                             child: Padding(
                                               padding: const EdgeInsets.only(
                                                   right: 4.0),
@@ -293,15 +312,15 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             ),
                             Center(
                                 child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8.0, right: 8.0, top: 0.0),
-                              child: FoldTextView(
-                                  data.des == null ? "" : data.des!,
-                                  4,
-                                  const TextStyle(
-                                      color: Colors.white, fontSize: 12.0),
-                                  320),
-                            )),
+                                  padding: const EdgeInsets.only(
+                                      left: 8.0, right: 8.0, top: 0.0),
+                                  child: FoldTextView(
+                                      data.des == null ? "" : data.des!,
+                                      4,
+                                      const TextStyle(
+                                          color: Colors.white, fontSize: 12.0),
+                                      320),
+                                )),
                             SizedBox(
                               width: double.infinity,
                               child: buildDrams(),
@@ -326,7 +345,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       for (var element in data.tags) {
         list.add(Material(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
           color: ColorRes.pink50,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -342,7 +361,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref.watch(_playDataProvider).value;
+        var data = ref
+            .watch(_playDataProvider)
+            .value;
         if (data == null) {
           return Container();
         } else {
@@ -357,7 +378,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   List<Widget> buildPlayList(List<AnimeDramasData> list) {
     List<Widget> child = [];
-    for (var element in list) {
+    for (var index = 0; index < list.length; index++) {
+      var element = list[index];
+      controllerStore[index] = ScrollController(keepScrollOffset: false);
       child.add(Padding(
         padding: const EdgeInsets.only(top: 25, left: 16),
         child: Text(
@@ -371,7 +394,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       child.add(SizedBox(
         height: 58.0,
         child: ListView.builder(
-            controller: _scrollController,
+            controller: controllerStore[index],
             scrollDirection: Axis.horizontal,
             itemCount: element.list.length,
             itemBuilder: (context, index) {
@@ -379,7 +402,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
                     child: MaterialButton(
                         minWidth: 85,
                         height: double.infinity,
@@ -388,7 +411,10 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         color: ColorRes.mainColor,
                         onPressed: () async {
                           var largeTitle =
-                              ref.read(_desDataProvider).value?.title;
+                              ref
+                                  .read(_desDataProvider)
+                                  .value
+                                  ?.title;
                           var title = largeTitle! + element.list[index].title!;
                           updateHistory(widget.animeShowUrl, index);
                           ref.refresh(_localHisFuture);
@@ -410,7 +436,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         child: Text(
                           "上次观看",
                           style:
-                              TextStyle(color: ColorRes.pink400, fontSize: 10),
+                          TextStyle(color: ColorRes.pink400, fontSize: 10),
                         ),
                       );
                     } else {
@@ -465,7 +491,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           tag: list[index].logo! + _HeroTag,
                           child: Image(
                             image:
-                                ExtendedNetworkImageProvider(list[index].logo!),
+                            ExtendedNetworkImageProvider(list[index].logo!),
                             width: double.infinity,
                             height: 150,
                             fit: BoxFit.cover,
@@ -474,26 +500,26 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                       ),
                       Expanded(
                           child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(8.0),
-                            bottomRight: Radius.circular(8.0)),
-                        child: Container(
-                          color: ColorRes.mainColor,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Text(
-                                list[index].title!,
-                                style: const TextStyle(
-                                  fontSize: 10.0,
-                                  overflow: TextOverflow.ellipsis,
+                            borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(8.0),
+                                bottomRight: Radius.circular(8.0)),
+                            child: Container(
+                              color: ColorRes.mainColor,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child: Text(
+                                    list[index].title!,
+                                    style: const TextStyle(
+                                      fontSize: 10.0,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    maxLines: 2,
+                                  ),
                                 ),
-                                maxLines: 2,
                               ),
                             ),
-                          ),
-                        ),
-                      ))
+                          ))
                     ],
                   ),
                 ),

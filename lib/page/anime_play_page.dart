@@ -35,6 +35,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   });
   var _slideValue = 0.0;
   var _downPosition = 0;
+  var _downVolumeY = 0.0;
   var _downVolume = 0.0;
   var _downX = 0.0;
   var _downY = 0.0;
@@ -183,8 +184,9 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                 bottom: 105,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onPanDown: (details) {
-                    _downVolume = details.globalPosition.dy;
+                  onPanDown: (details) async {
+                    _downVolumeY = details.globalPosition.dy;
+                    _downVolume = await PerfectVolumeControl.getVolume();
                     _slideValue = 0;
                     _downX = details.globalPosition.dy;
                     _downY = details.globalPosition.dx;
@@ -237,15 +239,15 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                             (state) => Duration(milliseconds: nextValue));
                       }
                     } else if (_isVolume) {
-                      _downVolume += details.delta.dy;
-                      var nextVolume = (sizeWidth - _downVolume) / sizeWidth;
+                     var offset =  _downVolumeY - details.globalPosition.dy;
+                      var nextVolume = _downVolume + offset / sizeWidth;
                       debugPrint("onPanUpdate $nextVolume");
                       if (nextVolume >= 1) {
                         nextVolume = 1.0;
                       } else if (nextVolume <= 0) {
                         nextVolume = 0;
                       }
-                      await PerfectVolumeControl.setVolume(nextVolume);
+                      PerfectVolumeControl.setVolume(nextVolume);
                     }
                   },
                   onPanEnd: (details) {
@@ -257,7 +259,6 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
                           ?.seekTo(ref.watch(_slideX));
                     }
                     _isSeekingChange = false;
-                    _isBrightness = false;
                     _isSeeking = false;
                   },
                   child: Container(),
