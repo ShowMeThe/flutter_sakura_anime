@@ -348,9 +348,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (index == 0) {
       return "时间表";
     } else if (index == 1) {
-      return "电影";
-    } else if (index == 2) {
       return "剧场版";
+    } else if (index == 2) {
+      return "OVA";
     }  else if (index == 3) {
       return "追番";
     }else {

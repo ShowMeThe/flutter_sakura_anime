@@ -63,7 +63,7 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("剧场版"),
+        title: const Text("OVA"),
       ),
       body: Consumer(
         builder: (context, ref, _) {

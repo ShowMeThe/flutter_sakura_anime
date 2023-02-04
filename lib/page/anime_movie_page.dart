@@ -63,7 +63,7 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("电影"),
+        title: const Text("剧场版"),
       ),
       body: Consumer(
         builder: (context, ref, _) {

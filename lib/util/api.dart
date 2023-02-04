@@ -1,3 +1,4 @@
+
 import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
@@ -5,10 +6,11 @@ import 'package:html/dom.dart' as dom;
 import '../bean/anime_drams_data.dart';
 
 class Api {
-  static const String baseUrl = "http://www.yinghuacd.com";
-  static const String movieUrl = "$baseUrl/movie";
-  static const String jcUrl = "$baseUrl/37";
-  static const String searchUrl = "$baseUrl/search";
+  static const String baseImgHead = "https:";
+  static const String baseUrl = "https://www.yhpdm.com";
+  static const String movieUrl = "$baseUrl/list/?genre=剧场版";
+  static const String jcUrl = "$baseUrl/list/?gere=OVA";
+  static const String searchUrl = "$baseUrl/s_all?";
 
   static HomeData? homeData;
 
@@ -52,7 +54,7 @@ class Api {
         var info = anime.querySelectorAll("a");
         item.title = info[1].text;
         item.url = info[1].attributes["href"];
-        item.img = info[0].querySelector("img")?.attributes["src"];
+        item.img = baseImgHead + (info[0].querySelector("img")?.attributes["src"] ?? "");
         item.episodes = info.length == 3 ? info[2].text : "";
         listData.data.add(item);
       }
@@ -115,7 +117,7 @@ class Api {
       ..title = document.querySelector("h1")?.text
       ..des = document.querySelector("div.info")?.text.replaceAll("\n", "")
       ..score = document.querySelector("div.score > em")?.text
-      ..logo = document.querySelector("div.thumb > img")?.attributes["src"]
+      ..logo = baseImgHead  + (document.querySelector("div.thumb > img")?.attributes["src"]??"")
       ..tags = tags;
     debugPrint("data = $data");
     return data;
@@ -146,7 +148,7 @@ class Api {
         List<AnimeRecommendData> seasons = [];
         for (var element in seasonElements) {
           var title = element.querySelector("p.tname > a")?.text;
-          var logo = element.querySelector("img")?.attributes["src"];
+          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
           var url = element.querySelector("p.tname > a")?.attributes["href"];
           seasons.add(AnimeRecommendData(title, logo, url));
         }
@@ -158,7 +160,7 @@ class Api {
         List<AnimeRecommendData> recommends = [];
         for (var element in recommendElements) {
           var title = element.querySelector("h2 > a")?.text;
-          var logo = element.querySelector("img")?.attributes["src"];
+          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
           var url = element.querySelector("h2 > a")?.attributes["href"];
           recommends.add(AnimeRecommendData(title, logo, url));
         }
@@ -188,60 +190,55 @@ class Api {
   }
 
   static Future<AnimeMovieData> getJCAnimeList({int nowPage = 1}) async {
-    var requestUrl = jcUrl;
-    if (nowPage > 1) {
-      requestUrl = "$requestUrl/$nowPage.html";
-    }
+    var page = nowPage - 1;
+    var requestUrl = "$movieUrl&pagesize=24&pageindex=${page}";
     return _getAnimeList(requestUrl, false, nowPage: nowPage);
   }
 
   static Future<AnimeMovieData> getMovieAnimeList({int nowPage = 1}) async {
-    var requestUrl = movieUrl;
-    if (nowPage > 1) {
-      requestUrl = "$requestUrl/$nowPage.html";
-    }
-    return _getAnimeList(requestUrl, true, nowPage: nowPage);
+    var page = nowPage - 1;
+    var requestUrl = "$jcUrl&pagesize=24&pageindex=${page}";
+    return _getAnimeList(requestUrl, false, nowPage: page);
   }
 
   static Future<AnimeMovieData> getSearchAnimeList(String word,
       {int nowPage = 1}) async {
-    var requestUrl = "$searchUrl/$word";
-    if (nowPage > 1) {
-      requestUrl = "$requestUrl/$nowPage";
-    }
-    return _getAnimeList(requestUrl, false, nowPage: nowPage);
+    var page = nowPage - 1;
+    var requestUrl = "${searchUrl}kw=$word&pagesize=24&pageindex=$page";
+    return _getAnimeList(requestUrl, true, nowPage: nowPage);
   }
 
-  static Future<AnimeMovieData> _getAnimeList(String url, bool isMovie,
+  static Future<AnimeMovieData> _getAnimeList(String url, bool isSearch,
       {int nowPage = 1}) async {
     var future = await (await HttpClient.get()).get(url).catchError((onError) {
       debugPrint("$onError");
     });
+    //debugPrint("future = ${future}");
     var document = parse(future.data);
-    var pageCount = int.parse(document.getElementById("lastn")?.text ?? "0");
-    List<AnimeMovieListData> movies = [];
-    if (isMovie) {
-      var query = document.querySelectorAll("div.imgs > ul > li");
-      for (var element in query) {
-        var elementChild = element.querySelector("p > a");
-        if (elementChild != null) {
-          var title = elementChild.text;
-          debugPrint("get title ${title}");
-          var url = elementChild.attributes["href"];
-          var logo = element.querySelector("img")!.attributes["src"];
-          movies.add(AnimeMovieListData(title, logo, url));
-        }
-      }
-    } else {
-      var query = document.querySelectorAll("div.lpic > ul > li");
-      for (var element in query) {
-        var title = element.querySelector("h2")!.text;
-        debugPrint("get title ${title}");
-        var url = element.querySelector("h2 > a")!.attributes["href"];
-        var logo = element.querySelector("img")!.attributes["src"];
-        movies.add(AnimeMovieListData(title, logo, url));
+    var pageQuery = document.querySelectorAll("div.pages > a");
+    var pageCount = 1;
+
+    if(pageQuery.isNotEmpty){
+      var pageCountUrl = pageQuery.last.attributes["href"];
+      if(pageCountUrl != null){
+        var searchText = "pageindex=";
+        var charIndex = pageCountUrl.lastIndexOf(searchText);
+        var page = pageCountUrl.substring(charIndex + searchText.length,pageCountUrl.length);
+        pageCount = int.parse(page) + 1;
       }
     }
+
+    List<AnimeMovieListData> movies = [];
+    var query = document.querySelectorAll("div.lpic > ul > li");
+    debugPrint("le = ${query.length}");
+    for (var element in query) {
+      var title = element.querySelector("h2")!.text.trimLeft();
+      debugPrint("get title ${title}");
+      var url = element.querySelector("h2 > a")!.attributes["href"];
+      var logo = baseImgHead + (element.querySelector("img")!.attributes["src"]??"");
+      movies.add(AnimeMovieListData(title, logo, url));
+    }
+
     return AnimeMovieData(nowPage, pageCount, movies);
   }
 }

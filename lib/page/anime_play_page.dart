@@ -123,10 +123,10 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
           child: Stack(
             children: [
               Positioned(
-                  left: 55.0,
+                  left: 65.0,
                   top: 0,
                   bottom: 0,
-                  right: 55,
+                  right: 65,
                   child: FlickVideoPlayer(
                     flickManager: controller,
                     systemUIOverlayFullscreen: const [],

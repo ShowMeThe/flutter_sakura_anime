@@ -14,7 +14,7 @@ class AnimeCollectPage extends ConsumerStatefulWidget {
 class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
   late AutoDisposeFutureProvider<List<LocalCollect>> _futureProvider;
   final _movies = <LocalCollect>[];
-  static const _HeroTag = "des";
+  static const _HeroTag = "collect";
 
   @override
   void initState() {

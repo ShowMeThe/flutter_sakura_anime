@@ -37,15 +37,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _focusNode = FocusNode();
+
+
     _futureProvider = FutureProvider.autoDispose((ref) async {
-      if (editController.text.isEmpty) {
-        ref.read(_showHis.state).state = true;
-        ref.read(_showEmpty.state).state = false;
-        return null;
-      }
       _isLoading = true;
+      if(editController.text.isEmpty) return null;
       var result =
           await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
+
       maxPage = result.pageCount;
       ref.read(_showHis.state).state = false;
       ref.read(_showEmpty.state).state = false;
@@ -204,6 +203,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           var showEmpty = ref.watch(_showEmpty);
           var provider = ref.watch(_futureProvider);
           var showHis = ref.watch(_showHis);
+          debugPrint("${showHis} ${provider.value}");
           if (showHis) {
             return Consumer(builder: (context, ref, _) {
               var searchList = ref.watch(_hisSearchProvider).value;
