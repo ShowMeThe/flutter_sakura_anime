@@ -2,6 +2,7 @@
 import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:video_sniffing/video_sniffing.dart';
 
 import '../bean/anime_drams_data.dart';
 
@@ -172,20 +173,28 @@ class Api {
 
   static Future<String> getAnimePlayUrl(String url) async {
     var requestUrl = baseUrl + url;
-    debugPrint("url = $requestUrl");
-    var future = await (await HttpClient.get()).get(requestUrl);
-    var document = parse(future.data);
-    debugPrint("future = $future");
+    // debugPrint("url = $requestUrl");
+    // var future = await (await HttpClient.get()).get(requestUrl);
+    // var document = parse(future.data);
+    // debugPrint("future = $future");
+    // var element = document.getElementById("play_1");
+    // if (element != null) {
+    //   var onClickUrl = element.attributes["onclick"];
+    //   var playUrl = onClickUrl!
+    //       .replaceAll("changeplay('", "")
+    //       .replaceAll("');", "")
+    //       .replaceAll("\$mp4", "");
+    //   debugPrint("playUrl = $playUrl");
+    //   return playUrl;
+    // }
+
+    var html = await VideoSniffing.getRawHtml(requestUrl);
+
+
+    var document = parse(html);
+    debugPrint("document = $document");
     var element = document.getElementById("play_1");
-    if (element != null) {
-      var onClickUrl = element.attributes["onclick"];
-      var playUrl = onClickUrl!
-          .replaceAll("changeplay('", "")
-          .replaceAll("');", "")
-          .replaceAll("\$mp4", "");
-      debugPrint("playUrl = $playUrl");
-      return playUrl;
-    }
+    debugPrint("element = $element");
     return "";
   }
 
