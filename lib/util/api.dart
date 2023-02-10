@@ -173,28 +173,29 @@ class Api {
 
   static Future<String> getAnimePlayUrl(String url) async {
     var requestUrl = baseUrl + url;
-    // debugPrint("url = $requestUrl");
-    // var future = await (await HttpClient.get()).get(requestUrl);
-    // var document = parse(future.data);
-    // debugPrint("future = $future");
-    // var element = document.getElementById("play_1");
-    // if (element != null) {
-    //   var onClickUrl = element.attributes["onclick"];
-    //   var playUrl = onClickUrl!
-    //       .replaceAll("changeplay('", "")
-    //       .replaceAll("');", "")
-    //       .replaceAll("\$mp4", "");
-    //   debugPrint("playUrl = $playUrl");
-    //   return playUrl;
-    // }
-
     var html = await VideoSniffing.getRawHtml(requestUrl);
-
-
     var document = parse(html);
-    debugPrint("document = $document");
-    var element = document.getElementById("play_1");
-    debugPrint("element = $element");
+    var iFrame = document.getElementById("m_yh_playfram");
+    if(iFrame!=null){
+      var playerUrl = iFrame.attributes["src"]!;
+      playerUrl = baseUrl + playerUrl;
+      var reg = RegExp("[?&]+url=([^&]*)");
+      var matcherUrl = reg.stringMatch(playerUrl)!.replaceAll(RegExp("/[+]{1}/g"), " ").replaceAll("&url=", "");
+      var dvpt = DateTime.now().millisecond / 1000 / 1800;
+      matcherUrl = Uri.decodeComponent(matcherUrl);
+      var host = "www.yhpdm.com".codeUnits;
+      var hostAndDvpt = "";
+      for(int i = 0;i<host.length;i++){
+        hostAndDvpt = hostAndDvpt + host[i].toString();
+      }
+      var dvptStr = dvpt.toString() + hostAndDvpt;
+      var xup = "&";
+      if(!matcherUrl.contains("?")){
+        xup = "?";
+      }
+      matcherUrl = matcherUrl + xup + dvptStr;
+      return matcherUrl;
+    }
     return "";
   }
 

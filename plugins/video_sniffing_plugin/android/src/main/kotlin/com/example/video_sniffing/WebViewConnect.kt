@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Looper
 import android.util.Log
 import android.webkit.JavascriptInterface
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import java.lang.ref.SoftReference
@@ -26,6 +27,7 @@ class WebViewConnect {
             Log.e("VideoSniffingPlugin", "${mWebView}")
             mWebView?.apply {
                 settings.javaScriptEnabled = true
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
                 addJavascriptInterface(VideoSniffing(), "video_sniffing")
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String?) {
