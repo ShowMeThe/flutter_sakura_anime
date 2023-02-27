@@ -1,5 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_sakura_anime/page/anime_category.dart';
 import 'package:flutter_sakura_anime/page/anime_collect_page.dart';
 import 'package:flutter_sakura_anime/page/anime_jc_page.dart';
 import 'package:flutter_sakura_anime/page/anime_movie_page.dart';
@@ -87,6 +88,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                       Padding(
                         padding: EdgeInsets.only(top: top + 15),
                         child: buildIcon(3),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: top + 15),
+                        child: buildIcon(4),
                       ),
                     ],
                   ),
@@ -322,11 +327,18 @@ class _HomePageState extends ConsumerState<HomePage> {
        * 剧场
        */
       Navigator.of(context).push(FadeRoute(const AnimeJcPage()));
-    } else {
+    }else if (index == 3) {
       /**
        * 追番
        */
       Navigator.of(context).push(FadeRoute(const AnimeCollectPage()));
+    }else if (index == 4) {
+      /**
+       * 分类
+       */
+      Navigator.of(context).push(FadeRoute(const AnimeCategoryPage()));
+    } else {
+
     }
   }
 
@@ -339,6 +351,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       return A.assets_ic_sakura_tv;
     } else if (index == 3)  {
       return A.assets_ic_sakura_collect;
+    } else if (index == 4)  {
+      return A.assets_ic_sakura_cagetory;
     }else {
       return "";
     }
@@ -353,6 +367,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       return "OVA";
     }  else if (index == 3) {
       return "追番";
+    }  else if (index == 4) {
+      return "分类";
     }else {
       return "";
     }

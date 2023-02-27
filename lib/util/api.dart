@@ -1,3 +1,4 @@
+import 'dart:collection';
 
 import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -12,8 +13,81 @@ class Api {
   static const String movieUrl = "$baseUrl/list/?genre=剧场版";
   static const String jcUrl = "$baseUrl/list/?gere=OVA";
   static const String searchUrl = "$baseUrl/s_all?";
+  static const String categoryUrl = "$baseUrl/list/";
 
   static HomeData? homeData;
+  static HashMap<String, List<String>> map = HashMap();
+  static HashMap<String, String> _queryName = HashMap();
+
+  static void initMap() {
+    if (map.isEmpty) {
+      map["地域"] = ["全部", "日本", "美国", "欧美"];
+      map["年份"] = [
+        "全部",
+        "2023",
+        "2022",
+        "2021",
+        "2020",
+        "2019",
+        "2018",
+        "2017",
+        "2016"
+      ];
+      map["季度"] = ["全部", "1", "4", "7", "10"];
+      map["类型"] = [
+        "全部",
+        "搞笑",
+        "运动",
+        "励志",
+        "热血",
+        "战斗",
+        "竞技",
+        "校园",
+        "青春",
+        "爱情",
+        "冒险",
+        "后宫",
+        "百合",
+        "治愈",
+        "萝莉",
+        "魔法",
+        "悬疑",
+        "推理",
+        "奇幻",
+        "科幻",
+        "游戏",
+        "神魔",
+        "恐怖",
+        "血腥",
+        "机战",
+        "战争",
+        "犯罪",
+        "历史",
+        "社会",
+        "职场",
+        "剧情",
+        "伪娘",
+        "耽美",
+        "童年",
+        "教育",
+        "亲子",
+        "真人",
+        "歌舞",
+        "肉番",
+        "美少女",
+        "轻小说",
+        "吸血鬼",
+        "女性向",
+        "泡面番",
+        "欢乐向"
+      ];
+
+      _queryName["地域"] = "region";
+      _queryName["年份"] = "year";
+      _queryName["季度"] = "season";
+      _queryName["类型"] = "label";
+    }
+  }
 
   static Future<HomeData> getHomeData() async {
     var future = await (await HttpClient.get().catchError((onError) {
@@ -55,7 +129,8 @@ class Api {
         var info = anime.querySelectorAll("a");
         item.title = info[1].text;
         item.url = info[1].attributes["href"];
-        item.img = baseImgHead + (info[0].querySelector("img")?.attributes["src"] ?? "");
+        item.img = baseImgHead +
+            (info[0].querySelector("img")?.attributes["src"] ?? "");
         item.episodes = info.length == 3 ? info[2].text : "";
         listData.data.add(item);
       }
@@ -118,7 +193,8 @@ class Api {
       ..title = document.querySelector("h1")?.text
       ..des = document.querySelector("div.info")?.text.replaceAll("\n", "")
       ..score = document.querySelector("div.score > em")?.text
-      ..logo = baseImgHead  + (document.querySelector("div.thumb > img")?.attributes["src"]??"")
+      ..logo = baseImgHead +
+          (document.querySelector("div.thumb > img")?.attributes["src"] ?? "")
       ..tags = tags;
     debugPrint("data = $data");
     return data;
@@ -149,7 +225,8 @@ class Api {
         List<AnimeRecommendData> seasons = [];
         for (var element in seasonElements) {
           var title = element.querySelector("p.tname > a")?.text;
-          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
+          var logo = baseImgHead +
+              (element.querySelector("img")?.attributes["src"] ?? "");
           var url = element.querySelector("p.tname > a")?.attributes["href"];
           seasons.add(AnimeRecommendData(title, logo, url));
         }
@@ -161,7 +238,8 @@ class Api {
         List<AnimeRecommendData> recommends = [];
         for (var element in recommendElements) {
           var title = element.querySelector("h2 > a")?.text;
-          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
+          var logo = baseImgHead +
+              (element.querySelector("img")?.attributes["src"] ?? "");
           var url = element.querySelector("h2 > a")?.attributes["href"];
           recommends.add(AnimeRecommendData(title, logo, url));
         }
@@ -176,24 +254,27 @@ class Api {
     var html = await VideoSniffing.getRawHtml(requestUrl);
     var document = parse(html);
     var iFrame = document.getElementById("m_yh_playfram");
-    if(iFrame!=null){
+    if (iFrame != null) {
       var playerUrl = iFrame.attributes["src"]!;
       playerUrl = baseUrl + playerUrl;
       var reg = RegExp("[?&]+url=([^&]*)");
-      var matcherUrl = reg.stringMatch(playerUrl)!.replaceAll(RegExp("/[+]{1}/g"), " ").replaceAll("&url=", "");
+      var matcherUrl = reg
+          .stringMatch(playerUrl)!
+          .replaceAll(RegExp("/[+]{1}/g"), " ")
+          .replaceAll("&url=", "");
       var dvpt = DateTime.now().millisecond / 1000 / 1800;
       matcherUrl = Uri.decodeComponent(matcherUrl);
       var host = "www.yhpdm.com".codeUnits;
       var hostAndDvpt = "";
-      for(int i = 0;i<host.length;i++){
+      for (int i = 0; i < host.length; i++) {
         hostAndDvpt = hostAndDvpt + host[i].toString();
       }
       var dvptStr = dvpt.toString() + hostAndDvpt;
       var xup = "&";
-      if(!matcherUrl.contains("?")){
+      if (!matcherUrl.contains("?")) {
         xup = "?";
       }
-      matcherUrl = matcherUrl + xup + dvptStr;
+      matcherUrl = "$matcherUrl${xup}dvpt=$dvptStr";
       return matcherUrl;
     }
     return "";
@@ -228,12 +309,13 @@ class Api {
     var pageQuery = document.querySelectorAll("div.pages > a");
     var pageCount = 1;
 
-    if(pageQuery.isNotEmpty){
+    if (pageQuery.isNotEmpty) {
       var pageCountUrl = pageQuery.last.attributes["href"];
-      if(pageCountUrl != null){
+      if (pageCountUrl != null) {
         var searchText = "pageindex=";
         var charIndex = pageCountUrl.lastIndexOf(searchText);
-        var page = pageCountUrl.substring(charIndex + searchText.length,pageCountUrl.length);
+        var page = pageCountUrl.substring(
+            charIndex + searchText.length, pageCountUrl.length);
         pageCount = int.parse(page) + 1;
       }
     }
@@ -245,10 +327,53 @@ class Api {
       var title = element.querySelector("h2")!.text.trimLeft();
       debugPrint("get title ${title}");
       var url = element.querySelector("h2 > a")!.attributes["href"];
-      var logo = baseImgHead + (element.querySelector("img")!.attributes["src"]??"");
+      var logo =
+          baseImgHead + (element.querySelector("img")!.attributes["src"] ?? "");
       movies.add(AnimeMovieListData(title, logo, url));
     }
 
+    return AnimeMovieData(nowPage, pageCount, movies);
+  }
+
+  static Future<AnimeMovieData> getCategory(HashMap<String, String> queryMap,
+      {int nowPage = 1}) async {
+    var requestUrl = "$categoryUrl?";
+    var queryEnd = "";
+    for (var element in queryMap.entries) {
+      if (element.value != "全部") {
+        queryEnd += "${_queryName[element.key]}=${element.value}&";
+      }
+    }
+    requestUrl = "$requestUrl${queryEnd}pagesize=24&pageindex=${nowPage - 1}";
+    debugPrint("requestUrl = $requestUrl");
+    var future =
+        await (await HttpClient.get()).get(requestUrl).catchError((onError) {
+      debugPrint("$onError");
+    });
+    var document = parse(future.data);
+    var pageQuery = document.querySelectorAll("div.pages > a");
+    var pageCount = 1;
+
+    if (pageQuery.isNotEmpty) {
+      var pageCountUrl = pageQuery.last.attributes["href"];
+      if (pageCountUrl != null) {
+        var searchText = "pageindex=";
+        var charIndex = pageCountUrl.lastIndexOf(searchText);
+        var page = pageCountUrl.substring(
+            charIndex + searchText.length, pageCountUrl.length);
+        pageCount = int.parse(page) + 1;
+      }
+    }
+
+    List<AnimeMovieListData> movies = [];
+    var query = document.querySelectorAll("div.lpic > ul > li");
+    for (var element in query) {
+      var title = element.querySelector("h2")!.text.trimLeft();
+      var url = element.querySelector("h2 > a")!.attributes["href"];
+      var logo =
+          baseImgHead + (element.querySelector("img")!.attributes["src"] ?? "");
+      movies.add(AnimeMovieListData(title, logo, url));
+    }
     return AnimeMovieData(nowPage, pageCount, movies);
   }
 }
