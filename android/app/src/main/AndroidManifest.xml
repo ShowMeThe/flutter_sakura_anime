@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
    <application
-        android:label="樱花动漫"
+        android:label="樱花番剧"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -2,18 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/search_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../bean/anime_movie_data.dart';
 import 'anime_desc_page.dart';
 
-class SearchPage extends ConsumerStatefulWidget {
-  const SearchPage({super.key});
+class AnimeSearchPage extends ConsumerStatefulWidget {
+  const AnimeSearchPage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends ConsumerState<SearchPage> {
+class _SearchPageState extends ConsumerState<AnimeSearchPage> {
   var editController = TextEditingController(text: "");
   static const _HeroTag = "search";
   static const SEARCH_HIS = "SEARCH_HIS";

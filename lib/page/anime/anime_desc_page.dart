@@ -2,11 +2,10 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter_sakura_anime/page/anime_play_page.dart';
+import 'package:flutter_sakura_anime/page/anime/anime_play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
-import '../util/collect.dart';
 
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;

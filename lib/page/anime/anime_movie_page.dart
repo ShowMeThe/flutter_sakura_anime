@@ -1,58 +1,58 @@
-import 'dart:collection';
-
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import '../bean/anime_movie_data.dart';
-import '../util/collect.dart';
+import 'package:flutter_sakura_anime/widget/load_refresh_indicator.dart';
+
 import 'anime_desc_page.dart';
 
-class AnimeCategoryPage extends ConsumerStatefulWidget {
-  const AnimeCategoryPage({super.key});
+
+
+class AnimeMoviePage extends ConsumerStatefulWidget {
+  const AnimeMoviePage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      AnimeCategoryPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _AnimeMoviePageState();
 }
 
-class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
-  var maxWidth = 0.0;
-  var queryMap = HashMap<String, String>();
-  var providerMap = HashMap<String, AutoDisposeStateProvider<String>>();
+class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
   late AutoDisposeFutureProvider<AnimeMovieData> _futureProvider;
-  final List<AnimeMovieListData> _movies = [];
   static const _HeroTag = "des";
-  var nowPage = 1;
-  var maxPage = 0;
   var _canLoadMore = true;
   var _isLoading = false;
+  var nowPage = 1;
+  var maxPage = 0;
+  final List<AnimeMovieListData> _movies = [];
 
   @override
   void initState() {
     super.initState();
-    Api.initMap();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       debugPrint("nowPage $nowPage");
-      var result = await Api.getCategory(queryMap,nowPage: nowPage);
+      var result = await Api.getMovieAnimeList(nowPage: nowPage);
       maxPage = result.pageCount;
       return result;
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   bool _handleLoadMoreScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
-          210) {
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels < 210) {
         if (!_isLoading && _canLoadMore) {
+          _isLoading = true;
           nowPage++;
-          debugPrint("load more $nowPage");
           if (nowPage <= maxPage) {
             ref.refresh(_futureProvider);
-          } else {
+          }else{
             _canLoadMore = false;
           }
         }
@@ -62,30 +62,10 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
   }
 
   @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    providerMap.clear();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (maxWidth == 0) {
-      maxWidth = MediaQuery.of(context).size.width;
-    }
     return Scaffold(
       appBar: AppBar(
-        title: const Text("分类"),
-        actions: [
-          GestureDetector(
-              onTap: () {
-                _showBottomModel();
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.search),
-              ))
-        ],
+        title: const Text("剧场版"),
       ),
       body: Consumer(
         builder: (context, ref, _) {
@@ -93,13 +73,12 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
           if (provider.value == null) {
             return buildLoadingBody();
           } else {
-            var data = provider.value!;
-            if (!provider.isLoading) {
+            if(!provider.isLoading){
+              var data = provider.value!;
               if (nowPage == 1) {
                 _movies.clear();
               }
               _movies.addAll(data.movies);
-              debugPrint("${_movies.length}");
               _isLoading = false;
             }
             return NotificationListener<ScrollNotification>(
@@ -109,9 +88,8 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                 slivers: [
                   CupertinoSliverRefreshControl(
                     onRefresh: () async {
-                      _canLoadMore = true;
-                      debugPrint("onRefresh");
                       nowPage = 1;
+                      _canLoadMore = true;
                       ref.refresh(_futureProvider);
                     },
                   ),
@@ -234,111 +212,5 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                 )),
           );
         });
-  }
-
-  void _showBottomModel() {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(15.0),
-                topRight: Radius.circular(15.0))),
-        builder: (context) {
-          return _buildFilter(context);
-        });
-  }
-
-  Widget _buildFilter(BuildContext context) {
-    return SizedBox(
-      height: 550,
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: MaterialButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ref.refresh(_futureProvider);
-              },
-              child: const Text(
-                "搜索",
-                style: TextStyle(fontSize: 18, color: ColorRes.pink400),
-              ),
-            ),
-          ),
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: ListView(
-              children: buildPairs(Api.map),
-            ),
-          ))
-        ],
-      ),
-    );
-  }
-
-  List<Widget> buildPairs(HashMap<String, List<String>> pair) {
-    List<Widget> widgets = [];
-    for (var element in pair.entries) {
-      widgets
-        ..add(Padding(
-          padding: const EdgeInsets.only(top: 12.0),
-          child: Text(element.key, style: const TextStyle(fontSize: 21)),
-        ))
-        ..add(const Divider(
-          color: Colors.grey,
-          height: 3,
-        ))
-        ..add(Padding(
-          padding: const EdgeInsets.only(top: 18.0),
-          child: _buildWrap(element.key, element.value ?? []),
-        ));
-    }
-    return widgets;
-  }
-
-  Widget _buildWrap(String key, List<String> list) {
-    var provider = providerMap[key];
-    if (provider == null) {
-      provider = StateProvider.autoDispose((ref) => queryMap[key] ?? "全部");
-      providerMap[key] = provider;
-    }
-    return Consumer(builder: (context, ref, _) {
-      ref.watch(provider!);
-      return Wrap(
-        spacing: 12.0,
-        children: _buildChips(key, list, provider),
-      );
-    });
-  }
-
-  List<Widget> _buildChips(String key, List<String> list,
-      AutoDisposeStateProvider<String> provider) {
-    List<Widget> widgets = [];
-    var value = queryMap[key];
-    if (value == null) {
-      value = "全部";
-      queryMap[key] = value;
-    }
-    for (int index = 0, size = list.length; index < size; index++) {
-      var content = list[index];
-      var check = value == content;
-      widgets.add(ChoiceChip(
-        selectedColor: ColorRes.pink300,
-        selected: check,
-        label: Text(
-          content,
-          style: TextStyle(color: check ? Colors.white : Colors.black),
-        ),
-        onSelected: (bool) {
-          queryMap[key] = content;
-          ref.watch(provider.state).update((state) => content);
-        },
-      ));
-    }
-    return widgets;
   }
 }

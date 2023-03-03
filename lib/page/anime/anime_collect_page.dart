@@ -1,7 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 
-import '../util/collect.dart';
 import 'anime_desc_page.dart';
 
 class AnimeCollectPage extends ConsumerStatefulWidget {

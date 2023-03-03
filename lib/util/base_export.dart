@@ -1,7 +1,7 @@
 export 'package:flutter_sakura_anime/util/http_client.dart';
 export 'package:flutter/material.dart';
 export 'package:html/parser.dart' show parse;
-export 'package:flutter_sakura_anime/bean/home_data.dart';
+export 'package:flutter_sakura_anime/bean/anime_home_data.dart';
 export 'package:flutter_sakura_anime/bean/anime_des_data.dart';
 export 'package:flutter_sakura_anime/bean/anime_drams_data.dart';
 export 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,3 +12,5 @@ export 'package:flutter_sakura_anime/widget/score_shape_border.dart';
 export 'package:extended_image/extended_image.dart';
 export 'package:flutter_sakura_anime/util/api.dart';
 export 'package:flutter/services.dart';
+export 'package:flutter_sakura_anime/util/collect.dart';
+export 'package:flutter_sakura_anime/bean/anime_movie_data.dart';

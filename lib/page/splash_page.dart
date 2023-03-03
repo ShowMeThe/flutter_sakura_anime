@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:flutter_sakura_anime/page/home_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import '../util/fade_route.dart';
+import 'home_page.dart';
+import 'anime/anime_home_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -68,7 +68,7 @@ class _SplashPageState extends State<SplashPage>
               child: FadeTransition(
                 opacity: _animation,
                 child: const Text(
-                  "樱花动漫",
+                  "樱花番剧",
                   style: TextStyle(color: Colors.white, fontSize: 23.0),
                 ),
               ),
