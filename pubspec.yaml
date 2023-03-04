@@ -54,7 +54,7 @@ dependencies:
   sqlite3: ^1.9.1
   sqlite3_flutter_libs: ^0.5.12
   video_sniffing:
-    path: plugins\video_sniffing_plugin
+    path: ./plugins/video_sniffing_plugin
 
 
 dev_dependencies:

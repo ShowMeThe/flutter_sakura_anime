@@ -70,6 +70,7 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+
     DeviceDisplayBrightness.resetBrightness();
     _subscription.cancel();
     flickManager?.dispose();
@@ -77,9 +78,13 @@ class _AnimePlayState extends ConsumerState<AnimePlayPage> {
         overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
   }
 
   void refreshController(String playerUrl) async {
+    if(!mounted){
+       return;
+    }
     if (_controller != null) {
       _controller?.dispose();
     }

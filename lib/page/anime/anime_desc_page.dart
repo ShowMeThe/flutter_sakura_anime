@@ -75,13 +75,17 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
     _localHisFuture = FutureProvider.autoDispose((_) async {
       var result = findLocalHistory(widget.animeShowUrl);
-      var index = result?.chapter ?? -1;
-      if (index != -1) {
-        var first = controllerStore[0]!;
+      debugPrint("$result");
+      if(result == null){
+        return null;
+      }
+      var chapter = result.chapter;
+      if (chapter != -1) {
+        var first = controllerStore[result.chapter]!;
         while(!first.positions.first.hasContentDimensions){
           await Future.delayed(const Duration(milliseconds: 500));
         }
-        first.animateTo(index * 93.0,
+        first.animateTo(result.position * 93.0,
             duration: const Duration(milliseconds: 300), curve: Curves.ease);
       }
       return result;
@@ -377,9 +381,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   List<Widget> buildPlayList(List<AnimeDramasData> list) {
     List<Widget> child = [];
-    for (var index = 0; index < list.length; index++) {
-      var element = list[index];
-      controllerStore[index] = ScrollController(keepScrollOffset: false);
+    for (var parentIndex = 0; parentIndex < list.length; parentIndex++) {
+      var element = list[parentIndex];
+      controllerStore[parentIndex] = ScrollController(keepScrollOffset: false);
       child.add(Padding(
         padding: const EdgeInsets.only(top: 25, left: 16),
         child: Text(
@@ -393,7 +397,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       child.add(SizedBox(
         height: 58.0,
         child: ListView.builder(
-            controller: controllerStore[index],
+            controller: controllerStore[parentIndex],
             scrollDirection: Axis.horizontal,
             itemCount: element.list.length,
             itemBuilder: (context, index) {
@@ -415,7 +419,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                   .value
                                   ?.title;
                           var title = largeTitle! + element.list[index].title!;
-                          updateHistory(widget.animeShowUrl, index);
+
+                          updateHistory(widget.animeShowUrl, parentIndex,index);
                           ref.refresh(_localHisFuture);
                           await Future.delayed(
                               const Duration(milliseconds: 350));
@@ -428,7 +433,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   Consumer(builder: (context, ref, _) {
                     var localHistory = ref.watch(_localHisFuture);
                     if (localHistory.hasValue &&
-                        (localHistory.value?.chapter ?? -1) == index) {
+                        (localHistory.value!.position ?? -1) == index
+                        && localHistory.value!.chapter == parentIndex) {
                       return const Positioned(
                         bottom: 5,
                         left: 30,

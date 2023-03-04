@@ -16,8 +16,9 @@ class LocalCollect {
 class LocalHistory {
   final String showUrl;
   final int chapter;
+  final int position;
 
-  LocalHistory(this.showUrl, this.chapter);
+  LocalHistory(this.showUrl, this.chapter,this.position);
 }
 
 late Database _database;
@@ -29,7 +30,7 @@ void initDb() async {
   db.execute(
       "create table if not exists LocalCollect(showUrl text not null primary key,logo text not null,title text not null)");
   db.execute(
-      "create table if not exists LocalHistory(showUrl text not null primary key,chapter integer not null default '-1')");
+      "create table if not exists LocalHistory(showUrl text not null primary key,chapter integer not null,position integer)");
 }
 
 Future<String> getDbDir() async {
@@ -41,16 +42,16 @@ Future<String> getDbDir() async {
   return localFile.path;
 }
 
-void updateHistory(String showUrl, int chapter) {
+void updateHistory(String showUrl, int chapter,int position) {
   var result = _database
       .select('select * from LocalHistory where showUrl = ?', [showUrl]);
   if (result.isNotEmpty) {
-    _database.execute("update LocalHistory set chapter = ?  where showUrl = ?",
-        [chapter, showUrl]);
+    _database.execute("update LocalHistory set chapter = ? and position = ? where showUrl = ?",
+        [chapter, position, showUrl]);
   } else {
     var stmt = _database
-        .prepare("insert into LocalHistory(showUrl,chapter) values(?,?)");
-    stmt.execute([showUrl, chapter]);
+        .prepare("insert into LocalHistory(showUrl,chapter,position) values(?,?,?)");
+    stmt.execute([showUrl, chapter, position]);
     stmt.dispose();
   }
 }
@@ -60,8 +61,9 @@ LocalHistory? findLocalHistory(String showUrl) {
       .select('select * from LocalHistory where showUrl = ?', [showUrl]);
   try {
     var element = result.single;
-    return LocalHistory(element['showUrl'], element['chapter']);
+    return LocalHistory(element['showUrl'], element['chapter'],element['position']);
   } catch (e) {
+    debugPrint("findLocalHistory = $e");
     return null;
   }
 }

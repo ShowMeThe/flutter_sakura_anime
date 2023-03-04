@@ -206,27 +206,36 @@ class Api {
     var future = await (await HttpClient.get()).get(requestUrl);
     var document = parse(future.data);
     List<AnimeDramasData> dramasList = [];
-    var elements = document.querySelectorAll("div.movurl > ul > li");
-    var animeDramas = AnimeDramasData();
-    animeDramas.listTitle = "默认播放列表";
-    if (elements.isNotEmpty) {
-      List<AnimeDramasDetailsData> details = [];
-      for (var element in elements) {
-        var title = element.querySelector("a")?.text;
-        var url = element.querySelector("a")?.attributes["href"];
-        details.add(AnimeDramasDetailsData(title, url));
+    var elements = document.querySelectorAll("div.movurl > ul");
+    //debugPrint(future.data);
+    var tabs = document.querySelectorAll("div.tabs > ul > li");
+    for(int i = 0; i<tabs.length; i++){
+      var tabName = tabs[i].text;
+      if(tabName.isNotEmpty && tabName != '下载列表'){
+        List<AnimeDramasDetailsData> details = [];
+        var elementChild = elements[i].querySelectorAll("li");
+        if(elementChild.isNotEmpty){
+          var animeDramas = AnimeDramasData();
+          for (var element in elementChild) {
+            var title = element.querySelector("a")?.text;
+            var url = element.querySelector("a")?.attributes["href"];
+            details.add(AnimeDramasDetailsData(title, url));
+          }
+          animeDramas.listTitle = tabName;
+          animeDramas.list = details;
+          dramasList.add(animeDramas);
+        }
       }
-      animeDramas.list = details;
-      dramasList.add(animeDramas);
-      animaPlay.animeDramas = dramasList;
+    }
 
-      var seasonElements = document.querySelectorAll("div.img > ul > li");
-      if (seasonElements.isNotEmpty) {
+    animaPlay.animeDramas = dramasList;
+
+    var seasonElements = document.querySelectorAll("div.img > ul > li");
+    if (seasonElements.isNotEmpty) {
         List<AnimeRecommendData> seasons = [];
         for (var element in seasonElements) {
           var title = element.querySelector("p.tname > a")?.text;
-          var logo = baseImgHead +
-              (element.querySelector("img")?.attributes["src"] ?? "");
+          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
           var url = element.querySelector("p.tname > a")?.attributes["href"];
           seasons.add(AnimeRecommendData(title, logo, url));
         }
@@ -238,13 +247,11 @@ class Api {
         List<AnimeRecommendData> recommends = [];
         for (var element in recommendElements) {
           var title = element.querySelector("h2 > a")?.text;
-          var logo = baseImgHead +
-              (element.querySelector("img")?.attributes["src"] ?? "");
+          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
           var url = element.querySelector("h2 > a")?.attributes["href"];
           recommends.add(AnimeRecommendData(title, logo, url));
         }
         animaPlay.animeRecommend = recommends;
-      }
     }
     return animaPlay;
   }
