@@ -76,4 +76,19 @@ class MeiJuApi {
     }
     return MjDesData(playList);
   }
+
+
+  static Future<String> getPlayUrl(String url) async {
+    var future = await (await HttpClient.get2().catchError((onError) {
+      debugPrint("onError $onError");
+    }))
+        .get(baseUrl + url)
+        .catchError((err) {
+      debugPrint("err $err");
+    });
+    String html = gbk_bytes.decode(future.data);
+    debugPrint("html $html");
+    return "";
+  }
+
 }

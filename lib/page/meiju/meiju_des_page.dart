@@ -249,7 +249,11 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0)),
                         color: ColorRes.mainColor,
-                        onPressed: () async {},
+                        onPressed: () async {
+                            MeiJuApi.getPlayUrl(element.chapterList[index].url);
+
+
+                        },
                         child: Text(element.chapterList[index].title)),
                   ),
                 ],
