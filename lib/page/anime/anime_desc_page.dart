@@ -222,8 +222,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                     children: [
                                       Positioned(
                                           child: SizedBox(
-                                        width: 45.0,
-                                        height: 35.0,
+                                        width: 55.0,
+                                        height: 40.0,
                                         child: CustomPaint(
                                           painter: ScoreShapeBorder(
                                               ColorRes.pink400.withAlpha(200)),
@@ -410,8 +410,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               const Duration(milliseconds: 350));
                           ref.refresh(_localHisFuture);
                           if (!mounted) return;
-                         /* Navigator.of(context).push(FadeRoute(
-                              AnimePlayPage(element.list[index].url!, title)));*/
+                          Navigator.of(context).push(FadeRoute(
+                              AnimePlayPage(element.list[index].url!, title)));
                         },
                         child: Text(element.list[index].title!)),
                   ),

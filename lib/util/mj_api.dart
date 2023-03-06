@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:gbk_codec_nohtml/gbk_codec.dart';
+import '../bean/meiju_des_data.dart';
 import '../bean/meiju_home_data.dart';
 import 'http_client.dart';
 
@@ -37,7 +38,7 @@ class MeiJuApi {
     return list;
   }
 
-  static Future<void> getDesPage(String url) async {
+  static Future<MjDesData> getDesPage(String url) async {
     var future = await (await HttpClient.get2().catchError((onError) {
       debugPrint("onError $onError");
     }))
@@ -46,6 +47,33 @@ class MeiJuApi {
       debugPrint("err $err");
     });
     String html = gbk_bytes.decode(future.data);
-    debugPrint("html $html");
+    var playList = <MjDesPlayData>[];
+    //debugPrint("html $html");
+    var document = parse(html);
+    try{
+      var playGroup = document.querySelectorAll("div.arconix-toggle-title");
+      if (playGroup.isNotEmpty) {
+        var playEle =
+        document.getElementsByClassName("arconix-toggle-content fn-clear ");
+        for (int index = 0; index < playGroup.length; index++) {
+          var yunbo = playGroup[index].getElementsByClassName("l bflb yunbo");
+          if (yunbo.isNotEmpty) {
+            var title = yunbo.first.text;
+            var contentList = playEle[index];
+            var eles = contentList.querySelectorAll("ul > li");
+            var list = <MjDesPlayChapter>[];
+            for (var element in eles) {
+              var title = element.querySelector("a")?.text ?? "";
+              var url = element.querySelector("a")?.attributes["href"] ?? "";
+              list.add(MjDesPlayChapter(title, url));
+            }
+            playList.add(MjDesPlayData(title,list));
+          }
+        }
+      }
+    }catch(e){
+      debugPrint("e = ${e}");
+    }
+    return MjDesData(playList);
   }
 }
