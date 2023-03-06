@@ -6,7 +6,6 @@ import 'package:flutter_sakura_anime/page/anime/anime_play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
-
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
   final String logo;
@@ -62,30 +61,27 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     });
     _playDataProvider =
         FutureProvider.autoDispose<AnimePlayListData>((_) async {
-          var url = ref
-              .watch(_desDataProvider)
-              .value
-              ?.url;
-          var result = await Api.getAnimePlayList(url!);
-          return result;
-        });
+      var url = ref.watch(_desDataProvider).value?.url;
+      var result = await Api.getAnimePlayList(url!);
+      return result;
+    });
     _isCollectFuture = FutureProvider.autoDispose((_) {
       return findCollect(widget.animeShowUrl);
     });
 
     _localHisFuture = FutureProvider.autoDispose((_) async {
       var result = findLocalHistory(widget.animeShowUrl);
-      debugPrint("$result");
-      if(result == null){
+      debugPrint("result $result");
+      if (result == null) {
         return null;
       }
       var chapter = result.chapter;
       if (chapter != -1) {
         var first = controllerStore[result.chapter]!;
-        while(!first.positions.first.hasContentDimensions){
+        while (!first.positions.first.hasContentDimensions) {
           await Future.delayed(const Duration(milliseconds: 500));
         }
-        first.animateTo(result.position * 93.0,
+        first.animateTo(result.chapterIndex * 93.0,
             duration: const Duration(milliseconds: 300), curve: Curves.ease);
       }
       return result;
@@ -94,9 +90,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -130,10 +124,10 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withAlpha(15),
-                            Colors.black.withAlpha(125),
-                            Colors.black
-                          ]))),
+                        Colors.black.withAlpha(15),
+                        Colors.black.withAlpha(125),
+                        Colors.black
+                      ]))),
               SingleChildScrollView(
                 child: Column(
                   children: [
@@ -151,9 +145,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               )),
                           Consumer(builder: (context, ref, _) {
                             var localCollect =
-                                ref
-                                    .watch(_isCollectFuture)
-                                    .value;
+                                ref.watch(_isCollectFuture).value;
                             var logo = ref.watch(_logoProvider);
                             if (localCollect != null) {
                               return IconButton(
@@ -177,9 +169,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                           widget.animeShowUrl,
                                           logo,
                                           ref
-                                              .watch(_desDataProvider)
-                                              .value
-                                              ?.title ??
+                                                  .watch(_desDataProvider)
+                                                  .value
+                                                  ?.title ??
                                               "");
                                       ref.refresh(_isCollectFuture);
                                     }
@@ -230,14 +222,13 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                     children: [
                                       Positioned(
                                           child: SizedBox(
-                                            width: 45.0,
-                                            height: 35.0,
-                                            child: CustomPaint(
-                                              painter: ScoreShapeBorder(
-                                                  ColorRes.pink400.withAlpha(
-                                                      200)),
-                                            ),
-                                          )),
+                                        width: 45.0,
+                                        height: 35.0,
+                                        child: CustomPaint(
+                                          painter: ScoreShapeBorder(
+                                              ColorRes.pink400.withAlpha(200)),
+                                        ),
+                                      )),
                                       Positioned(
                                           left: 10,
                                           child: Text(
@@ -258,11 +249,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                                     begin: Alignment.topCenter,
                                                     end: Alignment.bottomCenter,
                                                     colors: [
-                                                      Colors.black12.withAlpha(
-                                                          30),
-                                                      Colors.black12.withAlpha(
-                                                          125)
-                                                    ])),
+                                                  Colors.black12.withAlpha(30),
+                                                  Colors.black12.withAlpha(125)
+                                                ])),
                                             child: Padding(
                                               padding: const EdgeInsets.only(
                                                   right: 4.0),
@@ -315,15 +304,15 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             ),
                             Center(
                                 child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 8.0, right: 8.0, top: 0.0),
-                                  child: FoldTextView(
-                                      data.des == null ? "" : data.des!,
-                                      4,
-                                      const TextStyle(
-                                          color: Colors.white, fontSize: 12.0),
-                                      320),
-                                )),
+                              padding: const EdgeInsets.only(
+                                  left: 8.0, right: 8.0, top: 0.0),
+                              child: FoldTextView(
+                                  data.des == null ? "" : data.des!,
+                                  4,
+                                  const TextStyle(
+                                      color: Colors.white, fontSize: 12.0),
+                                  320),
+                            )),
                             SizedBox(
                               width: double.infinity,
                               child: buildDrams(),
@@ -348,7 +337,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       for (var element in data.tags) {
         list.add(Material(
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
           color: ColorRes.pink50,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -364,9 +353,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref
-            .watch(_playDataProvider)
-            .value;
+        var data = ref.watch(_playDataProvider).value;
         if (data == null) {
           return Container();
         } else {
@@ -405,7 +392,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                 children: [
                   Padding(
                     padding:
-                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                        const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
                     child: MaterialButton(
                         minWidth: 85,
                         height: double.infinity,
@@ -414,34 +401,32 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         color: ColorRes.mainColor,
                         onPressed: () async {
                           var largeTitle =
-                              ref
-                                  .read(_desDataProvider)
-                                  .value
-                                  ?.title;
+                              ref.read(_desDataProvider).value?.title;
                           var title = largeTitle! + element.list[index].title!;
-
-                          updateHistory(widget.animeShowUrl, parentIndex,index);
-                          ref.refresh(_localHisFuture);
+                          debugPrint("updateHistory chapter = $parentIndex position = $index");
+                          updateHistory(
+                              widget.animeShowUrl, parentIndex, index);
                           await Future.delayed(
                               const Duration(milliseconds: 350));
+                          ref.refresh(_localHisFuture);
                           if (!mounted) return;
-                          Navigator.of(context).push(FadeRoute(
-                              AnimePlayPage(element.list[index].url!, title)));
+                         /* Navigator.of(context).push(FadeRoute(
+                              AnimePlayPage(element.list[index].url!, title)));*/
                         },
                         child: Text(element.list[index].title!)),
                   ),
                   Consumer(builder: (context, ref, _) {
                     var localHistory = ref.watch(_localHisFuture);
-                    if (localHistory.hasValue &&
-                        (localHistory.value!.position ?? -1) == index
-                        && localHistory.value!.chapter == parentIndex) {
+                    if (localHistory.value != null &&
+                        (localHistory.value!.chapterIndex) == index &&
+                        localHistory.value!.chapter == parentIndex) {
                       return const Positioned(
                         bottom: 5,
                         left: 30,
                         child: Text(
                           "上次观看",
                           style:
-                          TextStyle(color: ColorRes.pink400, fontSize: 10),
+                              TextStyle(color: ColorRes.pink400, fontSize: 10),
                         ),
                       );
                     } else {
@@ -496,7 +481,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           tag: list[index].logo! + _HeroTag,
                           child: Image(
                             image:
-                            ExtendedNetworkImageProvider(list[index].logo!),
+                                ExtendedNetworkImageProvider(list[index].logo!),
                             width: double.infinity,
                             height: 150,
                             fit: BoxFit.cover,
@@ -505,26 +490,26 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                       ),
                       Expanded(
                           child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(8.0),
-                                bottomRight: Radius.circular(8.0)),
-                            child: Container(
-                              color: ColorRes.mainColor,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                  child: Text(
-                                    list[index].title!,
-                                    style: const TextStyle(
-                                      fontSize: 10.0,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    maxLines: 2,
-                                  ),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(8.0),
+                            bottomRight: Radius.circular(8.0)),
+                        child: Container(
+                          color: ColorRes.mainColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                list[index].title!,
+                                style: const TextStyle(
+                                  fontSize: 10.0,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
+                                maxLines: 2,
                               ),
                             ),
-                          ))
+                          ),
+                        ),
+                      ))
                     ],
                   ),
                 ),

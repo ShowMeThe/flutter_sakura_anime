@@ -12,6 +12,7 @@ class HttpClient {
   static const _baseUrl = "";
   static const _timeOut = 15000;
   static Dio? _dio;
+  static Dio? _dio2;
   static final Map<String, dynamic> _map = HashMap();
   static final BaseOptions _option = BaseOptions(
       baseUrl: _baseUrl,
@@ -19,7 +20,7 @@ class HttpClient {
       connectTimeout: _timeOut,
       receiveTimeout: _timeOut);
 
-  static Future<String> getAppDir() async{
+  static Future<String> getAppDir() async {
     var future = await getApplicationDocumentsDirectory();
     return future.path;
   }
@@ -31,8 +32,21 @@ class HttpClient {
         maxStale: const Duration(days: 1),
         store: HiveCacheStore(await getAppDir()),
         policy: CachePolicy.refreshForceCache,
-        hitCacheOnErrorExcept:  [401, 403, 404], // for offline behaviour
+        hitCacheOnErrorExcept: [401, 403, 404], // for offline behaviour
       )));
     return _dio!;
+  }
+
+  static Future<Dio> get2() async {
+    _dio2 ??= Dio(_option)
+      ..options = BaseOptions(responseType: ResponseType.bytes)
+      ..interceptors.add(DioCacheInterceptor(
+          options: CacheOptions(
+        maxStale: const Duration(days: 1),
+        store: HiveCacheStore(await getAppDir()),
+        policy: CachePolicy.refreshForceCache,
+        hitCacheOnErrorExcept: [401, 403, 404], // for offline behaviour
+      )));
+    return _dio2!;
   }
 }
