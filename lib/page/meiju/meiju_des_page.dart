@@ -206,7 +206,6 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
     return Consumer(
       builder: (context, ref, _) {
         var data = ref.watch(_desDataProvider).value;
-        debugPrint("data = $data");
         if (data == null) {
           return Container();
         } else {
@@ -251,10 +250,17 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                             borderRadius: BorderRadius.circular(8.0)),
                         color: ColorRes.mainColor,
                         onPressed: () async {
+                           LoadingDialogHelper.showLoading(context);
                            var title = widget.title + element.chapterList[index].title;
-                           var url = await MeiJuApi.getPlayUrl(element.chapterList[index].url,element.title);
+                           var url = await MeiJuApi.getPlayUrl(element.chapterList[index].url,parentIndex,index);
+                           debugPrint("url = $url");
                            if (!mounted) return;
-                            //Navigator.of(context).push(FadeRoute(PlayPage(url,title)));
+                           if(url == null) {
+                             LoadingDialogHelper.dismissLoading(context);
+                             return;
+                           }
+                           LoadingDialogHelper.dismissLoading(context);
+                            Navigator.of(context).push(FadeRoute(PlayPage(url,title)));
                         },
                         child: Text(element.chapterList[index].title)),
                   ),

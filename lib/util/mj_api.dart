@@ -79,7 +79,7 @@ class MeiJuApi {
     return MjDesData(playList);
   }
 
-  static Future<String> getPlayUrl(String url, String keyName) async {
+  static Future<String?> getPlayUrl(String url, int parentIndex,int index) async {
     var requestUrl = baseUrl + url;
     var future = await (await HttpClient.get2().catchError((onError) {
       debugPrint("onError $onError");
@@ -93,16 +93,17 @@ class MeiJuApi {
     //debugPrint("html $html");
     var document = parse(html);
     var bofang = document.getElementById("bofang");
+    var map = <int,List<String>>{};
     if (bofang != null) {
       var script = bofang.getElementsByTagName("script");
       for (var element in script) {
         var src = element.attributes["src"] ?? "";
         debugPrint("src $src");
         if (src.contains("playdata")) {
-          var playdata = await (await HttpClient.get2().catchError((onError) {
+          var playdata = await (await HttpClient.get().catchError((onError) {
             debugPrint("onError $onError");
           }))
-              .get(baseUrl + src,options: Options(responseType: ResponseType.json))
+              .get(baseUrl + src)
               .catchError((err) {
             debugPrint("err $err");
           });
@@ -110,14 +111,23 @@ class MeiJuApi {
           var firstIndex = data.indexOf("[");
           var endIndex = data.lastIndexOf("]");
           var json = data.substring(firstIndex,endIndex);
-          debugPrint("json = $json");
-
-
-
+          var key = -1;
+          json.split(",").forEach((element) {
+            var text = element.replaceAll("[", "").replaceAll('"', "").replaceAll("]", "");
+            if(text.length == 18){
+               key++;
+            }
+            if(text.contains("m3u8")){
+              var list = map[key]??[];
+              var play = text.substring(0,text.length - 5) + text.substring(text.length-4,text.length);
+              list.add(play);
+              map[key] = list;
+            }
+          });
           break;
         }
       }
     }
-    return playerUrl;
+    return map[parentIndex]?[index];
   }
 }
