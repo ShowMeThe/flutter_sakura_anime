@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:gbk_codec_nohtml/gbk_codec.dart';
+import 'package:video_sniffing/video_sniffing.dart';
 import '../bean/meiju_des_data.dart';
 import '../bean/meiju_home_data.dart';
 import 'http_client.dart';
@@ -50,11 +52,11 @@ class MeiJuApi {
     var playList = <MjDesPlayData>[];
     //debugPrint("html $html");
     var document = parse(html);
-    try{
+    try {
       var playGroup = document.querySelectorAll("div.arconix-toggle-title");
       if (playGroup.isNotEmpty) {
         var playEle =
-        document.getElementsByClassName("arconix-toggle-content fn-clear ");
+            document.getElementsByClassName("arconix-toggle-content fn-clear ");
         for (int index = 0; index < playGroup.length; index++) {
           var yunbo = playGroup[index].getElementsByClassName("l bflb yunbo");
           if (yunbo.isNotEmpty) {
@@ -67,28 +69,55 @@ class MeiJuApi {
               var url = element.querySelector("a")?.attributes["href"] ?? "";
               list.add(MjDesPlayChapter(title, url));
             }
-            playList.add(MjDesPlayData(title,list));
+            playList.add(MjDesPlayData(title, list));
           }
         }
       }
-    }catch(e){
+    } catch (e) {
       debugPrint("e = ${e}");
     }
     return MjDesData(playList);
   }
 
-
-  static Future<String> getPlayUrl(String url) async {
+  static Future<String> getPlayUrl(String url, String keyName) async {
+    var requestUrl = baseUrl + url;
     var future = await (await HttpClient.get2().catchError((onError) {
       debugPrint("onError $onError");
     }))
-        .get(baseUrl + url)
+        .get(requestUrl)
         .catchError((err) {
       debugPrint("err $err");
     });
+    var playerUrl = "";
     String html = gbk_bytes.decode(future.data);
-    debugPrint("html $html");
-    return "";
-  }
+    //debugPrint("html $html");
+    var document = parse(html);
+    var bofang = document.getElementById("bofang");
+    if (bofang != null) {
+      var script = bofang.getElementsByTagName("script");
+      for (var element in script) {
+        var src = element.attributes["src"] ?? "";
+        debugPrint("src $src");
+        if (src.contains("playdata")) {
+          var playdata = await (await HttpClient.get2().catchError((onError) {
+            debugPrint("onError $onError");
+          }))
+              .get(baseUrl + src,options: Options(responseType: ResponseType.json))
+              .catchError((err) {
+            debugPrint("err $err");
+          });
+          String data = playdata.data;
+          var firstIndex = data.indexOf("[");
+          var endIndex = data.lastIndexOf("]");
+          var json = data.substring(firstIndex,endIndex);
+          debugPrint("json = $json");
 
+
+
+          break;
+        }
+      }
+    }
+    return playerUrl;
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
+import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 
@@ -250,9 +251,10 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                             borderRadius: BorderRadius.circular(8.0)),
                         color: ColorRes.mainColor,
                         onPressed: () async {
-                            MeiJuApi.getPlayUrl(element.chapterList[index].url);
-
-
+                           var title = widget.title + element.chapterList[index].title;
+                           var url = await MeiJuApi.getPlayUrl(element.chapterList[index].url,element.title);
+                           if (!mounted) return;
+                            //Navigator.of(context).push(FadeRoute(PlayPage(url,title)));
                         },
                         child: Text(element.chapterList[index].title)),
                   ),

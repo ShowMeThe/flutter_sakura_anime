@@ -5,31 +5,29 @@ import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/util/api.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:video_player/video_player.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 
-
-class MeijuPlayPage extends ConsumerStatefulWidget {
+class PlayPage extends ConsumerStatefulWidget {
   final String url;
   final String title;
 
-  const MeijuPlayPage(this.url, this.title, {super.key});
+  const PlayPage(this.url, this.title, {super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _MeijuPlayState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _PlayState();
 }
 
-class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
+class _PlayState extends ConsumerState<PlayPage> {
   late AutoDisposeFutureProvider<String> _playNowUrlProvider;
   final AutoDisposeStateProvider<FlickManager?> _initProvider =
-  StateProvider.autoDispose<FlickManager?>((ref) => null);
+      StateProvider.autoDispose<FlickManager?>((ref) => null);
   VideoPlayerController? _controller;
   FlickManager? flickManager;
   var _totalDuration = 0;
   final _slideX = StateProvider.autoDispose<Duration>(
-          (ref) => const Duration(milliseconds: 0));
+      (ref) => const Duration(milliseconds: 0));
   final _isShowSlideDialog = StateProvider.autoDispose<bool>((ref) => false);
   final _isShowBrightDialog = StateProvider.autoDispose<bool>((ref) => false);
   final _brightness = FutureProvider.autoDispose<double>((ref) async {
@@ -54,7 +52,7 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
   void initState() {
     super.initState();
     _playNowUrlProvider = FutureProvider.autoDispose<String>((ref) async {
-      var playerUrl = await MeiJuApi.getPlayUrl(widget.url);
+      var playerUrl = widget.url;
       refreshController(playerUrl);
       return playerUrl;
     });
@@ -85,7 +83,7 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
 
   void refreshController(String playerUrl) async {
     if(!mounted){
-      return;
+       return;
     }
     if (_controller != null) {
       _controller?.dispose();
@@ -150,7 +148,7 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
                   child: GestureDetector(
                     onTap: () {
                       var isShow = flickManager
-                          ?.flickDisplayManager?.showPlayerControls ??
+                              ?.flickDisplayManager?.showPlayerControls ??
                           false;
                       if (!isShow) {
                         flickManager?.flickDisplayManager
@@ -166,7 +164,7 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
                     onPanDown: (detail) async {
                       _downY = detail.globalPosition.dy;
                       _downBrightness =
-                      await DeviceDisplayBrightness.getBrightness();
+                          await DeviceDisplayBrightness.getBrightness();
                     },
                     onPanUpdate: (details) async {
                       if (!_isBrightness) {
@@ -198,10 +196,10 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
                     _downX = details.globalPosition.dy;
                     _downY = details.globalPosition.dx;
                     _downPosition = controller.flickVideoManager
-                        ?.videoPlayerValue?.position.inMilliseconds ??
+                            ?.videoPlayerValue?.position.inMilliseconds ??
                         0;
                     ref.read(_slideX.state).update(
-                            (state) => Duration(milliseconds: _downPosition));
+                        (state) => Duration(milliseconds: _downPosition));
                   },
                   onTap: () {
                     var isShow =
@@ -243,10 +241,10 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
                           nextValue = 0;
                         }
                         ref.read(_slideX.state).update(
-                                (state) => Duration(milliseconds: nextValue));
+                            (state) => Duration(milliseconds: nextValue));
                       }
                     } else if (_isVolume) {
-                      var offset =  _downVolumeY - details.globalPosition.dy;
+                     var offset =  _downVolumeY - details.globalPosition.dy;
                       var nextVolume = _downVolume + offset / sizeWidth;
                       debugPrint("onPanUpdate $nextVolume");
                       if (nextVolume >= 1) {
@@ -313,9 +311,9 @@ class _MeijuPlayState extends ConsumerState<MeijuPlayPage> {
   String getTimeInDuration(Duration duration) {
     String hours = duration.inHours.toString().padLeft(0, '2');
     String minutes =
-    duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+        duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     String seconds =
-    duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+        duration.inSeconds.remainder(60).toString().padLeft(2, '0');
     if (hours == "0") {
       return "$minutes:$seconds";
     } else {

@@ -14,3 +14,4 @@ export 'package:flutter_sakura_anime/util/api.dart';
 export 'package:flutter/services.dart';
 export 'package:flutter_sakura_anime/util/collect.dart';
 export 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
+export 'package:flutter_sakura_anime/page/loading_dialog_helper.dart';

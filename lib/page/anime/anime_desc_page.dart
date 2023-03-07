@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter_sakura_anime/page/anime/anime_play_page.dart';
+import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
@@ -403,15 +403,18 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           var largeTitle =
                               ref.read(_desDataProvider).value?.title;
                           var title = largeTitle! + element.list[index].title!;
-                          debugPrint("updateHistory chapter = $parentIndex position = $index");
+                          debugPrint(
+                              "updateHistory chapter = $parentIndex position = $index");
                           updateHistory(
                               widget.animeShowUrl, parentIndex, index);
-                          await Future.delayed(
-                              const Duration(milliseconds: 350));
+                          LoadingDialogHelper.showLoading(context);
+                          var playUrl = await Api.getAnimePlayUrl(
+                              element.list[index].url!);
                           ref.refresh(_localHisFuture);
                           if (!mounted) return;
-                          Navigator.of(context).push(FadeRoute(
-                              AnimePlayPage(element.list[index].url!, title)));
+                          LoadingDialogHelper.dismissLoading(context);
+                          Navigator.of(context)
+                              .push(FadeRoute(PlayPage(playUrl, title)));
                         },
                         child: Text(element.list[index].title!)),
                   ),
