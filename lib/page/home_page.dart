@@ -51,6 +51,7 @@ class _HomePageState extends ConsumerState<HomePage>{
   Widget build(BuildContext context) {
 
      return Scaffold(
+       backgroundColor: Colors.white,
         body: PageView.builder(
           itemBuilder: (BuildContext context, int index) {
             return _pages[index];

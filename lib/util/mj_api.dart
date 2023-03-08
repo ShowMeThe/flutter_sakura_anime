@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:gbk_codec_nohtml/gbk_codec.dart';
 import 'package:video_sniffing/video_sniffing.dart';
+import '../bean/meiju_category_data.dart';
 import '../bean/meiju_des_data.dart';
 import '../bean/meiju_home_data.dart';
 import 'http_client.dart';
@@ -24,15 +26,27 @@ class MeiJuApi {
     var document = parse(html);
     var boxQuery = document.getElementsByClassName("box_3");
     for (var boxEle in boxQuery) {
-      var divTitle = boxEle.querySelector("div.fn-clear > h4")?.text ?? "";
-      var href = boxEle.querySelector("a")?.attributes["href"] ?? "";
+      var divTitle = boxEle
+          .querySelector("div.fn-clear > h4")
+          ?.text ?? "";
+      var href = boxEle
+          .querySelector("a")
+          ?.attributes["href"] ?? "";
       var child = <MjHomeListData>[];
       var li = boxEle.querySelectorAll("ul > li");
       for (var eli in li) {
-        var title = eli.querySelector("a")?.attributes["title"] ?? "";
-        var img = eli.querySelector("img")?.attributes["src"] ?? "";
-        var href = eli.querySelector("a")?.attributes["href"] ?? "";
-        var chapter = eli.querySelector("i")?.text ?? "";
+        var title = eli
+            .querySelector("a")
+            ?.attributes["title"] ?? "";
+        var img = eli
+            .querySelector("img")
+            ?.attributes["src"] ?? "";
+        var href = eli
+            .querySelector("a")
+            ?.attributes["href"] ?? "";
+        var chapter = eli
+            .querySelector("i")
+            ?.text ?? "";
         child.add(MjHomeListData(title, href, img, chapter));
       }
       list.add(MjHomeData(divTitle, href, child));
@@ -56,7 +70,7 @@ class MeiJuApi {
       var playGroup = document.querySelectorAll("div.arconix-toggle-title");
       if (playGroup.isNotEmpty) {
         var playEle =
-            document.getElementsByClassName("arconix-toggle-content fn-clear ");
+        document.getElementsByClassName("arconix-toggle-content fn-clear ");
         for (int index = 0; index < playGroup.length; index++) {
           var yunbo = playGroup[index].getElementsByClassName("l bflb yunbo");
           if (yunbo.isNotEmpty) {
@@ -65,8 +79,12 @@ class MeiJuApi {
             var eles = contentList.querySelectorAll("ul > li");
             var list = <MjDesPlayChapter>[];
             for (var element in eles) {
-              var title = element.querySelector("a")?.text ?? "";
-              var url = element.querySelector("a")?.attributes["href"] ?? "";
+              var title = element
+                  .querySelector("a")
+                  ?.text ?? "";
+              var url = element
+                  .querySelector("a")
+                  ?.attributes["href"] ?? "";
               list.add(MjDesPlayChapter(title, url));
             }
             playList.add(MjDesPlayData(title, list));
@@ -79,7 +97,8 @@ class MeiJuApi {
     return MjDesData(playList);
   }
 
-  static Future<String?> getPlayUrl(String url, int parentIndex,int index) async {
+  static Future<String?> getPlayUrl(String url, int parentIndex,
+      int index) async {
     var requestUrl = baseUrl + url;
     var future = await (await HttpClient.get2().catchError((onError) {
       debugPrint("onError $onError");
@@ -93,7 +112,7 @@ class MeiJuApi {
     //debugPrint("html $html");
     var document = parse(html);
     var bofang = document.getElementById("bofang");
-    var map = <int,List<String>>{};
+    var map = <int, List<String>>{};
     if (bofang != null) {
       var script = bofang.getElementsByTagName("script");
       for (var element in script) {
@@ -110,16 +129,20 @@ class MeiJuApi {
           String data = playdata.data;
           var firstIndex = data.indexOf("[");
           var endIndex = data.lastIndexOf("]");
-          var json = data.substring(firstIndex,endIndex);
+          var json = data.substring(firstIndex, endIndex);
           var key = -1;
           json.split(",").forEach((element) {
-            var text = element.replaceAll("[", "").replaceAll('"', "").replaceAll("]", "");
-            if(text.length == 18){
-               key++;
+            var text = element
+                .replaceAll("[", "")
+                .replaceAll('"', "")
+                .replaceAll("]", "");
+            if (text.length == 18) {
+              key++;
             }
-            if(text.contains("m3u8")){
-              var list = map[key]??[];
-              var play = text.substring(0,text.length - 5) + text.substring(text.length-4,text.length);
+            if (text.contains("m3u8")) {
+              var list = map[key] ?? [];
+              var play = text.substring(0, text.length - 5) +
+                  text.substring(text.length - 4, text.length);
               list.add(play);
               map[key] = list;
             }
@@ -129,5 +152,70 @@ class MeiJuApi {
       }
     }
     return map[parentIndex]?[index];
+  }
+
+  static Future<MjCategoryData> getCategoryPage(String url,
+      {int page = 1}) async {
+    var endUrl = url;
+    if (page > 1) {
+      endUrl =
+      "${endUrl.substring(0, endUrl.length - 5)}_$page${endUrl.substring(
+          endUrl.length - 5, endUrl.length)}";
+    }
+    var requestUrl = baseUrl + endUrl;
+    var future = await (await HttpClient.get2().catchError((onError) {
+      debugPrint("onError $onError");
+    }))
+        .get(requestUrl)
+        .catchError((err) {
+      debugPrint("err $err");
+    });
+    String html = gbk_bytes.decode(future.data);
+    debugPrint("html $html");
+    var document = parse(html);
+
+    var pages = document
+        .getElementsByClassName("box_1")[0]
+        .querySelectorAll("div.list-page > a")
+        .map((e) => e.text);
+    var hasNextPage = pages.contains("下一页");
+    List<MjCategoryItem> list = [];
+    var query = document.querySelectorAll("li.book-li");
+    for (var li in query) {
+      var url = li
+          .querySelector("a")
+          ?.attributes["href"] ?? "";
+      var listimg = li.querySelector("div.listimg > img");
+      var logo = listimg?.attributes["src"] ?? "";
+      var title = listimg?.attributes["alt"] ?? "";
+      if (logo.contains("nopic")) {
+        logo = baseUrl + logo;
+      }
+      var bookCell = li.querySelector("div.book-cell > p");
+      var des = bookCell?.text.trimLeft().trimRight().replaceAll("\n", "") ??
+          "";
+      var state = des.substring(des.indexOf("状态"), des.indexOf("原名"))
+          .trimLeft()
+          .trimRight();
+      var realName = des.substring(des.indexOf("原名"), des.indexOf("别名"))
+          .trimLeft()
+          .trimRight();
+      var otherName = des.substring(des.indexOf("别名"), des.indexOf("电视台"))
+          .trimLeft()
+          .trimRight();
+      var time = des.substring(des.indexOf("时间"), des.length)
+          .trimLeft()
+          .trimRight();
+
+      list.add(MjCategoryItem(
+          url,
+          logo,
+          title,
+          state,
+          realName,
+          otherName,
+          time));
+    }
+    return MjCategoryData(list, hasNextPage);
   }
 }

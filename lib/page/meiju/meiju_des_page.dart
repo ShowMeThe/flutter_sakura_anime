@@ -12,7 +12,7 @@ class MjDesPage extends ConsumerStatefulWidget {
   final String url;
   final String title;
 
-  MjDesPage(this.logo, this.url, this.title);
+  const MjDesPage(this.logo, this.url, this.title, {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -250,17 +250,22 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                             borderRadius: BorderRadius.circular(8.0)),
                         color: ColorRes.mainColor,
                         onPressed: () async {
-                           LoadingDialogHelper.showLoading(context);
-                           var title = widget.title + element.chapterList[index].title;
-                           var url = await MeiJuApi.getPlayUrl(element.chapterList[index].url,parentIndex,index);
-                           debugPrint("url = $url");
-                           if (!mounted) return;
-                           if(url == null) {
-                             LoadingDialogHelper.dismissLoading(context);
-                             return;
-                           }
-                           LoadingDialogHelper.dismissLoading(context);
-                            Navigator.of(context).push(FadeRoute(PlayPage(url,title)));
+                          LoadingDialogHelper.showLoading(context);
+                          var title =
+                              widget.title + element.chapterList[index].title;
+                          var url = await MeiJuApi.getPlayUrl(
+                              element.chapterList[index].url,
+                              parentIndex,
+                              index);
+                          debugPrint("url = $url");
+                          if (!mounted) return;
+                          if (url == null) {
+                            LoadingDialogHelper.dismissLoading(context);
+                            return;
+                          }
+                          LoadingDialogHelper.dismissLoading(context);
+                          Navigator.of(context)
+                              .push(FadeRoute(PlayPage(url, title)));
                         },
                         child: Text(element.chapterList[index].title)),
                   ),
