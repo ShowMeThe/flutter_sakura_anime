@@ -13,9 +13,10 @@ class MjCategoryItem {
   final String realName;
   final String otherName;
   final String time;
+  final String score;
 
   MjCategoryItem(this.url, this.logo, this.title, this.state, this.realName,
-      this.otherName, this.time);
+      this.otherName, this.time,this.score);
 
   @override
   String toString() {

@@ -3,9 +3,11 @@
 class MjDesData{
 
 
+  String des;
+  String score;
   List<MjDesPlayData> playList = [];
 
-  MjDesData(this.playList);
+  MjDesData(this.des,this.score,this.playList);
 
 }
 

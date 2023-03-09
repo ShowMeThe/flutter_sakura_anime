@@ -123,10 +123,8 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
         var childList = element.list;
         widget.add(GestureDetector(
           onTap: () {
-            debugPrint("${element.url}");
-            MeiJuApi.getCategoryPage(element.url);
-            // Navigator.of(context).push(
-            //     FadeRoute(MjCategoryPage(element.url, element.title)));
+            Navigator.of(context).push(
+                FadeRoute(MjCategoryPage(element.url, element.title)));
           },
           child: Container(
             color: Colors.white,
