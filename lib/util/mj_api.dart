@@ -1,6 +1,4 @@
-import 'dart:convert';
-import 'dart:math';
-import 'package:dio/dio.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:gbk_codec_nohtml/gbk_codec.dart';
@@ -12,6 +10,7 @@ import 'http_client.dart';
 
 class MeiJuApi {
   static const String baseUrl = "https://wap.meijutt.tv";
+  static const String searchUrl = "/sousuo/index.asp?";
 
   static Future<List<MjHomeData>> getHomeData() async {
     var future = await (await HttpClient.get2().catchError((onError) {
@@ -52,7 +51,7 @@ class MeiJuApi {
     });
     String html = gbk_bytes.decode(future.data);
     var playList = <MjDesPlayData>[];
-    //debugPrint("html $html");
+    debugPrint("html $html");
     var document = parse(html);
     var span = document.getElementsByTagName("span");
     var element = span.firstWhere((element) => element
@@ -83,6 +82,9 @@ class MeiJuApi {
       }
     } catch (e) {
       debugPrint("e = ${e}");
+    }
+    if (playList.isEmpty) {
+      playList.add(MjDesPlayData("暂无字幕组翻译", []));
     }
     return MjDesData(des, score, playList);
   }
@@ -160,7 +162,7 @@ class MeiJuApi {
       debugPrint("err $err");
     });
     String html = gbk_bytes.decode(future.data);
-    debugPrint("html $html");
+    //debugPrint("html $html");
     var document = parse(html);
 
     var pages = document
@@ -202,6 +204,64 @@ class MeiJuApi {
       var score = score1 + score2;
       list.add(MjCategoryItem(
           url, logo, title, state, realName, otherName, time, score));
+    }
+    return MjCategoryData(list, hasNextPage);
+  }
+
+  static Future<MjCategoryData> getSearchPage(String keyword,
+      {int page = 1}) async {
+    var chars = gbk_bytes.encode(keyword);
+    var word = "";
+    for (var element in chars) {
+      word += "%${element.toRadixString(16)}";
+    }
+    var requestUrl = "$baseUrl${searchUrl}page=$page&searchword=$word";
+    debugPrint("requestUrl $requestUrl");
+    var future = await (await HttpClient.get2().catchError((onError) {
+      debugPrint("onError $onError");
+    }))
+        .get(requestUrl)
+        .catchError((err) {
+      debugPrint("err $err");
+    });
+    String html = gbk_bytes.decode(future.data);
+    debugPrint("html $html");
+    var document = parse(html);
+    var pages = document
+        .getElementsByClassName("box_1")[0]
+        .querySelectorAll("div.list-page > a")
+        .map((e) => e.text);
+    var hasNextPage = pages.contains("下一页");
+    List<MjCategoryItem> list = [];
+    var query = document.querySelectorAll("li.book-li");
+    for (var li in query) {
+      var url = li.querySelector("a")?.attributes["href"] ?? "";
+      var listimg = li.querySelector("div.listimg > img");
+      var logo = listimg?.attributes["src"] ?? "";
+      var title = listimg?.attributes["alt"] ?? "";
+      if (logo.contains("nopic")) {
+        logo = baseUrl + logo;
+      }
+      var bookCell = li.querySelector("div.book-cell > p");
+      var des =
+          bookCell?.text.trimLeft().trimRight().replaceAll("\n", "") ?? "";
+      var state = des
+          .substring(des.indexOf("状态"), des.indexOf("原名"))
+          .trimLeft()
+          .trimRight();
+      var realName = des
+          .substring(des.indexOf("原名"), des.indexOf("别名"))
+          .trimLeft()
+          .trimRight();
+      var otherName = des
+          .substring(des.indexOf("别名"), des.indexOf("电视台"))
+          .trimLeft()
+          .trimRight();
+      var time =
+      des.substring(des.indexOf("时间"), des.length).trimLeft().trimRight();
+
+      list.add(MjCategoryItem(
+          url, logo, title, state, realName, otherName, time, ""));
     }
     return MjCategoryData(list, hasNextPage);
   }

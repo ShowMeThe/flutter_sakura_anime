@@ -1,6 +1,7 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter_sakura_anime/bean/meiju_home_data.dart';
 import 'package:flutter_sakura_anime/page/meiju/meiju_des_page.dart';
+import 'package:flutter_sakura_anime/page/meiju/meiju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 
@@ -19,6 +20,8 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
     with AutomaticKeepAliveClientMixin {
   late AutoDisposeFutureProvider<List<MjHomeData>> _homeProvider;
 
+  var _heroTag = "MeijuHomePage";
+
   @override
   void initState() {
     super.initState();
@@ -30,18 +33,28 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var paddingTop = MediaQuery
-        .of(context)
-        .padding
-        .top;
+    var paddingTop = MediaQuery.of(context).padding.top;
     return Consumer(
       builder: (context, ref, _) {
         var provider = ref.watch(_homeProvider);
         if (!(provider.isLoading || provider.hasError)) {
-          return ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.only(top: paddingTop),
-            children: buildBody(provider.value),
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(top: paddingTop),
+              children: buildBody(provider.value),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(FadeRoute(const MjSearchPage()));
+              },
+              heroTag: "meiju",
+              child: const Icon(
+                Icons.search,
+                color: Colors.white,
+              ),
+            ),
           );
         } else {
           return ListView(
@@ -99,14 +112,14 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                             fadeTheme: FadeTheme.light),
                         Expanded(
                             child: Container(
-                              color: ColorRes.mainColor,
-                              child: const FadeShimmer(
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                  radius: 0,
-                                  millisecondsDelay: 50,
-                                  fadeTheme: FadeTheme.light),
-                            ))
+                          color: ColorRes.mainColor,
+                          child: const FadeShimmer(
+                              height: double.infinity,
+                              width: double.infinity,
+                              radius: 0,
+                              millisecondsDelay: 50,
+                              fadeTheme: FadeTheme.light),
+                        ))
                       ],
                     ),
                   )),
@@ -123,8 +136,8 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
         var childList = element.list;
         widget.add(GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-                FadeRoute(MjCategoryPage(element.url, element.title)));
+            Navigator.of(context)
+                .push(FadeRoute(MjCategoryPage(element.url, element.title)));
           },
           child: Container(
             color: Colors.white,
@@ -154,14 +167,14 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                 childAspectRatio: 0.55),
             itemCount: childList.length,
             itemBuilder: (context, index) {
+              var item = childList[index];
               return Padding(
                 padding:
-                const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+                    const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
                 child: GestureDetector(
                   onTap: () {
-                    var item = childList[index];
                     Navigator.of(context).push(
-                        FadeRoute(MjDesPage(item.img, item.url, item.title)));
+                        FadeRoute(MjDesPage(item.img, item.url, item.title,heroTag: _heroTag,)));
                   },
                   child: SizedBox(
                       width: 90,
@@ -169,15 +182,15 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                       child: Card(
                         shape: const RoundedRectangleBorder(
                             borderRadius:
-                            BorderRadius.all(Radius.circular(12.0))),
+                                BorderRadius.all(Radius.circular(12.0))),
                         clipBehavior: Clip.antiAlias,
                         child: Stack(
                           children: [
                             Hero(
-                                tag: childList[index].img,
+                                tag: item.img + _heroTag,
                                 child: Image(
                                   image: ExtendedNetworkImageProvider(
-                                      childList[index].img,
+                                      item.img,
                                       cache: true),
                                   width: double.infinity,
                                   height: 150,

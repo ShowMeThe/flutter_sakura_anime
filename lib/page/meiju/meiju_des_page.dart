@@ -34,8 +34,6 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     _desDataProvider = FutureProvider.autoDispose((ref) async {
       var result = await MeiJuApi.getDesPage(widget.url);

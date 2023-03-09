@@ -36,7 +36,6 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _focusNode = FocusNode();
 
-
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       if(editController.text.isEmpty) return null;
@@ -123,6 +122,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
     super.dispose();
     _focusNode.dispose();
     editController.dispose();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
   @override

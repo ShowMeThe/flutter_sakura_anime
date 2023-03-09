@@ -28,6 +28,8 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
