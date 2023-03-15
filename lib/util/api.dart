@@ -8,7 +8,7 @@ import 'package:video_sniffing/video_sniffing.dart';
 import '../bean/anime_drams_data.dart';
 
 class Api {
-  static const String baseImgHead = "https:";
+  static const String baseImgHead = "";
   static const String baseUrl = "https://www.yhpdm.com";
   static const String movieUrl = "$baseUrl/list/?genre=剧场版";
   static const String jcUrl = "$baseUrl/list/?gere=OVA";
