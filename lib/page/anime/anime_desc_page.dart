@@ -209,7 +209,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             }),
                             Consumer(builder: (context, watch, _) {
                               var provider = watch.watch(_desDataProvider);
-                              if (provider.isLoading) {
+                              if (provider.value == null || provider.hasError) {
                                 return Container();
                               } else {
                                 var data = provider.value!;
@@ -272,7 +272,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     ),
                     Consumer(builder: (context, watch, _) {
                       var provider = watch.watch(_desDataProvider);
-                      if (provider.isLoading) {
+                      if (provider.value == null || provider.hasError) {
                         return Container();
                       } else {
                         var data = provider.value!;

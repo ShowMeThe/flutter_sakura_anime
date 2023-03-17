@@ -32,6 +32,9 @@ class MeiJuApi {
       for (var eli in li) {
         var title = eli.querySelector("a")?.attributes["title"] ?? "";
         var img = eli.querySelector("img")?.attributes["src"] ?? "";
+        if(img.contains("nopic")){
+          img = baseUrl + img;
+        }
         var href = eli.querySelector("a")?.attributes["href"] ?? "";
         var chapter = eli.querySelector("i")?.text ?? "";
         child.add(MjHomeListData(title, href, img, chapter));
@@ -51,7 +54,7 @@ class MeiJuApi {
     });
     String html = gbk_bytes.decode(future.data);
     var playList = <MjDesPlayData>[];
-    debugPrint("html $html");
+    //debugPrint("html $html");
     var document = parse(html);
     var span = document.getElementsByTagName("span");
     var element = span.firstWhere((element) => element

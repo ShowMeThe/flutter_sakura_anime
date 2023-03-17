@@ -122,7 +122,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                 )),
                             Consumer(builder: (context, ref, _) {
                               var provider = ref.watch(_desDataProvider);
-                              if (provider.value == null) {
+                              if (provider.value == null || provider.hasError) {
                                 return Container();
                               } else {
                                 var data = provider.value!;
