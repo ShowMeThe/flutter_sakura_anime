@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flick_video_player/flick_video_player.dart';
@@ -9,11 +10,13 @@ import 'package:video_player/video_player.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 
+
 class PlayPage extends ConsumerStatefulWidget {
   final String url;
   final String title;
+  var fromLocal = false;
 
-  const PlayPage(this.url, this.title, {super.key});
+  PlayPage(this.url, this.title, {super.key,this.fromLocal = false});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _PlayState();
@@ -51,7 +54,7 @@ class _PlayState extends ConsumerState<PlayPage> {
 
   @override
   void initState() {
-    _disposed = true;
+    _disposed = false;
     super.initState();
     _playNowUrlProvider = FutureProvider.autoDispose<String>((ref) async {
       var playerUrl = widget.url;
@@ -90,7 +93,12 @@ class _PlayState extends ConsumerState<PlayPage> {
     if (_controller != null) {
       _controller?.dispose();
     }
-    var controller = VideoPlayerController.network(playerUrl);
+    VideoPlayerController controller;
+    if(widget.fromLocal){
+      controller = VideoPlayerController.file(File(playerUrl));
+    }else{
+      controller = VideoPlayerController.network(playerUrl);
+    }
     await controller.initialize();
     _controller = controller;
     if(!mounted || _disposed){

@@ -1,8 +1,11 @@
 
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../bean/hanju_des_data.dart';
 import '../bean/hanju_home_data.dart';
@@ -91,9 +94,20 @@ class HjApi{
         .catchError((err) {
       debugPrint("err $err");
     });
-    printLongText("${future.data}");
-
-    return "";
+    var document = parse(future.data);
+    var iframe = document.getElementsByClassName("embed-responsive embed-responsive-16by9 clearfix")[0]
+        .querySelector("iframe");
+    var src = iframe!.attributes["src"]!;
+    var startIndex = src.indexOf("url=");
+    var playUrl = src.substring(startIndex);
+    printLongText("src = $playUrl");
+    var comUrl = "https://apiapp.shasha.cc/q.php?$playUrl&filename=play.m3u8";
+    var cacheDir = await getTemporaryDirectory();
+    var tempDir = File("${cacheDir.path}/tempVideo/");
+    var playFile = File("${tempDir.path}/play.m3u8");
+    await ((await HttpClient.get())
+        .download(comUrl, playFile.path));
+    return playFile.path;
   }
 
 }

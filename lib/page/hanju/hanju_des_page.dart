@@ -305,16 +305,15 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
                     onPressed: () async {
                       LoadingDialogHelper.showLoading(context);
                       var title = widget.title + element.title;
-                      var url = HjApi.getPlayUrl(element.url);
-                       debugPrint("url = $url");
-                      // if (!mounted) return;
-                      // if (url == null) {
-                      //   LoadingDialogHelper.dismissLoading(context);
-                      //   return;
-                      // }
-                      // LoadingDialogHelper.dismissLoading(context);
-                      // Navigator.of(context)
-                      //     .push(FadeRoute(PlayPage(url, title)));
+                      var url = await HjApi.getPlayUrl(element.url);
+                      debugPrint("url = $url");
+                      if (!mounted) return;
+                      LoadingDialogHelper.dismissLoading(context);
+                      Navigator.of(context).push(FadeRoute(PlayPage(
+                        url,
+                        title,
+                        fromLocal: true,
+                      )));
                     },
                     child: Text(element.title)),
               ),
