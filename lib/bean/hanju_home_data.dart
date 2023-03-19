@@ -6,6 +6,10 @@ class HjHomeData{
 
   HjHomeData(this.loadMore,this.list);
 
+  @override
+  String toString() {
+    return 'HjHomeData{loadMore: $loadMore, list: $list}';
+  }
 }
 
 class HjHomeDataItem{
@@ -13,6 +17,12 @@ class HjHomeDataItem{
   String title;
   String logo;
   String score;
+  String update;
 
-  HjHomeDataItem(this.title,this.logo,this.href,this.score);
+  HjHomeDataItem(this.title,this.logo,this.href,this.score,this.update);
+
+  @override
+  String toString() {
+    return 'HjHomeDataItem{href: $href, title: $title, logo: $logo, score: $score, update: $update}';
+  }
 }

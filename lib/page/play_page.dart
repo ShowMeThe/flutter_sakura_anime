@@ -45,18 +45,20 @@ class _PlayState extends ConsumerState<PlayPage> {
   var _isSeekingChange = false;
   var _isVolume = false;
   var _isBrightness = false;
+  var _disposed = false;
   VideoPlayerValue? _videoPlayerValue;
   late StreamSubscription<double> _subscription;
 
   @override
   void initState() {
+    _disposed = true;
     super.initState();
     _playNowUrlProvider = FutureProvider.autoDispose<String>((ref) async {
       var playerUrl = widget.url;
       refreshController(playerUrl);
       return playerUrl;
     });
-    ref.refresh(_playNowUrlProvider);
+    //ref.refresh(_playNowUrlProvider);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
@@ -68,12 +70,12 @@ class _PlayState extends ConsumerState<PlayPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _disposed = true;
+    _subscription.cancel();
+    flickManager?.dispose();
     super.dispose();
 
     DeviceDisplayBrightness.resetBrightness();
-    _subscription.cancel();
-    flickManager?.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     SystemChrome.setPreferredOrientations(
@@ -82,7 +84,7 @@ class _PlayState extends ConsumerState<PlayPage> {
   }
 
   void refreshController(String playerUrl) async {
-    if(!mounted){
+    if(!mounted || _disposed){
        return;
     }
     if (_controller != null) {
@@ -91,15 +93,19 @@ class _PlayState extends ConsumerState<PlayPage> {
     var controller = VideoPlayerController.network(playerUrl);
     await controller.initialize();
     _controller = controller;
+    if(!mounted || _disposed){
+      return;
+    }
 
     flickManager = FlickManager(videoPlayerController: controller);
     await flickManager?.flickControlManager?.play();
+    if(!mounted || _disposed){
+      return;
+    }
+
     flickManager?.flickDisplayManager?.hidePlayerControls();
-
     _videoPlayerValue = flickManager?.flickVideoManager?.videoPlayerValue;
-
     _totalDuration = _videoPlayerValue?.duration.inMilliseconds ?? 0;
-
     ref.read(_initProvider.state).state = flickManager;
   }
 

@@ -18,14 +18,15 @@ export 'package:flutter_sakura_anime/util/collect.dart';
 export 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 export 'package:flutter_sakura_anime/page/loading_dialog_helper.dart';
 
-
-
-
-void printLongText(String msg) {
-   int maxStrLength = 1000;
-   while (msg.length > maxStrLength) {
-     debugPrint(msg.substring(0, maxStrLength));
-     msg = msg.substring(maxStrLength);
+void printLongText(String? msg) {
+  if (msg == null) {
+    debugPrint(msg);
+    return;
+  }
+  int maxStrLength = 1000;
+  while (msg!.length > maxStrLength) {
+    debugPrint(msg.substring(0, maxStrLength));
+    msg = msg.substring(maxStrLength);
   }
   debugPrint(msg);
 }

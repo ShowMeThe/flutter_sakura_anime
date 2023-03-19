@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 
+import '../bean/hanju_des_data.dart';
 import '../bean/hanju_home_data.dart';
 
 class HjApi{
@@ -35,7 +36,8 @@ class HjApi{
       var title = els.attributes["title"]!;
       var score = element.getElementsByClassName("pic-tag pic-tag-top")[0].text;
       score = score.substring(3,score.length - 1);
-      list.add(HjHomeDataItem(title, logo, href, score));
+      var update = els.getElementsByClassName("pic-text text-right")[0].text;
+      list.add(HjHomeDataItem(title, logo, href, score,update));
     }
 
     var ul = document.querySelectorAll("ul.myui-page > li > a.btn").where((element) => element.text == "尾页");
@@ -43,4 +45,55 @@ class HjApi{
 
     return HjHomeData(canLoad,list);
   }
+
+  static Future<HjDesData> getHjDes(String href) async{
+    var future = await (await HttpClient.get().catchError((onError) {
+      debugPrint("onError $onError");
+    }))
+        .get(href,options: Options(responseType: ResponseType.json))
+        .catchError((err) {
+    debugPrint("err $err");
+    });
+    var document = parse(future.data);
+    var des = document.getElementsByClassName("desc hidden-xs")[0].text;
+    var nav = document.getElementsByClassName("nav nav-tabs active")[0].querySelectorAll("li > a");
+
+    var names = <String,String>{};
+    for (var element in nav) {
+      var id = element.attributes["href"]!.substring(1);
+      var name = element.text;
+      names[name] = id;
+    }
+
+    var plays = document.getElementsByClassName("tab-content myui-panel_bd")[0];
+    var query = plays.querySelectorAll("div").where((element) => names.values.contains(element.id)).toList();
+    var list = <HjDesPlayData>[];
+    var nameKeys = names.keys.toList();
+    for(int i =0;i<query.length;i++){
+      var els = query[i].querySelectorAll("ul > li > a");
+      var playList = <HjDesPlayChapter>[];
+      for (var element in els) {
+        var title = element.attributes["title"]!;
+        var url = base + element.attributes["href"]!;
+        playList.add(HjDesPlayChapter(title, url));
+      }
+      list.add(HjDesPlayData(nameKeys[i], playList));
+    }
+    return HjDesData(des, list);
+  }
+
+
+  static Future<String> getPlayUrl(String url) async{
+    var future = await (await HttpClient.get().catchError((onError) {
+      debugPrint("onError $onError");
+    }))
+        .get(url,options: Options(responseType: ResponseType.json))
+        .catchError((err) {
+      debugPrint("err $err");
+    });
+    printLongText("${future.data}");
+
+    return "";
+  }
+
 }

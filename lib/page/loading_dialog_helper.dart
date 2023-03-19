@@ -2,7 +2,7 @@ import '../util/base_export.dart';
 
 class LoadingDialogHelper {
 
-  static void showLoading(BuildContext context, {bool dismissible = false}) {
+  static void showLoading(BuildContext context, {bool dismissible = true}) {
     showDialog(
         barrierDismissible: dismissible,
         context: context,

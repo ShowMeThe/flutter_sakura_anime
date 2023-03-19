@@ -1,5 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_sakura_anime/page/hanju/hanju_des_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
 
@@ -112,7 +113,9 @@ class _HanJuPageState extends ConsumerState<HanjuPage>{
                                      left: 2.0, top: 2.0, bottom: 2.0),
                                  child: GestureDetector(
                                    onTap: () {
-                                     var url = _movies[index].href;
+                                     var item = _movies[index];
+                                     Navigator.of(context)
+                                     .push(FadeRoute(HjDesPage(item.logo,item.href,item.title,item.score,item.update,heroTag: _HeroTag,)));
                                    },
                                    child: SizedBox(
                                        width: 90,
@@ -122,20 +125,33 @@ class _HanJuPageState extends ConsumerState<HanjuPage>{
                                              borderRadius: BorderRadius.all(
                                                  Radius.circular(12.0))),
                                          clipBehavior: Clip.antiAlias,
-                                         child: Column(
+                                         child: Stack(
                                            children: [
                                              Hero(
-                                                 tag: _movies[index].logo! + _HeroTag,
+                                                 tag: _movies[index].logo + _HeroTag,
                                                  child: Image(
                                                    image: ExtendedNetworkImageProvider(
-                                                     _movies[index].logo!,
+                                                     _movies[index].logo,
                                                      cache: true,
                                                    ),
                                                    width: double.infinity,
                                                    height: 150,
                                                    fit: BoxFit.fitWidth,
                                                  )),
-                                             Expanded(
+                                             Positioned.fill(
+                                                 top: 130,
+                                                 child: Container(
+                                                   decoration: BoxDecoration(
+                                                       color: Colors.black.withAlpha(45)),
+                                                   child: Text(
+                                                     _movies[index].update,
+                                                     textAlign: TextAlign.right,
+                                                     style: const TextStyle(color: Colors.white),
+                                                   ),
+                                                 )),
+                                             Positioned.fill(
+                                                 left: 0,
+                                                 top: 150,
                                                  child: Container(
                                                    color: ColorRes.mainColor,
                                                    child: Padding(

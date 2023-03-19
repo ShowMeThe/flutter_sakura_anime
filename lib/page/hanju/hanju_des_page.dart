@@ -5,26 +5,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/util/hj_api.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 
+import '../../bean/hanju_des_data.dart';
 import '../../widget/fold_text.dart';
 
-class MjDesPage extends ConsumerStatefulWidget {
+class HjDesPage extends ConsumerStatefulWidget {
   final String logo;
   final String url;
   final String title;
+  final String score;
+  final String update;
   String heroTag = "";
 
-  MjDesPage(this.logo, this.url, this.title, {super.key, this.heroTag = ""});
+  HjDesPage(this.logo, this.url, this.title, this.score, this.update,
+      {super.key, this.heroTag = ""});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return _MjDesPageState();
+    return _HjDesPageState();
   }
 }
 
-class _MjDesPageState extends ConsumerState<MjDesPage> {
-  late AutoDisposeFutureProvider<MjDesData> _desDataProvider;
+class _HjDesPageState extends ConsumerState<HjDesPage>
+    with AutomaticKeepAliveClientMixin {
+  late AutoDisposeFutureProvider<HjDesData> _desDataProvider;
+  final AutoDisposeStateProvider<int> tabSelect =
+      StateProvider.autoDispose((ref) => 0);
 
   @override
   void initState() {
@@ -33,9 +41,8 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
-
     _desDataProvider = FutureProvider.autoDispose((ref) async {
-      var result = await MeiJuApi.getDesPage(widget.url);
+      var result = await HjApi.getHjDes(widget.url);
 
       return result;
     });
@@ -49,9 +56,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -78,10 +83,10 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withAlpha(15),
-                            Colors.black.withAlpha(125),
-                            Colors.black
-                          ]))),
+                        Colors.black.withAlpha(15),
+                        Colors.black.withAlpha(125),
+                        Colors.black
+                      ]))),
               SingleChildScrollView(
                 child: Column(
                   children: [
@@ -128,20 +133,19 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                     children: [
                                       Positioned(
                                           child: SizedBox(
-                                            width: 55.0,
-                                            height: 40.0,
-                                            child: CustomPaint(
-                                              painter: ScoreShapeBorder(
-                                                  ColorRes.pink400.withAlpha(
-                                                      200)),
-                                            ),
-                                          )),
+                                        width: 55.0,
+                                        height: 40.0,
+                                        child: CustomPaint(
+                                          painter: ScoreShapeBorder(
+                                              ColorRes.pink400.withAlpha(200)),
+                                        ),
+                                      )),
                                       Positioned(
                                           left: 10,
                                           child: Text(
-                                            data.score,
-                                            style:
-                                            const TextStyle(color: Colors.white),
+                                            widget.score,
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           )),
                                       Positioned(
                                           left: 0,
@@ -156,17 +160,15 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                                     begin: Alignment.topCenter,
                                                     end: Alignment.bottomCenter,
                                                     colors: [
-                                                      Colors.black12.withAlpha(
-                                                          30),
-                                                      Colors.black12.withAlpha(
-                                                          125)
-                                                    ])),
-                                            child: const Padding(
-                                              padding:
-                                              EdgeInsets.only(right: 4.0),
+                                                  Colors.black12.withAlpha(30),
+                                                  Colors.black12.withAlpha(125)
+                                                ])),
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 4.0),
                                               child: Text(
-                                                "",
-                                                style: TextStyle(
+                                                widget.update,
+                                                style: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12.0),
                                               ),
@@ -198,15 +200,15 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                         var data = provider.value;
                         return Center(
                             child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8.0, right: 8.0, top: 0.0),
-                              child: FoldTextView(
-                                  data?.des == null ? "" : data!.des,
-                                  4,
-                                  const TextStyle(
-                                      color: Colors.white, fontSize: 12.0),
-                                  320),
-                            ));
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0, top: 0.0),
+                          child: FoldTextView(
+                              data?.des == null ? "" : data!.des,
+                              4,
+                              const TextStyle(
+                                  color: Colors.white, fontSize: 12.0),
+                              320),
+                        ));
                       } else {
                         return Container();
                       }
@@ -225,77 +227,105 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref
-            .watch(_desDataProvider)
-            .value;
+        var data = ref.watch(_desDataProvider).value;
         if (data == null) {
           return Container();
         } else {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: buildPlayList(data.playList));
+              children: [
+                buildTabs(data.playList),
+                buildPlayList(data.playList)
+              ]);
         }
       },
     );
   }
 
-
-  List<Widget> buildPlayList(List<MjDesPlayData> list) {
-    List<Widget> child = [];
-    for (var parentIndex = 0; parentIndex < list.length; parentIndex++) {
-      var element = list[parentIndex];
-      child.add(Padding(
-        padding: const EdgeInsets.only(top: 25, left: 16),
-        child: Text(
-          element.title,
-          style: const TextStyle(
-              color: ColorRes.pink50,
-              fontSize: 18,
-              fontWeight: FontWeight.w500),
-        ),
-      ));
-      child.add(SizedBox(
-        height: 58.0,
-        child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: element.chapterList.length,
-            itemBuilder: (context, index) {
-              return Stack(
-                children: [
-                  Padding(
-                    padding:
-                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
-                    child: MaterialButton(
-                        minWidth: 85,
-                        height: double.infinity,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0)),
-                        color: ColorRes.mainColor,
-                        onPressed: () async {
-                          LoadingDialogHelper.showLoading(context);
-                          var title =
-                              widget.title + element.chapterList[index].title;
-                          var url = await MeiJuApi.getPlayUrl(
-                              element.chapterList[index].url,
-                              parentIndex,
-                              index);
-                          debugPrint("url = $url");
-                          if (!mounted) return;
-                          if (url == null) {
-                            LoadingDialogHelper.dismissLoading(context);
-                            return;
-                          }
-                          LoadingDialogHelper.dismissLoading(context);
-                          Navigator.of(context)
-                              .push(FadeRoute(PlayPage(url, title)));
-                        },
-                        child: Text(element.chapterList[index].title)),
-                  ),
-                ],
-              );
-            }),
-      ));
-    }
-    return child;
+  Widget buildTabs(List<HjDesPlayData> list) {
+    return SizedBox(
+      height: 45,
+      child: Consumer(
+        builder: (context, ref, _) {
+          var selectedIndex = ref.watch(tabSelect);
+          return ListView.builder(
+              itemCount: list.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                var item = list[index];
+                return TextButton(
+                    child: Text(
+                      item.title,
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: selectedIndex == index
+                              ? ColorRes.pink300
+                              : ColorRes.pink100),
+                    ),
+                    onPressed: () {
+                      ref.refresh(tabSelect.state).update((state) => index);
+                    });
+              });
+        },
+      ),
+    );
   }
+
+  // List<Widget> buildPlayList(List<HjDesPlayData> list){
+  //    return
+  // }
+
+  Widget buildPlayList(List<HjDesPlayData> list) {
+    return Consumer(builder: (context, ref, _) {
+      var parentIndex = ref.watch(tabSelect);
+      var element = list[parentIndex];
+      return Wrap(
+        children: buildChild(element),
+      );
+    });
+  }
+
+  List<Widget> buildChild(HjDesPlayData data) {
+    var list = <Widget>[];
+    for (var element in data.chapterList) {
+      list.add(
+        SizedBox(
+          height: 45.0,
+          child: Stack(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                child: MaterialButton(
+                    minWidth: 85,
+                    height: double.infinity,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0)),
+                    color: ColorRes.mainColor,
+                    onPressed: () async {
+                      LoadingDialogHelper.showLoading(context);
+                      var title = widget.title + element.title;
+                      var url = HjApi.getPlayUrl(element.url);
+                       debugPrint("url = $url");
+                      // if (!mounted) return;
+                      // if (url == null) {
+                      //   LoadingDialogHelper.dismissLoading(context);
+                      //   return;
+                      // }
+                      // LoadingDialogHelper.dismissLoading(context);
+                      // Navigator.of(context)
+                      //     .push(FadeRoute(PlayPage(url, title)));
+                    },
+                    child: Text(element.title)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return list;
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }
