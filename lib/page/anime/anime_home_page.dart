@@ -59,10 +59,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
         ),
       ),
       body: Material(
-          child: Column(
-        children: [
-          Expanded(
-              child: NestedScrollView(
+          child: NestedScrollView(
             controller: _controller,
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
@@ -120,9 +117,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
                 },
               ),
             ),
-          ))
-        ],
-      )),
+          )),
     );
   }
 

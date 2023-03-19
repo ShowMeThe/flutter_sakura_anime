@@ -42,21 +42,20 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
-    if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
-          210) {
-        if (!_isLoading && _canLoadMore) {
-          nowPage++;
-          debugPrint("load more $nowPage");
-          if (nowPage <= maxPage) {
-            ref.refresh(_futureProvider);
-          } else {
-            _canLoadMore = false;
+      if (notification is ScrollUpdateNotification) {
+        if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
+            210) {
+          if (!_isLoading && _canLoadMore) {
+            nowPage++;
+            if (nowPage <= maxPage) {
+              ref.refresh(_futureProvider);
+            } else {
+              _canLoadMore = false;
+            }
           }
         }
       }
-    }
-    return false;
+      return false;
   }
 
   @override
@@ -97,7 +96,6 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                 _movies.clear();
               }
               _movies.addAll(data.movies);
-              debugPrint("${_movies.length}");
               _isLoading = false;
             }
             return NotificationListener<ScrollNotification>(
@@ -334,8 +332,10 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
           style: TextStyle(color: check ? Colors.white : Colors.black),
         ),
         onSelected: (bool) {
-          queryMap[key] = content;
-          ref.watch(provider.state).update((state) => content);
+         if(bool){
+           queryMap[key] = content;
+           ref.watch(provider.state).update((state) => content);
+         }
         },
       ));
     }

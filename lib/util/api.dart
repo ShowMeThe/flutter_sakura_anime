@@ -1,11 +1,9 @@
 import 'dart:collection';
 
-import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:video_sniffing/video_sniffing.dart';
 
-import '../bean/anime_drams_data.dart';
 
 class Api {
   static const String baseImgHead = "";
@@ -17,7 +15,7 @@ class Api {
 
   static HomeData? homeData;
   static HashMap<String, List<String>> map = HashMap();
-  static HashMap<String, String> _queryName = HashMap();
+  static final HashMap<String, String> _queryName = HashMap();
 
   static void initMap() {
     if (map.isEmpty) {
