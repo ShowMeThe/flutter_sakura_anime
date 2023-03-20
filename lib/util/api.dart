@@ -19,7 +19,7 @@ class Api {
   static List<String> _getYears() {
     var years = <String>[];
     years.add("全部");
-    for (int i = DateTime.now().year; i >= 2016; i++) {
+    for (int i = DateTime.now().year; i >= 2016; i--) {
       years.add("$i");
     }
     return years;

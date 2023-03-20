@@ -204,7 +204,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
                               left: 8.0, right: 8.0, top: 0.0),
                           child: FoldTextView(
                               data?.des == null ? "" : data!.des,
-                              4,
+                              3,
                               const TextStyle(
                                   color: Colors.white, fontSize: 12.0),
                               320),

@@ -58,7 +58,7 @@ class _FoldTextViewState extends State<FoldTextView> {
       child: _transparentWid01(),
       onTap: () => setState(() {
             if (_temLines > _maxLines) {
-              if (_lines.last.width + _kMoreWidth >= widget.maxWidth) {
+              if (_lines.last.width + _kMoreWidth > widget.maxWidth) {
                 _maxLines = _temLines + 1;
                 _textStr = '${widget.text}\n';
               } else {
