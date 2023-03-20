@@ -4,7 +4,6 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:video_sniffing/video_sniffing.dart';
 
-
 class Api {
   static const String baseImgHead = "";
   static const String baseUrl = "https://www.yhpdm.com";
@@ -17,20 +16,19 @@ class Api {
   static HashMap<String, List<String>> map = HashMap();
   static final HashMap<String, String> _queryName = HashMap();
 
+  static List<String> _getYears() {
+    var years = <String>[];
+    years.add("全部");
+    for (int i = DateTime.now().year; i >= 2016; i++) {
+      years.add("$i");
+    }
+    return years;
+  }
+
   static void initMap() {
     if (map.isEmpty) {
       map["地域"] = ["全部", "日本", "美国", "欧美"];
-      map["年份"] = [
-        "全部",
-        "2023",
-        "2022",
-        "2021",
-        "2020",
-        "2019",
-        "2018",
-        "2017",
-        "2016"
-      ];
+      map["年份"] = _getYears();
       map["季度"] = ["全部", "1", "4", "7", "10"];
       map["类型"] = [
         "全部",
@@ -207,12 +205,12 @@ class Api {
     var elements = document.querySelectorAll("div.movurl > ul");
     //debugPrint(future.data);
     var tabs = document.querySelectorAll("div.tabs > ul > li");
-    for(int i = 0; i<tabs.length; i++){
+    for (int i = 0; i < tabs.length; i++) {
       var tabName = tabs[i].text;
-      if(tabName.isNotEmpty && tabName != '下载列表'){
+      if (tabName.isNotEmpty && tabName != '下载列表') {
         List<AnimeDramasDetailsData> details = [];
         var elementChild = elements[i].querySelectorAll("li");
-        if(elementChild.isNotEmpty){
+        if (elementChild.isNotEmpty) {
           var animeDramas = AnimeDramasData();
           for (var element in elementChild) {
             var title = element.querySelector("a")?.text;
@@ -230,26 +228,28 @@ class Api {
 
     var seasonElements = document.querySelectorAll("div.img > ul > li");
     if (seasonElements.isNotEmpty) {
-        List<AnimeRecommendData> seasons = [];
-        for (var element in seasonElements) {
-          var title = element.querySelector("p.tname > a")?.text;
-          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
-          var url = element.querySelector("p.tname > a")?.attributes["href"];
-          seasons.add(AnimeRecommendData(title, logo, url));
-        }
-        animaPlay.animeSeasons = seasons;
+      List<AnimeRecommendData> seasons = [];
+      for (var element in seasonElements) {
+        var title = element.querySelector("p.tname > a")?.text;
+        var logo = baseImgHead +
+            (element.querySelector("img")?.attributes["src"] ?? "");
+        var url = element.querySelector("p.tname > a")?.attributes["href"];
+        seasons.add(AnimeRecommendData(title, logo, url));
       }
+      animaPlay.animeSeasons = seasons;
+    }
 
-      var recommendElements = document.querySelectorAll("div.pics > ul > li");
-      if (recommendElements.isNotEmpty) {
-        List<AnimeRecommendData> recommends = [];
-        for (var element in recommendElements) {
-          var title = element.querySelector("h2 > a")?.text;
-          var logo = baseImgHead + (element.querySelector("img")?.attributes["src"]??"");
-          var url = element.querySelector("h2 > a")?.attributes["href"];
-          recommends.add(AnimeRecommendData(title, logo, url));
-        }
-        animaPlay.animeRecommend = recommends;
+    var recommendElements = document.querySelectorAll("div.pics > ul > li");
+    if (recommendElements.isNotEmpty) {
+      List<AnimeRecommendData> recommends = [];
+      for (var element in recommendElements) {
+        var title = element.querySelector("h2 > a")?.text;
+        var logo = baseImgHead +
+            (element.querySelector("img")?.attributes["src"] ?? "");
+        var url = element.querySelector("h2 > a")?.attributes["href"];
+        recommends.add(AnimeRecommendData(title, logo, url));
+      }
+      animaPlay.animeRecommend = recommends;
     }
     return animaPlay;
   }

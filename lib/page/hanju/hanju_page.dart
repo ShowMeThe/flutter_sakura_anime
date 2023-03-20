@@ -1,6 +1,7 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_des_page.dart';
+import 'package:flutter_sakura_anime/page/hanju/hanju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
 
@@ -15,7 +16,7 @@ class HanjuPage extends ConsumerStatefulWidget{
 }
 
 
-class _HanJuPageState extends ConsumerState<HanjuPage>{
+class _HanJuPageState extends ConsumerState<HanjuPage> with AutomaticKeepAliveClientMixin{
 
   final endYear = DateTime.now().year;
   final yearState = StateProvider.autoDispose((ref)=> DateTime.now().year);
@@ -46,7 +47,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>{
     _futureProvider = FutureProvider.autoDispose((ref) async{
       _isLoading = true;
       var year = ref.read(yearState);
-      var result = await HjApi.getSearchPage(year: year.toString(),);
+      var result = await HjApi.getHomePage(year: year.toString(),);
       _canLoadMore = result.loadMore;
       return result;
     });
@@ -54,8 +55,20 @@ class _HanJuPageState extends ConsumerState<HanjuPage>{
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     var paddingTop = MediaQuery.of(context).padding.top;
      return Scaffold(
+       backgroundColor: Colors.white,
+       floatingActionButton: FloatingActionButton(
+         onPressed: () {
+           Navigator.of(context).push(FadeRoute(const HanjuSearchPage()));
+         },
+         heroTag: "hanju",
+         child: const Icon(
+           Icons.search,
+           color: Colors.white,
+         ),
+       ),
        body: Material(
            child: NestedScrollView(
              headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -265,5 +278,8 @@ class _HanJuPageState extends ConsumerState<HanjuPage>{
           );
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }
