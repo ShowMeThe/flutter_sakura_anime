@@ -53,9 +53,10 @@ dependencies:
   shared_preferences: ^2.0.16
   sqlite3: ^1.9.1
   sqlite3_flutter_libs: ^0.5.12
+  gbk_codec_nohtml: ^1.0.0
   video_sniffing:
     path: ./plugins/video_sniffing_plugin
-  gbk_codec_nohtml: ^1.0.0
+
 
 
 dev_dependencies:

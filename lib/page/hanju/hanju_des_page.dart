@@ -28,11 +28,12 @@ class HjDesPage extends ConsumerStatefulWidget {
   }
 }
 
-class _HjDesPageState extends ConsumerState<HjDesPage>
-    with AutomaticKeepAliveClientMixin {
+class _HjDesPageState extends ConsumerState<HjDesPage> {
   late AutoDisposeFutureProvider<HjDesData> _desDataProvider;
   final AutoDisposeStateProvider<int> tabSelect =
       StateProvider.autoDispose((ref) => 0);
+  late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
+
 
   @override
   void initState() {
@@ -44,6 +45,15 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
     _desDataProvider = FutureProvider.autoDispose((ref) async {
       var result = await HjApi.getHjDes(widget.url);
 
+      return result;
+    });
+
+    _localHisFuture = FutureProvider.autoDispose((_) async {
+      var result = findLocalHistory(widget.url);
+      debugPrint("result $result");
+      if (result == null) {
+        return null;
+      }
       return result;
     });
   }
@@ -280,22 +290,24 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
       var parentIndex = ref.watch(tabSelect);
       var element = list[parentIndex];
       return Wrap(
-        children: buildChild(element),
+        children: buildChild(element,parentIndex),
       );
     });
   }
 
-  List<Widget> buildChild(HjDesPlayData data) {
+  List<Widget> buildChild(HjDesPlayData data,int parentIndex) {
     var list = <Widget>[];
-    for (var element in data.chapterList) {
+    for(int index = 0; index < data.chapterList.length;index++){
+      var element = data.chapterList[index];
       list.add(
         SizedBox(
+          width: 90.0,
           height: 45.0,
           child: Stack(
             children: [
               Padding(
                 padding:
-                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
                 child: MaterialButton(
                     minWidth: 85,
                     height: double.infinity,
@@ -305,6 +317,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
                     onPressed: () async {
                       LoadingDialogHelper.showLoading(context);
                       var title = widget.title + element.title;
+                      updateHistory(
+                          widget.url, parentIndex, index);
+                      ref.refresh(_localHisFuture);
                       var url = await HjApi.getPlayUrl(element.url);
                       debugPrint("url = $url");
                       if (!mounted) return;
@@ -317,6 +332,24 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
                     },
                     child: Text(element.title)),
               ),
+              Consumer(builder: (context, ref, _) {
+                var localHistory = ref.watch(_localHisFuture);
+                if (localHistory.value != null &&
+                    (localHistory.value!.chapterIndex) == index &&
+                    localHistory.value!.chapter == parentIndex) {
+                  return const Positioned(
+                    bottom: 5,
+                    left: 30,
+                    child: Text(
+                      "上次观看",
+                      style:
+                      TextStyle(color: ColorRes.pink400, fontSize: 10),
+                    ),
+                  );
+                } else {
+                  return Container();
+                }
+              })
             ],
           ),
         ),
@@ -325,6 +358,4 @@ class _HjDesPageState extends ConsumerState<HjDesPage>
     return list;
   }
 
-  @override
-  bool get wantKeepAlive => true;
 }

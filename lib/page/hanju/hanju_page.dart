@@ -222,7 +222,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage> with AutomaticKeepAliveCl
           ),
           onSelected: (bool) {
             if(bool){
-              ref.read(yearState.state).update((state) => i);
+              ref.read(yearState.notifier).update((state) => i);
               nowPage = 1;
               ref.refresh(_futureProvider);
             }

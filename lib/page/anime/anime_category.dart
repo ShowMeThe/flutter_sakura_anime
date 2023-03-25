@@ -334,7 +334,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
         onSelected: (bool) {
          if(bool){
            queryMap[key] = content;
-           ref.watch(provider.state).update((state) => content);
+           ref.watch(provider.notifier).update((state) => content);
          }
         },
       ));

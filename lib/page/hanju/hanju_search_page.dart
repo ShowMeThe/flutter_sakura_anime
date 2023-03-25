@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/bean/hanju_home_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widget/search_app_bar.dart';
 import 'hanju_des_page.dart';
@@ -27,14 +30,28 @@ class _HanjuSearchState extends ConsumerState {
 
   late AutoDisposeFutureProvider<HjHomeData?> _futureProvider;
 
+  late AutoDisposeFutureProvider<List<String>> _hisSearchProvider;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  static const SEARCH_HIS = "SEARCH_HJ_HIS";
+  var localList = <String>[];
+  final _showHis = StateProvider.autoDispose<bool>((ref) => true);
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
+
+
     _focusNode = FocusNode();
+    _hisSearchProvider = FutureProvider.autoDispose<List<String>>((ref) async {
+      localList = (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
+      return localList;
+    });
 
     _futureProvider = FutureProvider.autoDispose((ref) async {
       if (editController.text.isEmpty) {
@@ -45,9 +62,23 @@ class _HanjuSearchState extends ConsumerState {
       var result =
       await HjApi.getSearchPage(editController.text, page: nowPage);
       _canLoadMore = result.loadMore;
-      ref.read(_showEmpty.state).update((state) => false);
+      ref.read(_showEmpty.notifier).update((state) => false);
+      ref.read(_showHis.notifier).state = false;
       return result;
     });
+  }
+
+  void saveToHist(String newKey) async {
+    if (!localList.contains(newKey)) {
+      localList.add(newKey);
+      (await _prefs).setStringList(SEARCH_HIS, localList);
+    }
+  }
+
+  void clearHist() async {
+    localList.clear();
+    ref.watch(_showHis.notifier).update((state) => false);
+    (await _prefs).remove(SEARCH_HIS);
   }
 
   @override
@@ -81,10 +112,11 @@ class _HanjuSearchState extends ConsumerState {
           cursorColor: Colors.grey.withAlpha(125),
           controller: editController,
           onChange: (word) {
+            ref.read(_showHis.notifier).update((state) => word.isNotEmpty);
             if (word.isNotEmpty) {
-              ref.read(_opacityProvider.state).update((state) => 1.0);
+              ref.read(_opacityProvider.notifier).update((state) => 1.0);
             } else {
-              ref.read(_opacityProvider.state).update((state) => 0.0);
+              ref.read(_opacityProvider.notifier).update((state) => 0.0);
             }
           },
           leading: GestureDetector(
@@ -106,8 +138,11 @@ class _HanjuSearchState extends ConsumerState {
                 onTap: () {
                   if (opacity != 0.0) {
                     editController.clear();
-                    ref.read(_opacityProvider.state).update((state) => 0.0);
-                    ref.read(_showEmpty.state).state = true;
+                    ref.read(_opacityProvider.notifier).update((state) => 0.0);
+                    ref.read(_showEmpty.notifier).state = true;
+                    if (localList.isNotEmpty) {
+                      ref.read(_showHis.notifier).state = true;
+                    }
                   }
                 },
                 child: Padding(
@@ -127,15 +162,65 @@ class _HanjuSearchState extends ConsumerState {
           (word) {
             if (word.isNotEmpty) {
                ref.refresh(_futureProvider);
+               saveToHist(word);
             } else {
-              ref.read(_showEmpty.state).state = true;
+              ref.read(_showEmpty.notifier).state = true;
+              if (localList.isNotEmpty) {
+                ref.read(_showHis.notifier).state = true;
+              }
             }
           }),
       body:Consumer(
         builder: (context, ref, _) {
           var provider = ref.watch(_futureProvider);
           var isEmpty = ref.watch(_showEmpty);
-          if (provider.value == null || isEmpty) {
+          var showHis = ref.watch(_showHis);
+          if (showHis) {
+            return Consumer(builder: (context, ref, _) {
+              var searchList = ref.watch(_hisSearchProvider).value;
+              if (searchList == null || searchList.isEmpty) {
+                return Container();
+              } else {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "搜索历史",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Wrap(
+                        children: getHisWidget(searchList.reversed),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          clearHist();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.pink,
+                            ),
+                            Text("删除历史记录")
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              }
+            });
+          } else if (provider.value == null || isEmpty) {
             return Container();
           } else {
             var data = provider.value!;
@@ -242,5 +327,36 @@ class _HanjuSearchState extends ConsumerState {
         },
       ),
     );
+  }
+
+  List<Widget> getHisWidget(Iterable<String> str) {
+    var list = <Widget>[];
+    for (var element in str) {
+      list.add(Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: GestureDetector(
+          onTap: () {
+            _focusNode.unfocus();
+            editController.text = element;
+            ref.refresh(_futureProvider);
+            ref.read(_opacityProvider.notifier).update((state) => 1.0);
+            editController.selection =
+                TextSelection.collapsed(offset: element.length);
+          },
+          child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                  border: Border.all(color: ColorRes.pink400, width: 2.0)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  element,
+                  style: const TextStyle(color: ColorRes.pink600),
+                ),
+              )),
+        ),
+      ));
+    }
+    return list;
   }
 }

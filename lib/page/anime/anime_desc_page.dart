@@ -401,8 +401,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           var largeTitle =
                               ref.read(_desDataProvider).value?.title;
                           var title = largeTitle! + element.list[index].title!;
-                          debugPrint(
-                              "updateHistory chapter = $parentIndex position = $index");
+
                           updateHistory(
                               widget.animeShowUrl, parentIndex, index);
                           LoadingDialogHelper.showLoading(context);

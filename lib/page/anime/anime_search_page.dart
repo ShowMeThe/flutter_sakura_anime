@@ -201,7 +201,6 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           var showEmpty = ref.watch(_showEmpty);
           var provider = ref.watch(_futureProvider);
           var showHis = ref.watch(_showHis);
-          debugPrint("${showHis} ${provider.value}");
           if (showHis) {
             return Consumer(builder: (context, ref, _) {
               var searchList = ref.watch(_hisSearchProvider).value;

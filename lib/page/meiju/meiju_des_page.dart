@@ -26,6 +26,8 @@ class MjDesPage extends ConsumerStatefulWidget {
 class _MjDesPageState extends ConsumerState<MjDesPage> {
   late AutoDisposeFutureProvider<MjDesData> _desDataProvider;
 
+  late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -37,6 +39,15 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
     _desDataProvider = FutureProvider.autoDispose((ref) async {
       var result = await MeiJuApi.getDesPage(widget.url);
 
+      return result;
+    });
+
+    _localHisFuture = FutureProvider.autoDispose((_) async {
+      var result = findLocalHistory(widget.url);
+      debugPrint("result $result");
+      if (result == null) {
+        return null;
+      }
       return result;
     });
   }
@@ -279,6 +290,9 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                               element.chapterList[index].url,
                               parentIndex,
                               index);
+                          updateHistory(
+                              widget.url, parentIndex, index);
+                          ref.refresh(_localHisFuture);
                           debugPrint("url = $url");
                           if (!mounted) return;
                           if (url == null) {
@@ -291,6 +305,24 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                         },
                         child: Text(element.chapterList[index].title)),
                   ),
+                  Consumer(builder: (context, ref, _) {
+                    var localHistory = ref.watch(_localHisFuture);
+                    if (localHistory.value != null &&
+                        (localHistory.value!.chapterIndex) == index &&
+                        localHistory.value!.chapter == parentIndex) {
+                      return const Positioned(
+                        bottom: 5,
+                        left: 30,
+                        child: Text(
+                          "上次观看",
+                          style:
+                          TextStyle(color: ColorRes.pink400, fontSize: 10),
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  })
                 ],
               );
             }),
