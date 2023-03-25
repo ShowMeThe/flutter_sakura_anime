@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +35,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
   static const SEARCH_HIS = "SEARCH_MJ_HIS";
   var localList = <String>[];
   final _showHis = StateProvider.autoDispose<bool>((ref) => true);
+  late StreamSubscription<dynamic> sub;
 
   @override
   void initState() {
@@ -62,6 +65,10 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
       ref.read(_showHis.notifier).state = false;
       return result;
     });
+
+    // sub = AndroidKeyboardListener.onChange((value) {
+    //   debugPrint("keyboard = $value");
+    // });
   }
 
   void saveToHist(String newKey) async {
@@ -94,6 +101,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    sub.cancel();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
