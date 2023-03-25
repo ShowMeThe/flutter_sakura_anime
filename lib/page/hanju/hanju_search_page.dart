@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/bean/hanju_home_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -35,7 +36,7 @@ class _HanjuSearchState extends ConsumerState {
   static const SEARCH_HIS = "SEARCH_HJ_HIS";
   var localList = <String>[];
   final _showHis = StateProvider.autoDispose<bool>((ref) => true);
-
+  late StreamSubscription<dynamic> sub;
 
   @override
   void initState() {
@@ -66,6 +67,14 @@ class _HanjuSearchState extends ConsumerState {
       ref.read(_showHis.notifier).state = false;
       return result;
     });
+
+    sub = AndroidKeyboardListener.onChange((visible) async {
+      if(!visible){
+        await Future.delayed(const Duration(milliseconds: 350));
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+      }
+    });
+
   }
 
   void saveToHist(String newKey) async {
@@ -85,6 +94,8 @@ class _HanjuSearchState extends ConsumerState {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    sub.cancel();
+    _focusNode.dispose();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 

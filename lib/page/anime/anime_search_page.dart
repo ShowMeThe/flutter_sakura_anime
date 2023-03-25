@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/search_app_bar.dart';
@@ -28,6 +31,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   var localList = <String>[];
   late FocusNode _focusNode;
+  late StreamSubscription<dynamic> sub;
 
   @override
   void initState() {
@@ -51,6 +55,13 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
     _hisSearchProvider = FutureProvider.autoDispose<List<String>>((ref) async {
       localList = (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
       return localList;
+    });
+
+    sub = AndroidKeyboardListener.onChange((visible) async {
+      if(!visible){
+        await Future.delayed(const Duration(milliseconds: 350));
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+      }
     });
   }
 
@@ -120,6 +131,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    sub.cancel();
     _focusNode.dispose();
     editController.dispose();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);

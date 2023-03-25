@@ -49,6 +49,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
               onPressed: () {
                 Navigator.of(context).push(FadeRoute(const MjSearchPage()));
               },
+              backgroundColor: ColorRes.pink400,
               heroTag: "meiju",
               child: const Icon(
                 Icons.search,

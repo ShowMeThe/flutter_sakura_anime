@@ -63,6 +63,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage> with AutomaticKeepAliveCl
          onPressed: () {
            Navigator.of(context).push(FadeRoute(const HanjuSearchPage()));
          },
+         backgroundColor: ColorRes.pink400,
          heroTag: "hanju",
          child: const Icon(
            Icons.search,

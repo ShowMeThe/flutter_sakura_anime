@@ -70,6 +70,7 @@ class _HomePageState extends ConsumerState<HomePage>{
              showSelectedLabels: true,
              showUnselectedLabels: false,
              selectedFontSize: 12,
+             selectedItemColor: ColorRes.pink400,
              onTap: onTap,
              currentIndex: ref.watch(_pageProvider.state).state,
              items: [

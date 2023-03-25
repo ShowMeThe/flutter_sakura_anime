@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,9 +67,12 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
       return result;
     });
 
-    // sub = AndroidKeyboardListener.onChange((value) {
-    //   debugPrint("keyboard = $value");
-    // });
+    sub = AndroidKeyboardListener.onChange((visible) async {
+       if(!visible){
+         await Future.delayed(const Duration(milliseconds: 350));
+         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+       }
+    });
   }
 
   void saveToHist(String newKey) async {
@@ -102,6 +106,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
     // TODO: implement dispose
     super.dispose();
     sub.cancel();
+    _focusNode.dispose();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 

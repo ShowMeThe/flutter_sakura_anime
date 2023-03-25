@@ -53,6 +53,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
         onPressed: () {
           Navigator.of(context).push(FadeRoute(const AnimeSearchPage()));
         },
+        backgroundColor: ColorRes.pink400,
         child: const Icon(
           Icons.search,
           color: Colors.white,
