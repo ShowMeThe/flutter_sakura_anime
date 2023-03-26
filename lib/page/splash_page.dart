@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:local_auth/local_auth.dart';
 import 'home_page.dart';
 import 'anime/anime_home_page.dart';
+import 'package:local_auth_android/local_auth_android.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -32,7 +34,38 @@ class _SplashPageState extends State<SplashPage>
     _animation.addListener(() {
       setState(() {});
     });
-    _animationController.forward();
+    _auth();
+  }
+
+  void _auth() {
+    LocalAuthentication()
+        .authenticate(
+      localizedReason: "您需要扫描指纹才能进入",
+      authMessages: [
+       const AndroidAuthMessages(
+          biometricHint: "软件登录需要扫描指纹",
+          biometricNotRecognized: "指纹无法识别",
+          biometricRequiredTitle: "软件登录",
+          biometricSuccess: "指纹识别成功",
+          cancelButton: "取消",
+          goToSettingsButton: "设置",
+          goToSettingsDescription: "请先设置指纹才能解锁",
+          signInTitle: "您需要扫描指纹才能继续",
+        )
+      ],
+      options: const AuthenticationOptions(
+        useErrorDialogs: true,
+        stickyAuth: true,
+        sensitiveTransaction: true,
+        biometricOnly: true,
+      ),
+    ).then((value) {
+      if (value) {
+        _animationController.forward();
+      }
+    }).onError((error, stackTrace) {
+      debugPrint("error = $error stackTrace  = $stackTrace");
+    });
   }
 
   Timer delayToPage() {
