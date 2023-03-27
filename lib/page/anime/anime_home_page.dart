@@ -11,8 +11,7 @@ import 'anime_jc_page.dart';
 import 'anime_movie_page.dart';
 import 'anime_search_page.dart';
 
-
-class AnimeHomePage extends ConsumerStatefulWidget  {
+class AnimeHomePage extends ConsumerStatefulWidget {
   const AnimeHomePage({super.key});
 
   @override
@@ -20,7 +19,8 @@ class AnimeHomePage extends ConsumerStatefulWidget  {
 }
 
 @override
-class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends ConsumerState<AnimeHomePage>
+    with AutomaticKeepAliveClientMixin {
   late ScrollController _controller;
   late AutoDisposeFutureProvider<HomeData> _disposeFutureProvider;
 
@@ -30,7 +30,9 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _disposeFutureProvider = FutureProvider.autoDispose<HomeData>((_) async {
-      var result = await Api.getHomeData();
+      var result = await Api.getHomeData().catchError((onError) {
+        debugPrint(onError);
+      });
       return result;
     });
     _controller = ScrollController();
@@ -61,64 +63,64 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
       ),
       body: Material(
           child: NestedScrollView(
-            controller: _controller,
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  expandedHeight: 110,
-                  collapsedHeight: 95,
-                  pinned: true,
-                  backgroundColor: Colors.white,
-                  flexibleSpace: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: top + 15),
-                        child: buildIcon(0),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: top + 15),
-                        child: buildIcon(1),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: top + 15),
-                        child: buildIcon(2),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: top + 15),
-                        child: buildIcon(3),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: top + 15),
-                        child: buildIcon(4),
-                      ),
-                    ],
+        controller: _controller,
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverAppBar(
+              expandedHeight: 110,
+              collapsedHeight: 95,
+              pinned: true,
+              backgroundColor: Colors.white,
+              flexibleSpace: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: top + 15),
+                    child: buildIcon(0),
                   ),
-                ),
-              ];
-            },
-            body: Container(
-              color: Colors.white,
-              child: Consumer(
-                builder: (context, ref, _) {
-                  var provider = ref.watch(_disposeFutureProvider);
-                  if (!(provider.isLoading || provider.hasError)) {
-                    return ListView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(top: 0),
-                      children: buildBody(provider.value),
-                    );
-                  } else {
-                    return ListView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(top: 0),
-                      children: buildLoadingBody(),
-                    );
-                  }
-                },
+                  Padding(
+                    padding: EdgeInsets.only(top: top + 15),
+                    child: buildIcon(1),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: top + 15),
+                    child: buildIcon(2),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: top + 15),
+                    child: buildIcon(3),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: top + 15),
+                    child: buildIcon(4),
+                  ),
+                ],
               ),
             ),
-          )),
+          ];
+        },
+        body: Container(
+          color: Colors.white,
+          child: Consumer(
+            builder: (context, ref, _) {
+              var provider = ref.watch(_disposeFutureProvider);
+              if (!(provider.isLoading || provider.hasError)) {
+                return ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 0),
+                  children: buildBody(provider.value),
+                );
+              } else {
+                return ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 0),
+                  children: buildLoadingBody(),
+                );
+              }
+            },
+          ),
+        ),
+      )),
     );
   }
 
@@ -324,19 +326,17 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
        * 剧场
        */
       Navigator.of(context).push(FadeRoute(const AnimeJcPage()));
-    }else if (index == 3) {
+    } else if (index == 3) {
       /**
        * 追番
        */
       Navigator.of(context).push(FadeRoute(const AnimeCollectPage()));
-    }else if (index == 4) {
+    } else if (index == 4) {
       /**
        * 分类
        */
       Navigator.of(context).push(FadeRoute(const AnimeCategoryPage()));
-    } else {
-
-    }
+    } else {}
   }
 
   String getImageIndex(int index) {
@@ -346,11 +346,11 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
       return A.assets_ic_sakura_movie;
     } else if (index == 2) {
       return A.assets_ic_sakura_tv;
-    } else if (index == 3)  {
+    } else if (index == 3) {
       return A.assets_ic_sakura_collect;
-    } else if (index == 4)  {
+    } else if (index == 4) {
       return A.assets_ic_sakura_cagetory;
-    }else {
+    } else {
       return "";
     }
   }
@@ -362,11 +362,11 @@ class _HomePageState extends ConsumerState<AnimeHomePage> with AutomaticKeepAliv
       return "剧场版";
     } else if (index == 2) {
       return "OVA";
-    }  else if (index == 3) {
+    } else if (index == 3) {
       return "追番";
-    }  else if (index == 4) {
+    } else if (index == 4) {
       return "分类";
-    }else {
+    } else {
       return "";
     }
   }
