@@ -237,7 +237,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
           ),
           onSelected: (bool) {
             if (bool) {
-              ref.read(yearState.notifier).update((state) => i);
+              ref.refresh(yearState.notifier).update((state) => i);
               nowPage = 1;
               ref.refresh(_futureProvider);
             }

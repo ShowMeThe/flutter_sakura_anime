@@ -34,7 +34,7 @@ class _SplashPageState extends State<SplashPage>
     _animation.addListener(() {
       setState(() {});
     });
-    _auth();
+    _animationController.forward();
   }
 
   void _auth() {
@@ -43,7 +43,7 @@ class _SplashPageState extends State<SplashPage>
       localizedReason: "您需要扫描指纹才能进入",
       authMessages: [
        const AndroidAuthMessages(
-          biometricHint: "软件登录需要扫描指纹",
+          biometricHint: "",
           biometricNotRecognized: "指纹无法识别",
           biometricRequiredTitle: "软件登录",
           biometricSuccess: "指纹识别成功",

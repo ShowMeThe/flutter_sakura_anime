@@ -63,8 +63,8 @@ class _HanjuSearchState extends ConsumerState {
       var result =
       await HjApi.getSearchPage(editController.text, page: nowPage);
       _canLoadMore = result.loadMore;
-      ref.read(_showEmpty.notifier).update((state) => false);
-      ref.read(_showHis.notifier).state = false;
+      ref.refresh(_showEmpty.notifier).update((state) => false);
+      ref.refresh(_showHis.notifier).state = false;
       return result;
     });
 
@@ -123,11 +123,11 @@ class _HanjuSearchState extends ConsumerState {
           cursorColor: Colors.grey.withAlpha(125),
           controller: editController,
           onChange: (word) {
-            ref.read(_showHis.notifier).update((state) => word.isNotEmpty);
+            ref.refresh(_showHis.notifier).update((state) => word.isNotEmpty);
             if (word.isNotEmpty) {
-              ref.read(_opacityProvider.notifier).update((state) => 1.0);
+              ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
             } else {
-              ref.read(_opacityProvider.notifier).update((state) => 0.0);
+              ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
             }
           },
           leading: GestureDetector(
@@ -149,10 +149,10 @@ class _HanjuSearchState extends ConsumerState {
                 onTap: () {
                   if (opacity != 0.0) {
                     editController.clear();
-                    ref.read(_opacityProvider.notifier).update((state) => 0.0);
-                    ref.read(_showEmpty.notifier).state = true;
+                    ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
+                    ref.refresh(_showEmpty.notifier).state = true;
                     if (localList.isNotEmpty) {
-                      ref.read(_showHis.notifier).state = true;
+                      ref.refresh(_showHis.notifier).state = true;
                     }
                   }
                 },
@@ -175,9 +175,9 @@ class _HanjuSearchState extends ConsumerState {
                ref.refresh(_futureProvider);
                saveToHist(word);
             } else {
-              ref.read(_showEmpty.notifier).state = true;
+              ref.refresh(_showEmpty.notifier).state = true;
               if (localList.isNotEmpty) {
-                ref.read(_showHis.notifier).state = true;
+                ref.refresh(_showHis.notifier).state = true;
               }
             }
           }),
@@ -350,7 +350,7 @@ class _HanjuSearchState extends ConsumerState {
             _focusNode.unfocus();
             editController.text = element;
             ref.refresh(_futureProvider);
-            ref.read(_opacityProvider.notifier).update((state) => 1.0);
+            ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
             editController.selection =
                 TextSelection.collapsed(offset: element.length);
           },
