@@ -7,9 +7,10 @@ class FoldTextView extends StatefulWidget {
   final TextStyle textStyle;
   final double maxWidth;
   final Color? moreBgColor;
+  final Color? moreTxColor;
 
   const FoldTextView(this.text, this.maxLines, this.textStyle, this.maxWidth,
-      {super.key, this.moreBgColor});
+      {super.key, this.moreBgColor, this.moreTxColor});
 
   @override
   State<StatefulWidget> createState() => _FoldTextViewState();
@@ -78,7 +79,8 @@ class _FoldTextViewState extends State<FoldTextView> {
       width: _kMoreWidth,
       child: Text((_temLines > _maxLines) ? '展开' : '收起',
           style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color:
+                  widget.moreTxColor ?? Theme.of(context).colorScheme.primary,
               fontSize: widget.textStyle.fontSize ?? 14.0)));
 
   _checkOverMaxLines01(maxLines, maxWidth) {

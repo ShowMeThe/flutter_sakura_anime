@@ -20,11 +20,15 @@ class _HomePageState extends ConsumerState<HomePage> {
       StateProvider.autoDispose<int>((_) => 0);
   final _pages = [
     const AnimeHomePage(),
+    const HanjuPage(),
     const MeijuHomePage(),
-    const HanjuPage()
   ];
 
-  final _titles = ["动漫", "美剧", "韩剧"];
+  final _titles = [
+    "动漫",
+    "韩剧",
+    "美剧",
+  ];
 
   void onTap(int index) {
     _pageController.animateToPage(index,
@@ -40,6 +44,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     var lastIndex = (await _prefs).getInt(tabIndex) ?? 0;
     if (lastIndex != 0) {
       ref.refresh(_pageProvider.notifier).update((state) => lastIndex);
+      _pageController.animateToPage(lastIndex,
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
     }
   }
 
@@ -88,10 +94,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                   icon: ImageIcon(AssetImage(A.assets_ic_sakura_flower)),
                   label: _titles[0]),
               BottomNavigationBarItem(
-                  icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
+                  icon: ImageIcon(AssetImage(A.assets_ic_hanju)),
                   label: _titles[1]),
               BottomNavigationBarItem(
-                  icon: ImageIcon(AssetImage(A.assets_ic_hanju)),
+                  icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
                   label: _titles[2]),
             ]);
       }),

@@ -11,8 +11,15 @@ class MethodChannelVideoSniffing extends VideoSniffingPlatform {
 
   @override
   Future<String?> getRawHtml(String baseUrl) async {
+    final result = await methodChannel
+        .invokeMethod<String>('getRawHtml', {"baseUrl": baseUrl});
+    return result;
+  }
+
+  @override
+  Future<String?> getCustomData(String baseUrl, String jsCode) async {
     final result = await methodChannel.invokeMethod<String>(
-        'getRawHtml', {"baseUrl": baseUrl});
+        'getCustomData', {"baseUrl": baseUrl, "jsCode": jsCode});
     return result;
   }
 }

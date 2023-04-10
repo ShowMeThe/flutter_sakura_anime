@@ -39,6 +39,19 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
                     result.success(this)
                 }
             }
+        }else if(call.method == "getCustomData"){
+            val url = call.argument<String>("baseUrl")
+            val jsCode = call.argument<String>("jsCode")
+            Log.e("VideoSniffingPlugin","${url}")
+            if(url.isNullOrBlank().not()){
+                if (this::webViewConnect.isInitialized.not()) {
+                    webViewConnect = WebViewConnect()
+                    webViewConnect.setContext(mContext)
+                }
+                webViewConnect.loadCustomData(url!!,jsCode!!){
+                    result.success(this)
+                }
+            }
         } else {
             result.notImplemented()
         }

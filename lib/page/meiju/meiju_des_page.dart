@@ -216,7 +216,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                   4,
                                   const TextStyle(
                                       color: Colors.white, fontSize: 12.0),
-                                  320),
+                                  320,moreTxColor: ColorRes.pink400,),
                             ));
                       } else {
                         return Container();

@@ -186,7 +186,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                                       const EdgeInsets.all(8.0),
                                                   child: Center(
                                                     child: Text(
-                                                      _movies[index].title!,
+                                                      _movies[index].title,
                                                       style: const TextStyle(
                                                         fontSize: 10.0,
                                                         overflow: TextOverflow

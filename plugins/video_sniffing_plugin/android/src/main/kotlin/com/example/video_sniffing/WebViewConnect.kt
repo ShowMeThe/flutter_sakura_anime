@@ -18,7 +18,7 @@ class WebViewConnect {
 
     private var mWebView: WebView? = null
     private var sortCtx: SoftReference<Context>? = null
-    private fun initWebView() {
+    private fun loadWebViewHtml() {
         Log.e("VideoSniffingPlugin", "${sortCtx}")
         if (sortCtx == null || sortCtx?.get() == null) return
         val ctx = requireNotNull(sortCtx?.get())
@@ -41,10 +41,39 @@ class WebViewConnect {
         }
     }
 
+    private fun loadWebViewCustomData(jsCode:String) {
+        Log.e("VideoSniffingPlugin", "${sortCtx}")
+        if (sortCtx == null || sortCtx?.get() == null) return
+        val ctx = requireNotNull(sortCtx?.get())
+        if (mWebView == null) {
+            mWebView = WebView(ctx)
+            Log.e("VideoSniffingPlugin", "${mWebView}")
+            mWebView?.apply {
+                settings.javaScriptEnabled = true
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                addJavascriptInterface(VideoSniffing(), "video_sniffing")
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView, url: String?) {
+                        super.onPageFinished(view, url)
+                        Log.e("VideoSniffingPlugin", "finish")
+                        view
+                            .loadUrl("javascript:window.video_sniffing.loadCustomData(${jsCode});")
+                    }
+                }
+            }
+        }
+    }
+
     inner class VideoSniffing() {
 
         @JavascriptInterface
         open fun showHtml(html: String?) {
+            callbacks?.invoke(html)
+            onDestroy()
+        }
+
+        @JavascriptInterface
+        open fun loadCustomData(html: String?) {
             callbacks?.invoke(html)
             onDestroy()
         }
@@ -63,7 +92,13 @@ class WebViewConnect {
     }
 
     fun loadUrl(baseUrl: String, callback: String?.() -> Unit) {
-        initWebView()
+        loadWebViewHtml()
+        mWebView?.loadUrl(baseUrl)
+        callbacks = callback
+    }
+
+    fun loadCustomData(baseUrl: String,jsCode:String, callback: String?.() -> Unit) {
+        loadWebViewCustomData(jsCode)
         mWebView?.loadUrl(baseUrl)
         callbacks = callback
     }

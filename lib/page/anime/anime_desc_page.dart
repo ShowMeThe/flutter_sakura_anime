@@ -309,7 +309,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                   4,
                                   const TextStyle(
                                       color: Colors.white, fontSize: 12.0),
-                                  320),
+                                  320,moreTxColor: ColorRes.pink400,),
                             )),
                             SizedBox(
                               width: double.infinity,

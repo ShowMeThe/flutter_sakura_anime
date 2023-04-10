@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:video_sniffing/video_sniffing.dart';
 
 import '../bean/hanju_des_data.dart';
 import '../bean/hanju_home_data.dart';
@@ -32,14 +33,14 @@ class HjApi {
     });
     var document = parse(future.data);
     var queryVod =
-    document.getElementsByClassName("col-md-6 col-sm-4 col-xs-3");
+        document.getElementsByClassName("col-md-6 col-sm-4 col-xs-3");
     var list = <HjHomeDataItem>[];
     for (var element in queryVod) {
       var els =
-      element.getElementsByClassName("myui-vodlist__thumb lazyload")[0];
+          element.getElementsByClassName("myui-vodlist__thumb lazyload")[0];
       var href = base + els.attributes["href"]!;
       var logo = els.attributes["data-original"]!;
-      logo  = formatLogoUrl(logo);
+      logo = formatLogoUrl(logo);
       var title = els.attributes["title"]!;
       var score = element.getElementsByClassName("pic-tag pic-tag-top")[0].text;
       score = score.substring(3, score.length - 1);
@@ -93,7 +94,7 @@ class HjApi {
       }
       list.add(HjDesPlayData(nameKeys[i], playList));
     }
-    return HjDesData(des, list);
+    return HjDesData(des, list.where((element) => !element.title.contains("主线")).toList());
   }
 
   static Future<String> getPlayUrl(String url) async {
@@ -107,18 +108,13 @@ class HjApi {
     var document = parse(future.data);
     var iframe = document
         .getElementsByClassName(
-        "embed-responsive embed-responsive-16by9 clearfix")[0]
+            "embed-responsive embed-responsive-16by9 clearfix")[0]
         .querySelector("iframe");
     var src = iframe!.attributes["src"]!;
-    var startIndex = src.indexOf("url=");
-    var playUrl = src.substring(startIndex);
-    printLongText("src = $playUrl");
-    var comUrl = "https://apiapp.shasha.cc/q.php?$playUrl&filename=play.m3u8";
-    var cacheDir = await getTemporaryDirectory();
-    var tempDir = File("${cacheDir.path}/tempVideo/");
-    var playFile = File("${tempDir.path}/play.m3u8");
-    await ((await HttpClient.get()).download(comUrl, playFile.path));
-    return playFile.path;
+    printLongText("src = $src");
+    var playUrl = await VideoSniffing.getCustomData(src, "player._hls.url");
+    printLongText("playUrl = $playUrl");
+    return playUrl ?? "";
   }
 
   static Future<HjHomeData> getSearchPage(String word, {int page = 1}) async {
@@ -140,20 +136,21 @@ class HjApi {
 
     var document = parse(future.data);
     var list = <HjHomeDataItem>[];
-    var query = document.getElementsByClassName("myui-vodlist__media clearfix")[0];
+    var query =
+        document.getElementsByClassName("myui-vodlist__media clearfix")[0];
     var eli = query.querySelectorAll("li");
     for (var element in eli) {
       var thumb = element.querySelector("div.thumb > a")!;
       var href = base + thumb.attributes["href"]!;
       var logo = thumb.attributes["data-original"]!;
-      logo  = formatLogoUrl(logo);
+      logo = formatLogoUrl(logo);
       var title = thumb.attributes["title"]!;
       var score = thumb.getElementsByClassName("pic-tag pic-tag-top")[0].text;
       score = score.substring(3, score.length - 1);
       var updateLine = thumb.getElementsByClassName("pic-text text-right");
       var update = "";
-      if(updateLine.isNotEmpty){
-        update= updateLine[0].text;
+      if (updateLine.isNotEmpty) {
+        update = updateLine[0].text;
       }
       list.add(HjHomeDataItem(title, logo, href, score, update));
     }
@@ -166,13 +163,12 @@ class HjApi {
     return HjHomeData(canLoad, list);
   }
 
-  static String formatLogoUrl(String logo){
+  static String formatLogoUrl(String logo) {
     if (!logo.startsWith("http") && !logo.startsWith("//")) {
       logo = base + logo;
-    }else{
+    } else {
       logo = "https:$logo";
     }
     return logo;
   }
-
 }

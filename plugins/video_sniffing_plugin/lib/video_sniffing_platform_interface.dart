@@ -26,4 +26,8 @@ abstract class VideoSniffingPlatform extends PlatformInterface {
   Future<String?> getRawHtml(String baseUrl) {
     throw UnimplementedError('getRawHtml(String baseUrl) has not been implemented.');
   }
+
+  Future<String?> getCustomData(String baseUrl,String jsCode) {
+    throw UnimplementedError('getCustomData(String baseUrl,String jsCode) has not been implemented.');
+  }
 }

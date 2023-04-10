@@ -217,7 +217,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                               3,
                               const TextStyle(
                                   color: Colors.white, fontSize: 12.0),
-                              320),
+                              320,moreTxColor: ColorRes.pink400,),
                         ));
                       } else {
                         return Container();
@@ -327,7 +327,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                       Navigator.of(context).push(FadeRoute(PlayPage(
                         url,
                         title,
-                        fromLocal: true,
+                        fromLocal: false,
                       )));
                     },
                     child: Text(element.title)),
