@@ -6,6 +6,7 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
 
 import '../../bean/hanju_home_data.dart';
+import '../../widget/color_container.dart';
 
 class HanjuPage extends ConsumerStatefulWidget {
   const HanjuPage({super.key});
@@ -44,9 +45,8 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       var year = ref.read(yearState);
-      var result =
-          await HjApi.getHomePage(year: year.toString(), page: nowPage)
-              .catchError((onError) {
+      var result = await HjApi.getHomePage(year: year.toString(), page: nowPage)
+          .catchError((onError) {
         debugPrint(onError);
       });
       _canLoadMore = result.loadMore;
@@ -179,24 +179,29 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                           Positioned.fill(
                                               left: 0,
                                               top: 150,
-                                              child: Container(
-                                                color: ColorRes.mainColor,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Center(
-                                                    child: Text(
-                                                      _movies[index].title,
-                                                      style: const TextStyle(
-                                                        fontSize: 10.0,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                              child: ColorContainer(
+                                                  _movies[index].logo,
+                                                  ColorRes.mainColor,
+                                                  Container(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Center(
+                                                        child: Text(
+                                                          _movies[index].title,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 10.0,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                          maxLines: 2,
+                                                        ),
                                                       ),
-                                                      maxLines: 2,
                                                     ),
-                                                  ),
-                                                ),
-                                              ))
+                                                  )))
                                         ],
                                       ),
                                     )),

@@ -13,6 +13,7 @@ class HttpClient {
   static const _timeOut = 15000;
   static Dio? _dio;
   static Dio? _dio2;
+  static Dio? _dio3;
   static final Map<String, dynamic> _map = HashMap();
   static final BaseOptions _option = BaseOptions(
       baseUrl: _baseUrl,
@@ -24,6 +25,7 @@ class HttpClient {
     var future = await getApplicationDocumentsDirectory();
     return future.path;
   }
+
 
   static Future<Dio> get() async {
     _dio ??= Dio(_option)
@@ -49,4 +51,10 @@ class HttpClient {
       )));
     return _dio2!;
   }
+
+  static Dio get3()  {
+    _dio3 ??= Dio(_option);
+    return _dio3!;
+  }
+
 }

@@ -54,6 +54,10 @@ dependencies:
   sqlite3: ^1.9.1
   sqlite3_flutter_libs: ^0.5.12
   gbk_codec_nohtml: ^1.0.0
+  fluttertoast: ^8.2.1
+#  flutter_hls_parser: ^2.0.1
+#  ffmpeg_kit_flutter: ^5.1.0
+
   video_sniffing:
     path: ./plugins/video_sniffing_plugin
   android_keyboard_listener:
