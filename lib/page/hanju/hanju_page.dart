@@ -182,23 +182,19 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                               child: ColorContainer(
                                                   _movies[index].logo,
                                                   ColorRes.mainColor,
-                                                  Container(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Center(
-                                                        child: Text(
-                                                          _movies[index].title,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 10.0,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          ),
-                                                          maxLines: 2,
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Center(
+                                                      child: Text(
+                                                        _movies[index].title,
+                                                        style: const TextStyle(
+                                                          fontSize: 10.0,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                         ),
+                                                        maxLines: 2,
                                                       ),
                                                     ),
                                                   )))

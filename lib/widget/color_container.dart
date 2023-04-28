@@ -17,7 +17,6 @@ class ColorContainer extends StatefulWidget {
 
 class _ColorContainerState extends State<ColorContainer>
     with TickerProviderStateMixin {
-  late ImageProvider _imageProvider;
   late AnimationController _fadeController;
   late Animation _animation;
   Color _placeColor = Colors.transparent;
@@ -31,7 +30,7 @@ class _ColorContainerState extends State<ColorContainer>
             width: rectWidth,
             height: rectHeight),
         maximumColorCount: 5);
-    var lightColor = color.lightVibrantColor ?? color.darkVibrantColor;
+    var lightColor = color.lightVibrantColor ?? color.darkVibrantColor ?? color.lightMutedColor ??color.darkMutedColor;
     if (lightColor != null) {
       _animation = ColorTween(begin: widget.baseColor, end: lightColor.color)
           .animate(_fadeController);
@@ -42,7 +41,7 @@ class _ColorContainerState extends State<ColorContainer>
   void initAnimationControllerIfLate() {
     _fadeController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
-    _imageProvider = _addImageLoader(widget.url);
+    _addImageLoader(widget.url);
     _fadeController.addListener(() {
       setState(() {
         _placeColor = _animation.value;

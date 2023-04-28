@@ -62,6 +62,7 @@ dependencies:
     path: ./plugins/video_sniffing_plugin
   android_keyboard_listener:
     path: ./plugins/android_keyboard_listener
+
   local_auth: ^2.1.6
 
 
