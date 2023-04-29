@@ -180,24 +180,9 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                               left: 0,
                                               top: 150,
                                               child: ColorContainer(
-                                                  _movies[index].logo,
-                                                  ColorRes.mainColor,
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Center(
-                                                      child: Text(
-                                                        _movies[index].title,
-                                                        style: const TextStyle(
-                                                          fontSize: 10.0,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                        maxLines: 2,
-                                                      ),
-                                                    ),
-                                                  )))
+                                                  url: _movies[index].logo,
+                                                  baseColor: ColorRes.mainColor,
+                                                  title:_movies[index].title))
                                         ],
                                       ),
                                     )),

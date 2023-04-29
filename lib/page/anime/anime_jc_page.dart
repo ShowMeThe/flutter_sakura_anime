@@ -4,6 +4,7 @@ import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/load_refresh_indicator.dart';
 
+import '../../widget/color_container.dart';
 import 'anime_desc_page.dart';
 
 class AnimeJcPage extends ConsumerStatefulWidget {
@@ -44,13 +45,14 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent - notification.metrics.pixels < 210) {
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
+          210) {
         if (!_isLoading && _canLoadMore) {
           nowPage++;
           debugPrint("load more $nowPage");
           if (nowPage <= maxPage) {
             ref.refresh(_futureProvider);
-          }else{
+          } else {
             _canLoadMore = false;
           }
         }
@@ -72,7 +74,7 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
             return buildLoadingBody();
           } else {
             var data = provider.value!;
-            if(!provider.isLoading){
+            if (!provider.isLoading) {
               if (nowPage == 1) {
                 _movies.clear();
               }
@@ -129,21 +131,10 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
                                             fit: BoxFit.fitWidth,
                                           )),
                                       Expanded(
-                                          child: Container(
-                                        color: ColorRes.mainColor,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                            child: Text(
-                                              _movies[index].title!,
-                                              style: const TextStyle(
-                                                fontSize: 10.0,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                        ),
+                                          child: ColorContainer(
+                                        url: _movies[index].logo!,
+                                        baseColor: ColorRes.mainColor,
+                                        title: _movies[index].title!,
                                       ))
                                     ],
                                   ),

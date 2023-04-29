@@ -2,6 +2,7 @@ import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/widget/color_container.dart';
 import 'package:flutter_sakura_anime/widget/load_refresh_indicator.dart';
 
 import 'anime_desc_page.dart';
@@ -129,22 +130,11 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
                                             fit: BoxFit.fitWidth,
                                           )),
                                       Expanded(
-                                          child: Container(
-                                        color: ColorRes.mainColor,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                            child: Text(
-                                              _movies[index].title!,
-                                              style: const TextStyle(
-                                                fontSize: 10.0,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                        ),
-                                      ))
+                                          child: ColorContainer(
+                                            title: _movies[index].title!,
+                                            url: _movies[index].logo!,
+                                            baseColor: ColorRes.mainColor,
+                                          ))
                                     ],
                                   ),
                                 )),

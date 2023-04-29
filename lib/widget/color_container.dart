@@ -2,12 +2,13 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 
+// ignore: must_be_immutable
 class ColorContainer extends StatefulWidget {
-  final String url;
-  final Widget body;
-  final Color baseColor;
+  late String url;
+  late String title;
+  late Color baseColor;
 
-  const ColorContainer(this.url, this.baseColor, this.body, {super.key});
+  ColorContainer({this.url = "", this.baseColor = Colors.white, this.title = "" ,super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -19,7 +20,9 @@ class _ColorContainerState extends State<ColorContainer>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation _animation;
-  Color _placeColor = Colors.transparent;
+  Color _placeColor = Colors.white;
+  Color _placeTextColor = Colors.black;
+  var isDispose = false;
 
   Future getPaletteColor(ui.Image image) async {
     var rectWidth = image.width / 3.0;
@@ -30,11 +33,17 @@ class _ColorContainerState extends State<ColorContainer>
             width: rectWidth,
             height: rectHeight),
         maximumColorCount: 5);
-    var lightColor = color.lightVibrantColor ?? color.darkVibrantColor ?? color.lightMutedColor ??color.darkMutedColor;
+    var lightColor = color.lightVibrantColor ?? color.lightMutedColor;
     if (lightColor != null) {
       _animation = ColorTween(begin: widget.baseColor, end: lightColor.color)
           .animate(_fadeController);
-      _fadeController.forward();
+      if(!isDispose){
+        _fadeController.forward();
+      }
+    }
+    var blackTextColor = color.darkVibrantColor ?? color.darkMutedColor;
+    if(blackTextColor!= null){
+      _placeTextColor = blackTextColor.color;
     }
   }
 
@@ -64,12 +73,14 @@ class _ColorContainerState extends State<ColorContainer>
   @override
   void initState() {
     super.initState();
+    isDispose = false;
     _placeColor = widget.baseColor;
     initAnimationControllerIfLate();
   }
 
   @override
   void dispose() {
+    isDispose = true;
     _fadeController.dispose();
     super.dispose();
   }
@@ -78,7 +89,20 @@ class _ColorContainerState extends State<ColorContainer>
   Widget build(BuildContext context) {
     return Container(
       color: _placeColor,
-      child: widget.body,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Text(
+            widget.title,
+            style: TextStyle(
+              color: _placeTextColor,
+              fontSize: 10.0,
+              overflow: TextOverflow.ellipsis,
+            ),
+            maxLines: 2,
+          ),
+        ),
+      ),
     );
   }
 }

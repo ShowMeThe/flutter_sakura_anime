@@ -4,6 +4,7 @@ import 'package:flutter_sakura_anime/page/meiju/meiju_des_page.dart';
 import 'package:flutter_sakura_anime/page/meiju/meiju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
+import 'package:flutter_sakura_anime/widget/color_container.dart';
 
 import 'meiju_category_page.dart';
 
@@ -211,21 +212,10 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                             Positioned.fill(
                                 left: 0,
                                 top: 150,
-                                child: Container(
-                                  color: ColorRes.mainColor,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Center(
-                                      child: Text(
-                                        childList[index].title,
-                                        style: const TextStyle(
-                                          fontSize: 13.0,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        maxLines: 2,
-                                      ),
-                                    ),
-                                  ),
+                                child: ColorContainer(
+                                  url: childList[index].img,
+                                  title: childList[index].title,
+                                  baseColor: ColorRes.mainColor,
                                 )),
                           ],
                         ),

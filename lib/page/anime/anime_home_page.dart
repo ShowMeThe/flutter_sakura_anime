@@ -4,6 +4,7 @@ import 'package:flutter_sakura_anime/page/anime/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/fade_route.dart';
 
+import '../../widget/color_container.dart';
 import 'anime_category.dart';
 import 'anime_collect_page.dart';
 import 'anime_desc_page.dart';
@@ -240,22 +241,11 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
                                   fit: BoxFit.fitWidth,
                                 )),
                             Expanded(
-                                child: Container(
-                              color: ColorRes.mainColor,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                  child: Text(
-                                    childList[index].title!,
-                                    style: const TextStyle(
-                                      fontSize: 13.0,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    maxLines: 2,
-                                  ),
-                                ),
-                              ),
-                            ))
+                                child: ColorContainer(
+                                  url: childList[index].img!,
+                                  baseColor: ColorRes.mainColor,
+                                  title: childList[index].title!,
+                                ))
                           ],
                         ),
                       )),

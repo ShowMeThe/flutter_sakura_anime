@@ -6,6 +6,8 @@ import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
+import '../../widget/color_container.dart';
+
 class AnimeDesPage extends ConsumerStatefulWidget {
   final String animeShowUrl;
   final String logo;
@@ -305,11 +307,13 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               padding: const EdgeInsets.only(
                                   left: 8.0, right: 8.0, top: 0.0),
                               child: FoldTextView(
-                                  data.des == null ? "" : data.des!,
-                                  4,
-                                  const TextStyle(
-                                      color: Colors.white, fontSize: 12.0),
-                                  320,moreTxColor: ColorRes.pink400,),
+                                data.des == null ? "" : data.des!,
+                                4,
+                                const TextStyle(
+                                    color: Colors.white, fontSize: 12.0),
+                                320,
+                                moreTxColor: ColorRes.pink400,
+                              ),
                             )),
                             SizedBox(
                               width: double.infinity,
@@ -493,21 +497,10 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(8.0),
                             bottomRight: Radius.circular(8.0)),
-                        child: Container(
-                          color: ColorRes.mainColor,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Text(
-                                list[index].title!,
-                                style: const TextStyle(
-                                  fontSize: 10.0,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                maxLines: 2,
-                              ),
-                            ),
-                          ),
+                        child: ColorContainer(
+                          url: list[index].logo!,
+                          baseColor: ColorRes.mainColor,
+                          title: list[index].title!,
                         ),
                       ))
                     ],

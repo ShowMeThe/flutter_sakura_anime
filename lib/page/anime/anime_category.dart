@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/widget/color_container.dart';
 import 'anime_desc_page.dart';
 
 class AnimeCategoryPage extends ConsumerStatefulWidget {
@@ -147,22 +148,11 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                                             fit: BoxFit.fitWidth,
                                           )),
                                       Expanded(
-                                          child: Container(
-                                        color: ColorRes.mainColor,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                            child: Text(
-                                              _movies[index].title!,
-                                              style: const TextStyle(
-                                                fontSize: 10.0,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                        ),
-                                      ))
+                                          child: ColorContainer(
+                                            url: _movies[index].logo!,
+                                            baseColor: ColorRes.mainColor,
+                                            title: _movies[index].title!,
+                                          ))
                                     ],
                                   ),
                                 )),

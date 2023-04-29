@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/widget/color_container.dart';
 import 'package:flutter_sakura_anime/widget/search_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'anime_desc_page.dart';
@@ -317,22 +318,11 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
                                             fit: BoxFit.fitWidth,
                                           )),
                                       Expanded(
-                                          child: Container(
-                                        color: ColorRes.mainColor,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                            child: Text(
-                                              _movies[index].title!,
-                                              style: const TextStyle(
-                                                fontSize: 10.0,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                        ),
-                                      ))
+                                          child: ColorContainer(
+                                            url: _movies[index].logo!,
+                                            baseColor: ColorRes.mainColor,
+                                            title: _movies[index].title!,
+                                          ))
                                     ],
                                   ),
                                 )),

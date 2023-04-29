@@ -327,10 +327,8 @@ class Api {
 
     List<AnimeMovieListData> movies = [];
     var query = document.querySelectorAll("div.lpic > ul > li");
-    debugPrint("le = ${query.length}");
     for (var element in query) {
       var title = element.querySelector("h2")!.text.trimLeft();
-      debugPrint("get title ${title}");
       var url = element.querySelector("h2 > a")!.attributes["href"];
       var logo =
           baseImgHead + (element.querySelector("img")!.attributes["src"] ?? "");
