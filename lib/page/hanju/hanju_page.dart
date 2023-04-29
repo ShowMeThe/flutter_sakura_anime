@@ -19,6 +19,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     with AutomaticKeepAliveClientMixin {
   final endYear = DateTime.now().year;
   final yearState = StateProvider.autoDispose((ref) => DateTime.now().year);
+  final typeState = StateProvider.autoDispose((ref) => 0);
   late AutoDisposeFutureProvider<HjHomeData> _futureProvider;
   var nowPage = 1;
   static const _HeroTag = "des";
@@ -45,7 +46,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       var year = ref.read(yearState);
-      var result = await HjApi.getHomePage(year: year.toString(), page: nowPage)
+      var result = await HjApi.getHomePage(year: year.toString(), page: nowPage,type: ref.read(typeState))
           .catchError((onError) {
         debugPrint(onError);
       });
@@ -76,18 +77,34 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
               SliverAppBar(
-                expandedHeight: 65,
+                expandedHeight: 120,
+                collapsedHeight: 120,
                 pinned: true,
                 backgroundColor: Colors.white,
                 flexibleSpace: Consumer(
                   builder: (context, ref, _) {
                     var endYearSelected = ref.watch(yearState);
-                    return Padding(
-                      padding: EdgeInsets.only(top: paddingTop),
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: _buildChip(endYearSelected),
-                      ),
+                    var typeSelected = ref.watch(typeState);
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: paddingTop),
+                            child: ListView(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              children: _buildTypeChip(typeSelected),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            children: _buildChip(endYearSelected),
+                          ),
+                        )
+                      ],
                     );
                   },
                 ),
@@ -208,12 +225,39 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     );
   }
 
+  List<Widget> _buildTypeChip(int selectedYear) {
+    var list = <Widget>[];
+    var title = ["韩剧","电影"];
+    for (int i = 0; i < 2; i++) {
+      var selected = selectedYear == i;
+      list.add(Padding(
+        padding: const EdgeInsets.only(left : 8.0,right: 8.0),
+        child: ChoiceChip(
+          selectedColor: ColorRes.pink300,
+          selected: selected,
+          label: Text(
+            title[i],
+            style: TextStyle(color: selected ? Colors.white : Colors.black),
+          ),
+          onSelected: (bool) {
+            if (bool) {
+              ref.refresh(typeState.notifier).update((state) => i);
+              nowPage = 1;
+              ref.refresh(_futureProvider);
+            }
+          },
+        ),
+      ));
+    }
+    return list;
+  }
+
   List<Widget> _buildChip(int selectedYear) {
     var list = <Widget>[];
     for (int i = endYear; i >= 2016; i--) {
       var selected = selectedYear == i;
       list.add(Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.only(left : 8.0,right: 8.0),
         child: ChoiceChip(
           selectedColor: ColorRes.pink300,
           selected: selected,

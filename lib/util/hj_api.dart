@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 
@@ -14,11 +15,15 @@ class HjApi {
   static const String base = "https://3532.cc";
   static const String baseUrl =
       "https://3532.cc/search.html?searchtype=5&order=time&tid=1";
+  static const String baseUrl2 = "https://3532.cc/search.html?searchtype=5&order=time&tid=2";
   static const String searchUrl = "https://3532.cc/search.html?";
 
   static Future<HjHomeData> getHomePage(
-      {String year = "", int page = 1}) async {
+      {String year = "", int page = 1,int type = 0}) async {
     String requestUrl = baseUrl;
+    if(type == 1){
+      requestUrl = baseUrl2;
+    }
     if (year.isNotEmpty) {
       requestUrl += "$requestUrl&year=$year";
     }
