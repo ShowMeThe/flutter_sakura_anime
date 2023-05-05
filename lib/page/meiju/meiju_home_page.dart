@@ -5,6 +5,7 @@ import 'package:flutter_sakura_anime/page/meiju/meiju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:flutter_sakura_anime/widget/color_container.dart';
+import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import 'meiju_category_page.dart';
 
@@ -22,6 +23,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
   late AutoDisposeFutureProvider<List<MjHomeData>> _homeProvider;
 
   var _heroTag = "MeijuHomePage";
+  late ScrollController _controller;
 
   @override
   void initState() {
@@ -29,6 +31,15 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
     _homeProvider = FutureProvider.autoDispose<List<MjHomeData>>((ref) async {
       return MeiJuApi.getHomeData();
     });
+    _controller = HiddenController.instant.newController(this);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    HiddenController.instant.removeController(this);
+    _controller.dispose();
   }
 
   @override
@@ -42,6 +53,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
           return Scaffold(
             backgroundColor: Colors.white,
             body: ListView(
+              controller: _controller,
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(top: paddingTop),
               children: buildBody(provider.value),

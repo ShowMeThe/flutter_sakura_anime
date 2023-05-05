@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/anime/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/fade_route.dart';
+import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../widget/color_container.dart';
 import 'anime_category.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
   late ScrollController _controller;
   late AutoDisposeFutureProvider<HomeData> _disposeFutureProvider;
 
+
   @override
   void initState() {
     super.initState();
@@ -36,13 +38,14 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
       });
       return result;
     });
-    _controller = ScrollController();
+    _controller = HiddenController.instant.newController(this);
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    HiddenController.instant.removeController(this);
     _controller.dispose();
   }
 

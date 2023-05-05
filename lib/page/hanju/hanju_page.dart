@@ -4,6 +4,7 @@ import 'package:flutter_sakura_anime/page/hanju/hanju_des_page.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
+import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../bean/hanju_home_data.dart';
 import '../../widget/color_container.dart';
@@ -26,6 +27,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
   var _canLoadMore = true;
   var _isLoading = false;
   final List<HjHomeDataItem> _movies = [];
+  late ScrollController _controller;
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
@@ -53,6 +55,15 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
       _canLoadMore = result.loadMore;
       return result;
     });
+    _controller = HiddenController.instant.newController(this);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    HiddenController.instant.removeController(this);
+    _controller.dispose();
   }
 
   @override
@@ -74,6 +85,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
       ),
       body: Material(
         child: NestedScrollView(
+          controller: _controller,
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
               SliverAppBar(
