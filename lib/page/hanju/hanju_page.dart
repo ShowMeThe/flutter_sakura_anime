@@ -91,7 +91,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
               SliverAppBar(
                 expandedHeight: 120,
                 collapsedHeight: 120,
-                pinned: true,
+                pinned: false,
                 backgroundColor: Colors.white,
                 flexibleSpace: Consumer(
                   builder: (context, ref, _) {

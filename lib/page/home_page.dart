@@ -74,7 +74,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         itemBuilder: (BuildContext context, int index) {
           return _pages[index];
         },
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemCount: _pages.length,
         controller: _pageController,
         onPageChanged: (index) {

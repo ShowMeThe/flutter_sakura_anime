@@ -73,7 +73,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
             SliverAppBar(
               expandedHeight: 110,
               collapsedHeight: 95,
-              pinned: true,
+              pinned: false,
               backgroundColor: Colors.white,
               flexibleSpace: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

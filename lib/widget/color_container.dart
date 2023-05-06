@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 
@@ -8,7 +9,11 @@ class ColorContainer extends StatefulWidget {
   late String title;
   late Color baseColor;
 
-  ColorContainer({this.url = "", this.baseColor = Colors.white, this.title = "" ,super.key});
+  ColorContainer(
+      {this.url = "",
+      this.baseColor = Colors.white,
+      this.title = "",
+      super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -37,12 +42,12 @@ class _ColorContainerState extends State<ColorContainer>
     if (lightColor != null) {
       _animation = ColorTween(begin: widget.baseColor, end: lightColor.color)
           .animate(_fadeController);
-      if(!isDispose){
+      if (!isDispose) {
         _fadeController.forward();
       }
     }
     var blackTextColor = color.darkVibrantColor ?? color.darkMutedColor;
-    if(blackTextColor!= null){
+    if (blackTextColor != null) {
       _placeTextColor = blackTextColor.color;
     }
   }
@@ -60,7 +65,7 @@ class _ColorContainerState extends State<ColorContainer>
 
   ImageProvider<Object> _addImageLoader(String url) {
     Image image;
-    image = Image.network(widget.url);
+    image = Image(image: ExtendedNetworkImageProvider(url, cache: true));
     image.image
         .resolve(ImageConfiguration.empty)
         .addListener(ImageStreamListener((info, synchronousCall) {
