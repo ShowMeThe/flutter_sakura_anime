@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_sakura_anime/widget/color_size_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../bean/meiju_category_data.dart';
@@ -68,10 +69,10 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
     });
 
     sub = AndroidKeyboardListener.onChange((visible) async {
-       if(!visible){
-         await Future.delayed(const Duration(milliseconds: 350));
-         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-       }
+      if (!visible) {
+        await Future.delayed(const Duration(milliseconds: 350));
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+      }
     });
   }
 
@@ -148,7 +149,9 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
                 onTap: () {
                   if (opacity != 0.0) {
                     editController.clear();
-                    ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
+                    ref
+                        .refresh(_opacityProvider.notifier)
+                        .update((state) => 0.0);
                     ref.refresh(_showEmpty.notifier).state = true;
                     if (localList.isNotEmpty) {
                       ref.refresh(_showHis.notifier).state = true;
@@ -261,10 +264,17 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
     );
   }
 
+  var providers = <int, AutoDisposeStateProvider<Color>>{};
+
   Widget buildWidgetBody(List<MjCategoryItem> list) {
     return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
       var item = list[index];
+      var colorProvider = providers[index];
+      if (colorProvider == null) {
+        colorProvider = StateProvider.autoDispose((ref) => Colors.black);
+        providers[index] = colorProvider;
+      }
       return Padding(
         padding: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
         child: GestureDetector(
@@ -276,71 +286,75 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
               heroTag: heroTag,
             )));
           },
-          child: SizedBox(
-              width: double.infinity,
-              height: 210,
-              child: Card(
-                color: ColorRes.mainColor,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                clipBehavior: Clip.antiAlias,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Hero(
-                          tag: item.logo + heroTag,
-                          child: Image(
-                            image: ExtendedNetworkImageProvider(
-                              item.logo,
-                              cache: true,
-                            ),
-                            width: 150,
-                            height: double.infinity,
-                            fit: BoxFit.fitWidth,
-                          )),
-                    ),
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                item.title,
-                                style: TextStyle(
-                                    fontSize: item.title.length > 20 ? 12 : 15),
-                              )),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                item.state,
-                                style: TextStyle(
-                                    fontSize: item.state.length > 20 ? 12 : 15),
-                              )),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                item.realName,
-                                style: TextStyle(
-                                    fontSize:
-                                        item.realName.length > 20 ? 12 : 15),
-                              )),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                item.time,
-                                style: TextStyle(
-                                    fontSize: item.time.length > 20 ? 12 : 15),
-                              )),
-                        ],
-                      ),
-                    ))
-                  ],
+          child: ColorSizeBox(
+            url: item.logo,
+            width: double.infinity,
+            height: 230,
+            callback: (isBlack) {
+              if (isBlack) {
+                ref
+                    .read(colorProvider!.notifier)
+                    .update((state) => Colors.white);
+              }
+            },
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0))),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Hero(
+                      tag: item.logo + heroTag,
+                      child: Image(
+                        image: ExtendedNetworkImageProvider(
+                          item.logo,
+                          cache: true,
+                        ),
+                        width: 150,
+                        height: double.infinity,
+                        fit: BoxFit.fitWidth,
+                      )),
                 ),
-              )),
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            item.title,
+                            style: TextStyle(
+                                fontSize: item.title.length > 20 ? 12 : 15),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            item.state,
+                            style: TextStyle(
+                                fontSize: item.state.length > 20 ? 12 : 15),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            item.realName,
+                            style: TextStyle(
+                                fontSize: item.realName.length > 20 ? 12 : 15),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            item.time,
+                            style: TextStyle(
+                                fontSize: item.time.length > 20 ? 12 : 15),
+                          )),
+                    ],
+                  ),
+                ))
+              ],
+            ),
+          ),
         ),
       );
     }, childCount: list.length));

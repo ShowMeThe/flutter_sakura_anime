@@ -4,6 +4,7 @@ import 'package:flutter_sakura_anime/bean/meiju_category_data.dart';
 import 'package:flutter_sakura_anime/page/meiju/meiju_des_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
+import 'package:flutter_sakura_anime/widget/color_size_box.dart';
 
 class MjCategoryPage extends ConsumerStatefulWidget {
   final String url;
@@ -33,7 +34,6 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
 
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
-      debugPrint("nowPage $nowPage");
       var result = await MeiJuApi.getCategoryPage(widget.url, page: nowPage);
       _canLoadMore = result.hasNextPage;
       return result;
@@ -178,10 +178,16 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
         });
   }
 
+  var providers = <int,AutoDisposeStateProvider<Color>>{};
   Widget buildWidgetBody(List<MjCategoryItem> list) {
     return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
       var item = list[index];
+      var colorProvider = providers[index];
+      if(colorProvider == null){
+        colorProvider = StateProvider.autoDispose((ref) => Colors.black);
+        providers[index] = colorProvider;
+      }
       return Padding(
         padding: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
         child: GestureDetector(
@@ -189,59 +195,67 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
             Navigator.of(context)
                 .push(FadeRoute(MjDesPage(item.logo, item.url, item.title,heroTag: widget.heroTag,)));
           },
-          child: SizedBox(
-              width: double.infinity,
-              height: 210,
-              child: Card(
-                color: ColorRes.mainColor,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                clipBehavior: Clip.antiAlias,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Hero(
-                          tag: item.logo + widget.heroTag,
-                          child: Image(
-                            image: ExtendedNetworkImageProvider(
-                              item.logo,
-                              cache: true,
-                            ),
-                            width: 150,
-                            height: double.infinity,
-                            fit: BoxFit.fitWidth,
-                          )),
-                    ),
-                    Expanded(
-                        child: Padding(
+          child: ColorSizeBox(
+            url: item.logo,
+            width: double.infinity,
+            height: 230,
+            callback: (isBlack){
+              if(isBlack){
+                ref.read(colorProvider!.notifier).update((state) => Colors.white);
+              }
+            },
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0))),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Hero(
+                      tag: item.logo + widget.heroTag,
+                      child: Image(
+                        image: ExtendedNetworkImageProvider(
+                          item.logo,
+                          cache: true,
+                        ),
+                        width: 150,
+                        height: double.infinity,
+                        fit: BoxFit.fitWidth,
+                      )),
+                ),
+                Expanded(
+                    child: Padding(
                       padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                item.title,style: TextStyle(fontSize: item.title.length > 20 ? 12 : 15),
-                              )),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(item.state,style: TextStyle(fontSize: item.state.length > 20 ? 12 : 15),)),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(item.realName,style: TextStyle(fontSize: item.realName.length > 20 ? 12 : 15),)),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text(item.time,style: TextStyle(fontSize: item.time.length > 20 ? 12 : 15),)),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 15.0),
-                              child: Text("评分:${item.score}",style: TextStyle(fontSize: 15))),
-                        ],
+                      child: Consumer(
+                        builder: (context,ref,_){
+                          var textColor = ref.watch(colorProvider!);
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: Text(
+                                    item.title,style: TextStyle(fontSize: item.title.length > 20 ? 12 : 15,color: textColor),
+                                  )),
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: Text(item.state,style: TextStyle(fontSize: item.state.length > 20 ? 12 : 15,color: textColor),)),
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: Text(item.realName,style: TextStyle(fontSize: item.realName.length > 20 ? 12 : 15,color: textColor),)),
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: Text(item.time,style: TextStyle(fontSize: item.time.length > 20 ? 12 : 15,color: textColor),)),
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: Text("评分:${item.score}",style: TextStyle(fontSize: 15,color: textColor))),
+                            ],
+                          );
+                        },
                       ),
                     ))
-                  ],
-                ),
-              )),
+              ],
+            ),
+          ),
         ),
       );
     }, childCount: list.length));
