@@ -55,7 +55,7 @@ class ScrollHidden extends StatefulWidget {
 }
 
 class _ScrollHiddenState extends State<ScrollHidden>
-    with SingleTickerProviderStateMixin, OnScrollChange {
+    with SingleTickerProviderStateMixin implements OnScrollChange{
   late AnimationController _controller;
   late Animation<double> _animation;
   bool _isAnimating = false;
@@ -92,7 +92,6 @@ class _ScrollHiddenState extends State<ScrollHidden>
 
   @override
   void onScrollChange(double scroll) {
-    super.onScrollChange(scroll);
     if (scroll < widget.slideSize) {
       _controller.forward();
     } else {

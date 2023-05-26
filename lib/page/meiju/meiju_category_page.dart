@@ -198,7 +198,7 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
           child: ColorSizeBox(
             url: item.logo,
             width: double.infinity,
-            height: 230,
+            height: 240,
             callback: (isBlack){
               if(isBlack){
                 ref.read(colorProvider!.notifier).update((state) => Colors.white);

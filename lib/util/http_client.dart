@@ -10,7 +10,7 @@ import 'base_export.dart';
 
 class HttpClient {
   static const _baseUrl = "";
-  static const _timeOut = 15000;
+  static const _timeOut = Duration(milliseconds: 15000);
   static Dio? _dio;
   static Dio? _dio2;
   static Dio? _dio3;

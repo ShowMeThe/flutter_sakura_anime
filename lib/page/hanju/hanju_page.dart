@@ -127,7 +127,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
             builder: (context, ref, _) {
               var provider = ref.watch(_futureProvider);
               if (provider.value == null || provider.hasError) {
-                return buildLoadingBody();
+                return SizedBox();
               } else {
                 var data = provider.value!;
                 if (!provider.isLoading) {
@@ -300,7 +300,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
             crossAxisSpacing: 5,
             mainAxisSpacing: 5,
             childAspectRatio: 0.55),
-        itemCount: 40,
+        itemCount: 10,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
