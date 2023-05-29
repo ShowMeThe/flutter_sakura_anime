@@ -1,25 +1,28 @@
+import 'dart:async';
 import 'dart:collection';
 
+import 'package:dio/dio.dart';
+import 'package:flutter_sakura_anime/page/anime/anime_category.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:video_sniffing/video_sniffing.dart';
 
 class Api {
   static const String baseImgHead = "";
-  static const String baseUrl = "https://www.yhpdm.com";
-  static const String movieUrl = "$baseUrl/list/?genre=剧场版";
-  static const String jcUrl = "$baseUrl/list/?gere=OVA";
-  static const String searchUrl = "$baseUrl/s_all?";
-  static const String categoryUrl = "$baseUrl/list/";
+  static const String baseUrl = "http://www.yinghuacd.com";
+  static const String movieUrl = "$baseUrl/37/";
+  static const String jcUrl = "$baseUrl/36/";
 
   static HomeData? homeData;
   static HashMap<String, List<String>> map = HashMap();
-  static final HashMap<String, String> _queryName = HashMap();
+  static final HashMap<String, List<String>> _queryName = HashMap();
+
+  static const String AREA = "地域";
+  static const String YEAR = "年份";
 
   static List<String> _getYears() {
     var years = <String>[];
-    years.add("全部");
-    for (int i = DateTime.now().year; i >= 2016; i--) {
+    for (int i = DateTime.now().year; i >= 2014; i--) {
       years.add("$i");
     }
     return years;
@@ -27,72 +30,25 @@ class Api {
 
   static void initMap() {
     if (map.isEmpty) {
-      map["地域"] = ["全部", "日本", "美国", "欧美"];
-      map["年份"] = _getYears();
-      map["季度"] = ["全部", "1", "4", "7", "10"];
-      map["类型"] = [
-        "全部",
-        "搞笑",
-        "运动",
-        "励志",
-        "热血",
-        "战斗",
-        "竞技",
-        "校园",
-        "青春",
-        "爱情",
-        "冒险",
-        "后宫",
-        "百合",
-        "治愈",
-        "萝莉",
-        "魔法",
-        "悬疑",
-        "推理",
-        "奇幻",
-        "科幻",
-        "游戏",
-        "神魔",
-        "恐怖",
-        "血腥",
-        "机战",
-        "战争",
-        "犯罪",
-        "历史",
-        "社会",
-        "职场",
-        "剧情",
-        "伪娘",
-        "耽美",
-        "童年",
-        "教育",
-        "亲子",
-        "真人",
-        "歌舞",
-        "肉番",
-        "美少女",
-        "轻小说",
-        "吸血鬼",
-        "女性向",
-        "泡面番",
-        "欢乐向"
-      ];
-
-      _queryName["地域"] = "region";
-      _queryName["年份"] = "year";
-      _queryName["季度"] = "season";
-      _queryName["类型"] = "label";
+      map[AREA] = ["日本", "中国", "美国"];
+      _queryName[AREA] = ["japan","china", "america"];
+      map[YEAR] = _getYears();
+      _queryName[YEAR] = map[YEAR]!;
     }
   }
 
+  static Exception getException(Object? error) {
+    debugPrint("$error");
+    if (error is DioError) {
+      return Exception(error.message);
+    }
+    return Exception(error);
+  }
+
   static Future<HomeData> getHomeData() async {
-    var future = await (await HttpClient.get().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get())
         .get(baseUrl)
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) => Future.error(getException(error)));
     homeData = HomeData();
     var document = parse(future.data);
     var element = document.querySelectorAll("div.tlist > ul");
@@ -257,8 +213,16 @@ class Api {
   static Future<String> getAnimePlayUrl(String url) async {
     var requestUrl = baseUrl + url;
     var html = await VideoSniffing.getRawHtml(requestUrl);
+    //printLongText("html ${html}");
     var document = parse(html);
-    var iFrame = document.getElementById("m_yh_playfram");
+    var iFrame = document.getElementById("playbox");
+    debugPrint("iFrame ${iFrame}");
+    var playerUrl = "";
+    if (iFrame != null) {
+      var dataVid = iFrame.attributes["data-vid"]!;
+      playerUrl = dataVid.substring(0,dataVid.indexOf("\$"));
+    }
+   /*
     if (iFrame != null) {
       var playerUrl = iFrame.attributes["src"]!;
       playerUrl = baseUrl + playerUrl;
@@ -281,48 +245,51 @@ class Api {
       }
       matcherUrl = "$matcherUrl${xup}dvpt=$dvptStr";
       return matcherUrl;
-    }
-    return "";
+    }*/
+    return playerUrl;
   }
 
   static Future<AnimeMovieData> getJCAnimeList({int nowPage = 1}) async {
-    var page = nowPage - 1;
-    var requestUrl = "$movieUrl&pagesize=24&pageindex=${page}";
-    return _getAnimeList(requestUrl, false, nowPage: nowPage);
+    var page = nowPage;
+    var requestUrl = jcUrl;
+    if (page > 1) {
+      requestUrl += "$page.html";
+    }
+    return _getAnimeList(requestUrl, nowPage: nowPage);
   }
 
   static Future<AnimeMovieData> getMovieAnimeList({int nowPage = 1}) async {
-    var page = nowPage - 1;
-    var requestUrl = "$jcUrl&pagesize=24&pageindex=${page}";
-    return _getAnimeList(requestUrl, false, nowPage: page);
+    var page = nowPage;
+    var requestUrl = movieUrl;
+    if (page >= 2) {
+      requestUrl += "$page.html";
+    }
+    return _getAnimeList(requestUrl, nowPage: page);
   }
 
   static Future<AnimeMovieData> getSearchAnimeList(String word,
       {int nowPage = 1}) async {
-    var page = nowPage - 1;
-    var requestUrl = "${searchUrl}kw=$word&pagesize=24&pageindex=$page";
-    return _getAnimeList(requestUrl, true, nowPage: nowPage);
+    var page = nowPage;
+    var requestUrl = "$baseUrl/search/$word";
+    if (page >= 2) {
+      requestUrl += "$page.html";
+    }
+    return _getAnimeList(requestUrl, nowPage: nowPage);
   }
 
-  static Future<AnimeMovieData> _getAnimeList(String url, bool isSearch,
+  static Future<AnimeMovieData> _getAnimeList(String url,
       {int nowPage = 1}) async {
-    var future = await (await HttpClient.get()).get(url).catchError((onError) {
-      debugPrint("$onError");
-    });
-    //debugPrint("future = ${future}");
+    var future = await (await HttpClient.get())
+        .get(url)
+        .onError((error, stackTrace) => Future.error(getException(error)));
+
     var document = parse(future.data);
     var pageQuery = document.querySelectorAll("div.pages > a");
     var pageCount = 1;
 
-    if (pageQuery.isNotEmpty) {
-      var pageCountUrl = pageQuery.last.attributes["href"];
-      if (pageCountUrl != null) {
-        var searchText = "pageindex=";
-        var charIndex = pageCountUrl.lastIndexOf(searchText);
-        var page = pageCountUrl.substring(
-            charIndex + searchText.length, pageCountUrl.length);
-        pageCount = int.parse(page) + 1;
-      }
+    if (pageQuery.isNotEmpty && pageQuery.length > 3) {
+      var pageCountUrl = pageQuery[pageQuery.length - 2];
+      pageCount = int.parse(pageCountUrl.text);
     }
 
     List<AnimeMovieListData> movies = [];
@@ -338,45 +305,14 @@ class Api {
     return AnimeMovieData(nowPage, pageCount, movies);
   }
 
-  static Future<AnimeMovieData> getCategory(HashMap<String, String> queryMap,
+  static Future<AnimeMovieData> getCategory(Pair queryKey,
       {int nowPage = 1}) async {
-    var requestUrl = "$categoryUrl?";
-    var queryEnd = "";
-    for (var element in queryMap.entries) {
-      if (element.value != "全部") {
-        queryEnd += "${_queryName[element.key]}=${element.value}&";
-      }
+    var requestUrl = "$baseUrl/";
+    requestUrl += _queryName[queryKey.key]![queryKey.index];
+    if (nowPage >= 2) {
+      requestUrl += "/$nowPage.html";
     }
-    requestUrl = "$requestUrl${queryEnd}pagesize=24&pageindex=${nowPage - 1}";
-    debugPrint("requestUrl = $requestUrl");
-    var future =
-        await (await HttpClient.get()).get(requestUrl).catchError((onError) {
-      debugPrint("$onError");
-    });
-    var document = parse(future.data);
-    var pageQuery = document.querySelectorAll("div.pages > a");
-    var pageCount = 1;
-
-    if (pageQuery.isNotEmpty) {
-      var pageCountUrl = pageQuery.last.attributes["href"];
-      if (pageCountUrl != null) {
-        var searchText = "pageindex=";
-        var charIndex = pageCountUrl.lastIndexOf(searchText);
-        var page = pageCountUrl.substring(
-            charIndex + searchText.length, pageCountUrl.length);
-        pageCount = int.parse(page) + 1;
-      }
-    }
-
-    List<AnimeMovieListData> movies = [];
-    var query = document.querySelectorAll("div.lpic > ul > li");
-    for (var element in query) {
-      var title = element.querySelector("h2")!.text.trimLeft();
-      var url = element.querySelector("h2 > a")!.attributes["href"];
-      var logo =
-          baseImgHead + (element.querySelector("img")!.attributes["src"] ?? "");
-      movies.add(AnimeMovieListData(title, logo, url));
-    }
-    return AnimeMovieData(nowPage, pageCount, movies);
+    debugPrint("getCategory = $requestUrl");
+    return _getAnimeList(requestUrl, nowPage: nowPage);
   }
 }

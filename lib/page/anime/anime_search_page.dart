@@ -48,8 +48,8 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
 
       maxPage = result.pageCount;
-      ref.read(_showHis.state).state = false;
-      ref.read(_showEmpty.state).state = false;
+      ref.watch(_showHis.notifier).state = false;
+      ref.watch(_showEmpty.notifier).state = false;
       return result;
     });
 
@@ -75,7 +75,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
 
   void clearHist() async {
     localList.clear();
-    ref.watch(_showHis.state).update((state) => false);
+    ref.watch(_showHis.notifier).update((state) => false);
     (await _prefs).remove(SEARCH_HIS);
   }
 
@@ -107,7 +107,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
             _focusNode.unfocus();
             editController.text = element;
             ref.refresh(_futureProvider);
-            ref.read(_opacityProvider.state).update((state) => 1.0);
+            ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
             editController.selection =
                 TextSelection.collapsed(offset: element.length);
           },
@@ -151,11 +151,11 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           controller: editController,
           onChange: (word) {
             if (word.isNotEmpty) {
-              ref.read(_opacityProvider.state).update((state) => 1.0);
-              ref.read(_showHis.state).update((state) => false);
+              ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
+              ref.refresh(_showHis.notifier).update((state) => false);
             } else {
-              ref.read(_opacityProvider.state).update((state) => 0.0);
-              ref.read(_showHis.state).update((state) => true);
+              ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
+              ref.refresh(_showHis.notifier).update((state) => true);
             }
           },
           leading: GestureDetector(
@@ -177,10 +177,10 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
                 onTap: () {
                   if (opacity != 0.0) {
                     editController.clear();
-                    ref.read(_opacityProvider.state).update((state) => 0.0);
-                    ref.read(_showEmpty.state).state = true;
+                    ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
+                    ref.refresh(_showEmpty.notifier).state = true;
                     if (localList.isNotEmpty) {
-                      ref.read(_showHis.state).state = true;
+                      ref.refresh(_showHis.notifier).state = true;
                     }
                   }
                 },
@@ -203,9 +203,9 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
               ref.refresh(_futureProvider);
               saveToHist(word);
             } else {
-              ref.read(_showEmpty.state).state = true;
+              ref.refresh(_showEmpty.notifier).state = true;
               if (localList.isNotEmpty) {
-                ref.read(_showHis.state).state = true;
+                ref.refresh(_showHis.notifier).state = true;
               }
             }
           }),
@@ -243,9 +243,9 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
                         onTap: () {
                           clearHist();
                         },
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(
                               Icons.delete,
                               color: Colors.pink,

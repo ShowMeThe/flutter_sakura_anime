@@ -3,10 +3,7 @@ package com.example.video_sniffing
 import android.content.Context
 import android.os.Looper
 import android.util.Log
-import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import java.lang.ref.SoftReference
 import java.util.logging.Handler
 
@@ -30,6 +27,15 @@ class WebViewConnect {
                 settings.cacheMode = WebSettings.LOAD_NO_CACHE
                 addJavascriptInterface(VideoSniffing(), "video_sniffing")
                 webViewClient = object : WebViewClient() {
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        Log.e("VideoSniffingPlugin", "error = ${error?.description}")
+                    }
+
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
                         Log.e("VideoSniffingPlugin", "finish")
@@ -53,6 +59,15 @@ class WebViewConnect {
                 settings.cacheMode = WebSettings.LOAD_NO_CACHE
                 addJavascriptInterface(VideoSniffing(), "video_sniffing")
                 webViewClient = object : WebViewClient() {
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        Log.e("VideoSniffingPlugin", "error = ${error?.description}")
+                    }
+
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
                         Log.e("VideoSniffingPlugin", "finish")
@@ -68,12 +83,14 @@ class WebViewConnect {
 
         @JavascriptInterface
         open fun showHtml(html: String?) {
+            Log.e("VideoSniffingPlugin", "showHtml = ${html}")
             callbacks?.invoke(html)
             onDestroy()
         }
 
         @JavascriptInterface
         open fun loadCustomData(html: String?) {
+            Log.e("VideoSniffingPlugin", "showHtml = ${html}")
             callbacks?.invoke(html)
             onDestroy()
         }

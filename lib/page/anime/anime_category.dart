@@ -13,14 +13,23 @@ class AnimeCategoryPage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() =>
       AnimeCategoryPageState();
 }
+class Pair{
+  String key;
+  int index;
+  Pair(this.key, this.index);
+
+  @override
+  String toString() {
+    return 'Pair{key: $key, index: $index}';
+  }
+}
+
 
 class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
-  var maxWidth = 0.0;
-  var queryMap = HashMap<String, String>();
-  var providerMap = HashMap<String, AutoDisposeStateProvider<String>>();
+  final AutoDisposeStateProvider<Pair> _queryProvider = StateProvider.autoDispose((ref) => Pair(Api.AREA, 0));
   late AutoDisposeFutureProvider<AnimeMovieData> _futureProvider;
   final List<AnimeMovieListData> _movies = [];
-  static const _HeroTag = "des";
+  static const _HeroTag = "category";
   var nowPage = 1;
   var maxPage = 0;
   var _canLoadMore = true;
@@ -36,7 +45,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       debugPrint("nowPage $nowPage");
-      var result = await Api.getCategory(queryMap,nowPage: nowPage);
+      var result = await Api.getCategory(ref.read(_queryProvider),nowPage: nowPage);
       maxPage = result.pageCount;
       return result;
     });
@@ -63,14 +72,11 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    providerMap.clear();
+
   }
 
   @override
   Widget build(BuildContext context) {
-    if (maxWidth == 0) {
-      maxWidth = MediaQuery.of(context).size.width;
-    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("分类"),
@@ -289,31 +295,22 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
   }
 
   Widget _buildWrap(String key, List<String> list) {
-    var provider = providerMap[key];
-    if (provider == null) {
-      provider = StateProvider.autoDispose((ref) => queryMap[key] ?? "全部");
-      providerMap[key] = provider;
-    }
     return Consumer(builder: (context, ref, _) {
-      ref.watch(provider!);
+      var state = ref.watch(_queryProvider);
+      debugPrint("state = $state");
       return Wrap(
         spacing: 12.0,
-        children: _buildChips(key, list, provider),
+        children: _buildChips(key, list,state),
       );
     });
   }
 
   List<Widget> _buildChips(String key, List<String> list,
-      AutoDisposeStateProvider<String> provider) {
+      Pair pair) {
     List<Widget> widgets = [];
-    var value = queryMap[key];
-    if (value == null) {
-      value = "全部";
-      queryMap[key] = value;
-    }
     for (int index = 0, size = list.length; index < size; index++) {
       var content = list[index];
-      var check = value == content;
+      var check = pair.index == index && key == pair.key;
       widgets.add(ChoiceChip(
         selectedColor: ColorRes.pink300,
         selected: check,
@@ -323,8 +320,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
         ),
         onSelected: (bool) {
          if(bool){
-           queryMap[key] = content;
-           ref.watch(provider.notifier).update((state) => content);
+           ref.watch(_queryProvider.notifier).state = Pair(key, index);
          }
         },
       ));

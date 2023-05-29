@@ -2,7 +2,6 @@ package com.example.video_sniffing
 
 import android.content.Context
 import android.util.Log
-import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -20,13 +19,13 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var webViewConnect: WebViewConnect
     private lateinit var mContext: Context
 
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "video_sniffing")
         channel.setMethodCallHandler(this)
         mContext = flutterPluginBinding.applicationContext
     }
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    override fun onMethodCall(call: MethodCall,  result: Result) {
         if (call.method == "getRawHtml") {
             val url = call.argument<String>("baseUrl")
             Log.e("VideoSniffingPlugin","${url}")
@@ -57,7 +56,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         if (this::webViewConnect.isInitialized) {
             webViewConnect.onDestroy()
