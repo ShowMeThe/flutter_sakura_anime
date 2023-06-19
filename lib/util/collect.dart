@@ -15,14 +15,14 @@ class LocalCollect {
 
 class LocalHistory {
   String showUrl;
-  int chapter;
-  int chapterIndex;
+  String chapter;
+  String chapterUrl;
 
-  LocalHistory(this.showUrl, this.chapter, this.chapterIndex);
+  LocalHistory(this.showUrl, this.chapter, this.chapterUrl);
 
   @override
   String toString() {
-    return 'LocalHistory{showUrl: $showUrl, chapter: $chapter, chapterIndex: $chapterIndex}';
+    return 'LocalHistory{showUrl: $showUrl, chapter: $chapter, chapterIndex: $chapterUrl}';
   }
 }
 
@@ -35,7 +35,7 @@ void initDb() async {
   db.execute(
       "create table if not exists LocalCollect(showUrl text not null primary key,logo text not null,title text not null)");
   db.execute(
-      "create table if not exists LocalHistory(showUrl text not null primary key,chapter integer not null,chapterIndex integer not null)");
+      "create table if not exists LocalHistory(showUrl text not null primary key,chapter text not null,chapterUrl text not null)");
 }
 
 Future<String> getDbDir() async {
@@ -47,20 +47,20 @@ Future<String> getDbDir() async {
   return localFile.path;
 }
 
-void updateHistory(String showUrl, int chapter, int chapterIndex) {
+void updateHistory(String showUrl, String chapter, String chapterUrl) {
   try {
     var result = _database
         .select('select * from LocalHistory where showUrl = ?', [showUrl]);
 
     if (result.isNotEmpty) {
       _database.execute(
-          "update LocalHistory set chapter = ? , chapterIndex = ? where showUrl = ?",[chapter,chapterIndex,showUrl]);
+          "update LocalHistory set chapter = ? , chapterUrl = ? where showUrl = ?",[chapter,chapterUrl,showUrl]);
       debugPrint("updateHistory ${_database
           .select('select * from LocalHistory where showUrl = ?', [showUrl])}");
     } else {
       var stmt = _database.prepare(
-          "insert into LocalHistory(showUrl,chapter,chapterIndex) values(?,?,?)");
-      stmt.execute([showUrl, chapter, chapterIndex]);
+          "insert into LocalHistory(showUrl,chapter,chapterUrl) values(?,?,?)");
+      stmt.execute([showUrl, chapter, chapterUrl]);
       stmt.dispose();
     }
   } catch (e) {
@@ -74,7 +74,7 @@ LocalHistory? findLocalHistory(String showUrl) {
   try {
     var element = result.single;
     return LocalHistory(
-        element['showUrl'], element['chapter'], element['chapterIndex']);
+        element['showUrl'], element['chapter'], element['chapterUrl']);
   } catch (e) {
     debugPrint("findLocalHistory = $e");
     return null;

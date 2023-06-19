@@ -79,9 +79,6 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -159,7 +156,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                     ),
                     Center(
                       child: SizedBox(
-                        width: size.width / 3,
+                        width: MediaQuery.sizeOf(context).width / 3,
                         child: Stack(
                           children: [
                             Hero(
@@ -179,7 +176,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                               } else {
                                 var data = provider.value!;
                                 return SizedBox(
-                                  width: size.width / 3,
+                                  width: MediaQuery.sizeOf(context).width / 3,
                                   height: 200,
                                   child: Stack(
                                     children: [
@@ -336,12 +333,12 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
       var parentIndex = ref.watch(tabSelect);
       var element = list[parentIndex];
       return Wrap(
-        children: buildChild(element, parentIndex),
+        children: buildChild(element, element.title),
       );
     });
   }
 
-  List<Widget> buildChild(HjDesPlayData data, int parentIndex) {
+  List<Widget> buildChild(HjDesPlayData data, String parentTitle) {
     var list = <Widget>[];
     for (int index = 0; index < data.chapterList.length; index++) {
       var element = data.chapterList[index];
@@ -363,19 +360,13 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                     onPressed: () async {
                       LoadingDialogHelper.showLoading(context);
                       var title = widget.title + element.title;
-                      updateHistory(widget.url, parentIndex, index);
+                      updateHistory(widget.url, parentTitle, element.url);
                       ref.refresh(_localHisFuture);
                       var url = await HjApi.getPlayUrl(element.url);
                       debugPrint("url = $url");
                       if (!mounted) return;
                       LoadingDialogHelper.dismissLoading(context);
 
-                      /*var state = ref.watch(downLoadState);
-                      if (state) {
-                        downLoadByUrl(url);
-                      } else {
-
-                      }*/
                       Navigator.of(context).push(FadeRoute(PlayPage(
                         url,
                         title,
@@ -386,10 +377,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
               ),
               Consumer(builder: (context, ref, _) {
                 var localHistory = ref.watch(_localHisFuture);
-               /* var state = ref.watch(downLoadState);*/
                 if (localHistory.value != null &&
-                    (localHistory.value!.chapterIndex) == index &&
-                    localHistory.value!.chapter == parentIndex /*&& !state*/) {
+                    (localHistory.value!.chapter) == parentTitle &&
+                    localHistory.value!.chapterUrl == element.url ) {
                   return const Positioned(
                     bottom: 5,
                     left: 30,

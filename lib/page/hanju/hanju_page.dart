@@ -69,7 +69,6 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var paddingTop = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
@@ -101,7 +100,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                       children: [
                         Expanded(
                           child: Padding(
-                            padding: EdgeInsets.only(top: paddingTop),
+                            padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
                             child: ListView(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,

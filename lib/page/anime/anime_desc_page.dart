@@ -56,7 +56,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     _desDataProvider = FutureProvider.autoDispose<AnimeDesData>((_) async {
       var result = await Api.getAnimeDes(widget.animeShowUrl);
       //ref.refresh(_playDataProvider);
-      ref.read(_logoProvider.state).update((state) => result.logo!);
+      ref.read(_logoProvider.notifier).update((state) => result.logo!);
       return result;
     });
     _playDataProvider =
@@ -76,13 +76,19 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         return null;
       }
       var chapter = result.chapter;
-      if (chapter != -1) {
-        var first = controllerStore[result.chapter]!;
-        while (!first.positions.first.hasContentDimensions) {
-          await Future.delayed(const Duration(milliseconds: 500));
+      var playData = ref.watch(_playDataProvider).value;
+      if (playData != null) {
+        var index = playData.animeDramas
+            .indexWhere((element) => element.listTitle == chapter);
+        if (index != -1) {
+          var first = controllerStore[result.chapter]!;
+          while (!first.positions.first.hasContentDimensions) {
+            await Future.delayed(const Duration(milliseconds: 500));
+          }
+          var chapterIndex = playData.animeDramas[index].list.indexWhere((element) => element.url == result.chapterUrl);
+          first.animateTo(chapterIndex * 93.0,
+              duration: const Duration(milliseconds: 300), curve: Curves.ease);
         }
-        first.animateTo(result.chapterIndex * 93.0,
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
       }
       return result;
     });
@@ -90,7 +96,6 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -190,7 +195,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     ),
                     Center(
                       child: SizedBox(
-                        width: size.width / 3,
+                        width: MediaQuery.sizeOf(context).width / 3,
                         child: Stack(
                           children: [
                             Consumer(builder: (context, watch, _) {
@@ -216,7 +221,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               } else {
                                 var data = provider.value!;
                                 return SizedBox(
-                                  width: size.width / 3,
+                                  width: MediaQuery.sizeOf(context).width / 3,
                                   height: 200,
                                   child: Stack(
                                     children: [
@@ -406,8 +411,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               ref.read(_desDataProvider).value?.title;
                           var title = largeTitle! + element.list[index].title!;
 
-                          updateHistory(
-                              widget.animeShowUrl, parentIndex, index);
+                          updateHistory(widget.animeShowUrl, element.listTitle!,
+                              element.list[index].url!);
                           LoadingDialogHelper.showLoading(context);
                           var playUrl = await Api.getAnimePlayUrl(
                               element.list[index].url!);
@@ -422,8 +427,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                   Consumer(builder: (context, ref, _) {
                     var localHistory = ref.watch(_localHisFuture);
                     if (localHistory.value != null &&
-                        (localHistory.value!.chapterIndex) == index &&
-                        localHistory.value!.chapter == parentIndex) {
+                        (localHistory.value!.chapter) == element.listTitle &&
+                        localHistory.value!.chapterUrl == element.list[index].url) {
                       return const Positioned(
                         bottom: 5,
                         left: 30,

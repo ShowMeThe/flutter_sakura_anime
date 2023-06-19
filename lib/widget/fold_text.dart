@@ -88,7 +88,7 @@ class _FoldTextViewState extends State<FoldTextView> {
     final textPainter = TextPainter(
         text: textSpan, textDirection: TextDirection.ltr, maxLines: maxLines);
     textPainter.layout(
-        maxWidth: widget.maxWidth ?? MediaQuery.of(context).size.width);
+        maxWidth: widget.maxWidth);
     return textPainter.didExceedMaxLines;
   }
 
@@ -97,7 +97,7 @@ class _FoldTextViewState extends State<FoldTextView> {
     final textPainter =
         TextPainter(text: textSpan, textDirection: TextDirection.ltr);
     textPainter.layout(
-        maxWidth: widget.maxWidth ?? MediaQuery.of(context).size.width);
+        maxWidth: widget.maxWidth);
     _lines = textPainter.computeLineMetrics();
     return _lines;
   }

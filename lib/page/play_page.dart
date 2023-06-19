@@ -114,7 +114,7 @@ class _PlayState extends ConsumerState<PlayPage> {
     flickManager?.flickDisplayManager?.hidePlayerControls();
     _videoPlayerValue = flickManager?.flickVideoManager?.videoPlayerValue;
     _totalDuration = _videoPlayerValue?.duration.inMilliseconds ?? 0;
-    ref.read(_initProvider.state).state = flickManager;
+    ref.read(_initProvider.notifier).state = flickManager;
   }
 
   @override
@@ -122,9 +122,10 @@ class _PlayState extends ConsumerState<PlayPage> {
     return Consumer(builder: (context, ref, _) {
       var watch = ref.watch(_playNowUrlProvider);
       var controller = ref.watch(_initProvider);
-      var media = MediaQuery.of(context);
-      var sizeHeight = (media.size.width - media.padding.top) / 2.0;
-      var sizeWidth = media.size.height;
+      var media = MediaQuery.sizeOf(context);
+      var padding = MediaQuery.paddingOf(context);
+      var sizeHeight = (media.width - padding.top) / 2.0;
+      var sizeWidth = media.height;
       if (watch.isRefreshing || controller == null) {
         return Container(
           color: Colors.black,

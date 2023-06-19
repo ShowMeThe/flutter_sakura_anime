@@ -60,9 +60,6 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -113,7 +110,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                     ),
                     Center(
                       child: SizedBox(
-                        width: size.width / 3,
+                        width: MediaQuery.sizeOf(context).width / 3,
                         child: Stack(
                           children: [
                             Hero(
@@ -133,7 +130,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                               } else {
                                 var data = provider.value!;
                                 return SizedBox(
-                                  width: size.width / 3,
+                                  width: MediaQuery.sizeOf(context).width / 3,
                                   height: 200,
                                   child: Stack(
                                     children: [
@@ -291,7 +288,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                               parentIndex,
                               index);
                           updateHistory(
-                              widget.url, parentIndex, index);
+                              widget.url, element.title, element.chapterList[index].url);
                           ref.refresh(_localHisFuture);
                           debugPrint("url = $url");
                           if (!mounted) return;
@@ -308,8 +305,8 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                   Consumer(builder: (context, ref, _) {
                     var localHistory = ref.watch(_localHisFuture);
                     if (localHistory.value != null &&
-                        (localHistory.value!.chapterIndex) == index &&
-                        localHistory.value!.chapter == parentIndex) {
+                        (localHistory.value!.chapter) == element.title &&
+                        localHistory.value!.chapterUrl == element.chapterList[index].url) {
                       return const Positioned(
                         bottom: 5,
                         left: 30,

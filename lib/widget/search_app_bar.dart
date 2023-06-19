@@ -54,7 +54,6 @@ class _SearchAppBarState extends State<SearchAppBar> {
         widget.appBarBackgroundColor ?? theme.colorScheme.primary;
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light));
-    var statusBarHeight = MediaQuery.of(context).padding.top;
     return SizedBox(
       height: widget.appBarHeight,
       child: Material(
@@ -65,13 +64,13 @@ class _SearchAppBarState extends State<SearchAppBar> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-                padding: EdgeInsets.only(top: statusBarHeight),
+                padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
                 child: widget.leading ?? Container()),
             Expanded(
                 flex: 1,
                 child: Container(
                   padding: EdgeInsets.only(
-                      top: statusBarHeight,
+                      top: MediaQuery.paddingOf(context).top,
                       left: widget.paddingLeft,
                       right: widget.paddingRight),
                   child: TextField(
@@ -99,7 +98,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                   ),
                 )),
             Padding(
-              padding: EdgeInsets.only(top: statusBarHeight),
+              padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
               child: widget.suffix ?? Container(),
             )
           ],

@@ -52,7 +52,6 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var top = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
@@ -69,6 +68,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           child: NestedScrollView(
         controller: _controller,
         headerSliverBuilder: (context, innerBoxIsScrolled) {
+          var top = MediaQuery.paddingOf(context).top;
           return [
             SliverAppBar(
               expandedHeight: 110,

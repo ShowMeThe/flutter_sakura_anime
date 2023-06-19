@@ -45,7 +45,6 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var paddingTop = MediaQuery.of(context).padding.top;
     return Consumer(
       builder: (context, ref, _) {
         var provider = ref.watch(_homeProvider);
@@ -55,7 +54,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
             body: ListView(
               controller: _controller,
               physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(top: paddingTop),
+              padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
               children: buildBody(provider.value),
             ),
             floatingActionButton: FloatingActionButton(
@@ -73,7 +72,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
         } else {
           return ListView(
             physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.only(top: paddingTop),
+            padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
             children: buildLoadingBody(),
           );
         }
