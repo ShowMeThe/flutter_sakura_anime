@@ -51,7 +51,7 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
           nowPage++;
           debugPrint("load more $nowPage");
           if (nowPage <= maxPage) {
-            ref.refresh(_futureProvider);
+            ref.invalidate(_futureProvider);
           } else {
             _canLoadMore = false;
           }
@@ -92,7 +92,7 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
                       _canLoadMore = true;
                       debugPrint("onRefresh");
                       nowPage = 1;
-                      ref.refresh(_futureProvider);
+                      ref.invalidate(_futureProvider);
                     },
                   ),
                   SliverGrid(

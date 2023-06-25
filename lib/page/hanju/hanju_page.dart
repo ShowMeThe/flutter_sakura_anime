@@ -4,6 +4,7 @@ import 'package:flutter_sakura_anime/page/hanju/hanju_des_page.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
+import 'package:flutter_sakura_anime/widget/ErrorView.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../bean/hanju_home_data.dart';
@@ -35,7 +36,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
           210) {
         if (!_isLoading && _canLoadMore) {
           nowPage++;
-          ref.refresh(_futureProvider);
+          ref.invalidate(_futureProvider);
         }
       }
     }
@@ -48,10 +49,9 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       var year = ref.read(yearState);
-      var result = await HjApi.getHomePage(year: year.toString(), page: nowPage,type: ref.read(typeState))
-          .catchError((onError) {
-        debugPrint(onError);
-      });
+      var result = await HjApi.getHomePage(
+          year: year.toString(), page: nowPage, type: ref.read(typeState));
+
       _canLoadMore = result.loadMore;
       return result;
     });
@@ -100,7 +100,8 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                       children: [
                         Expanded(
                           child: Padding(
-                            padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+                            padding: EdgeInsets.only(
+                                top: MediaQuery.paddingOf(context).top),
                             child: ListView(
                               shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
@@ -125,8 +126,16 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
           body: Consumer(
             builder: (context, ref, _) {
               var provider = ref.watch(_futureProvider);
-              if (provider.value == null || provider.hasError) {
-                return SizedBox();
+              if (provider.isLoading && _movies.isEmpty) {
+                return buildLoadingBody();
+              } else if (provider.hasError && _movies.isEmpty) {
+                return Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: 150,
+                    child: ErrorView(() {
+                  ref.invalidate(_futureProvider);
+                }));
               } else {
                 var data = provider.value!;
                 if (!provider.isLoading) {
@@ -146,7 +155,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                           _canLoadMore = true;
                           debugPrint("onRefresh");
                           nowPage = 1;
-                          ref.refresh(_futureProvider);
+                          return ref.refresh(_futureProvider);
                         },
                       ),
                       SliverGrid(
@@ -210,7 +219,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                               child: ColorContainer(
                                                   url: _movies[index].logo,
                                                   baseColor: ColorRes.mainColor,
-                                                  title:_movies[index].title))
+                                                  title: _movies[index].title))
                                         ],
                                       ),
                                     )),
@@ -238,11 +247,11 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
 
   List<Widget> _buildTypeChip(int selectedYear) {
     var list = <Widget>[];
-    var title = ["韩剧","电影"];
+    var title = ["韩剧", "电影"];
     for (int i = 0; i < 2; i++) {
       var selected = selectedYear == i;
       list.add(Padding(
-        padding: const EdgeInsets.only(left : 8.0,right: 8.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
         child: ChoiceChip(
           selectedColor: ColorRes.pink300,
           selected: selected,
@@ -268,7 +277,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     for (int i = endYear; i >= 2016; i--) {
       var selected = selectedYear == i;
       list.add(Padding(
-        padding: const EdgeInsets.only(left : 8.0,right: 8.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
         child: ChoiceChip(
           selectedColor: ColorRes.pink300,
           selected: selected,

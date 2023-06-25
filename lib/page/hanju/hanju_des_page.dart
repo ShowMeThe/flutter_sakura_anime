@@ -361,7 +361,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                       LoadingDialogHelper.showLoading(context);
                       var title = widget.title + element.title;
                       updateHistory(widget.url, parentTitle, element.url);
-                      ref.refresh(_localHisFuture);
+                      ref.invalidate(_localHisFuture);
                       var url = await HjApi.getPlayUrl(element.url);
                       debugPrint("url = $url");
                       if (!mounted) return;

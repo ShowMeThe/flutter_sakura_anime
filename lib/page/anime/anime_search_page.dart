@@ -87,7 +87,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           _isLoading = true;
           nowPage++;
           if (nowPage <= maxPage) {
-            ref.refresh(_futureProvider);
+            ref.invalidate(_futureProvider);
           } else {
             _canLoadMore = false;
           }
@@ -106,7 +106,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           onTap: () {
             _focusNode.unfocus();
             editController.text = element;
-            ref.refresh(_futureProvider);
+            ref.invalidate(_futureProvider);
             ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
             editController.selection =
                 TextSelection.collapsed(offset: element.length);
@@ -200,7 +200,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           ),
           (word) {
             if (word.isNotEmpty) {
-              ref.refresh(_futureProvider);
+              ref.invalidate(_futureProvider);
               saveToHist(word);
             } else {
               ref.refresh(_showEmpty.notifier).state = true;

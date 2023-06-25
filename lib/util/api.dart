@@ -7,6 +7,14 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:video_sniffing/video_sniffing.dart';
 
+AsyncError getException(Object? error,StackTrace stackTrace) {
+  debugPrint("$error");
+  if (error is DioError) {
+    return AsyncError("${error.message}",stackTrace);
+  }
+  return AsyncError("$error",stackTrace);
+}
+
 class Api {
   static const String baseImgHead = "";
   static const String baseUrl = "http://www.yinghuacd.com";
@@ -31,24 +39,17 @@ class Api {
   static void initMap() {
     if (map.isEmpty) {
       map[AREA] = ["日本", "中国", "美国"];
-      _queryName[AREA] = ["japan","china", "america"];
+      _queryName[AREA] = ["japan", "china", "america"];
       map[YEAR] = _getYears();
       _queryName[YEAR] = map[YEAR]!;
     }
   }
 
-  static Exception getException(Object? error) {
-    debugPrint("$error");
-    if (error is DioError) {
-      return Exception(error.message);
-    }
-    return Exception(error);
-  }
 
   static Future<HomeData> getHomeData() async {
     var future = await (await HttpClient.get())
         .get(baseUrl)
-        .onError((error, stackTrace) => Future.error(getException(error)));
+        .onError((error, stackTrace) => Future.error("$error",stackTrace));
     homeData = HomeData();
     var document = parse(future.data);
     var element = document.querySelectorAll("div.tlist > ul");
@@ -220,9 +221,9 @@ class Api {
     var playerUrl = "";
     if (iFrame != null) {
       var dataVid = iFrame.attributes["data-vid"]!;
-      playerUrl = dataVid.substring(0,dataVid.indexOf("\$"));
+      playerUrl = dataVid.substring(0, dataVid.indexOf("\$"));
     }
-   /*
+    /*
     if (iFrame != null) {
       var playerUrl = iFrame.attributes["src"]!;
       playerUrl = baseUrl + playerUrl;
@@ -281,7 +282,7 @@ class Api {
       {int nowPage = 1}) async {
     var future = await (await HttpClient.get())
         .get(url)
-        .onError((error, stackTrace) => Future.error(getException(error)));
+        .onError((error, stackTrace) => Future.error(getException(error,stackTrace)));
 
     var document = parse(future.data);
     var pageQuery = document.querySelectorAll("div.pages > a");

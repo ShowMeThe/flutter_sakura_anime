@@ -29,13 +29,10 @@ class HjApi {
     }
     requestUrl += "$requestUrl&page=$page";
 
-    var future = await (await HttpClient.get().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) => Future.error("$error",stackTrace));
+
     var document = parse(future.data);
     var queryVod =
         document.getElementsByClassName("col-md-6 col-sm-4 col-xs-3");
@@ -62,13 +59,9 @@ class HjApi {
   }
 
   static Future<HjDesData> getHjDes(String href) async {
-    var future = await (await HttpClient.get().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get())
         .get(href, options: Options(responseType: ResponseType.json))
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) => Future.error("$error",stackTrace));
     var document = parse(future.data);
     var des = document.getElementsByClassName("desc hidden-xs")[0].text;
     var nav = document
@@ -103,13 +96,9 @@ class HjApi {
   }
 
   static Future<String> getPlayUrl(String url) async {
-    var future = await (await HttpClient.get().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get())
         .get(url, options: Options(responseType: ResponseType.json))
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
     var document = parse(future.data);
     var iframe = document
         .getElementsByClassName(
@@ -131,13 +120,9 @@ class HjApi {
       requestUrl += "$requestUrl&page=$page";
     }
 
-    var future = await (await HttpClient.get().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) => Future.error("$error",stackTrace));
 
     var document = parse(future.data);
     var list = <HjHomeDataItem>[];

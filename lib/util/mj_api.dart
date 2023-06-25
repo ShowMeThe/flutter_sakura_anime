@@ -13,13 +13,9 @@ class MeiJuApi {
   static const String searchUrl = "/sousuo/index.asp?";
 
   static Future<List<MjHomeData>> getHomeData() async {
-    var future = await (await HttpClient.get2().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get2())
         .get(baseUrl)
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
     String html = gbk_bytes.decode(future.data);
     var list = <MjHomeData>[];
     var document = parse(html);
@@ -45,13 +41,9 @@ class MeiJuApi {
   }
 
   static Future<MjDesData> getDesPage(String url) async {
-    var future = await (await HttpClient.get2().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get2())
         .get(baseUrl + url)
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
     String html = gbk_bytes.decode(future.data);
     var playList = <MjDesPlayData>[];
     //debugPrint("html $html");
@@ -61,7 +53,7 @@ class MeiJuApi {
         .getElementsByTagName("b")
         .any((element) => element.text == "剧情介绍："));
     var des = element.text.trim();
-    var score = document.getElementsByClassName("ico-lx1")[0].text ?? "";
+    var score = document.getElementsByClassName("ico-lx1")[0].text;
     try {
       var playGroup = document.querySelectorAll("div.arconix-toggle-title");
       if (playGroup.isNotEmpty) {
@@ -95,14 +87,9 @@ class MeiJuApi {
   static Future<String?> getPlayUrl(
       String url, int parentIndex, int index) async {
     var requestUrl = baseUrl + url;
-    var future = await (await HttpClient.get2().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get2())
         .get(requestUrl)
-        .catchError((err) {
-      debugPrint("err $err");
-    });
-    var playerUrl = "";
+        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
     String html = gbk_bytes.decode(future.data);
     //debugPrint("html $html");
     var document = parse(html);
@@ -114,13 +101,9 @@ class MeiJuApi {
         var src = element.attributes["src"] ?? "";
         debugPrint("src $src");
         if (src.contains("playdata")) {
-          var playdata = await (await HttpClient.get().catchError((onError) {
-            debugPrint("onError $onError");
-          }))
+          var playdata = await (await HttpClient.get())
               .get(baseUrl + src)
-              .catchError((err) {
-            debugPrint("err $err");
-          });
+              .onError((error, stackTrace) =>Future.error("$error",stackTrace));
           String data = playdata.data;
           var firstIndex = data.indexOf("[");
           var endIndex = data.lastIndexOf("]");
@@ -157,13 +140,9 @@ class MeiJuApi {
           "${endUrl.substring(0, endUrl.length - 5)}_$page${endUrl.substring(endUrl.length - 5, endUrl.length)}";
     }
     var requestUrl = baseUrl + endUrl;
-    var future = await (await HttpClient.get2().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get2())
         .get(requestUrl)
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
     String html = gbk_bytes.decode(future.data);
     //debugPrint("html $html");
     var document = parse(html);
@@ -220,13 +199,9 @@ class MeiJuApi {
     }
     var requestUrl = "$baseUrl${searchUrl}page=$page&searchword=$word";
     debugPrint("requestUrl $requestUrl");
-    var future = await (await HttpClient.get2().catchError((onError) {
-      debugPrint("onError $onError");
-    }))
+    var future = await (await HttpClient.get2())
         .get(requestUrl)
-        .catchError((err) {
-      debugPrint("err $err");
-    });
+        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
     String html = gbk_bytes.decode(future.data);
     debugPrint("html $html");
     var document = parse(html);

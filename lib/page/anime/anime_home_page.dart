@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/anime/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/fade_route.dart';
+import 'package:flutter_sakura_anime/widget/ErrorView.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../widget/color_container.dart';
@@ -108,18 +109,26 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           child: Consumer(
             builder: (context, ref, _) {
               var provider = ref.watch(_disposeFutureProvider);
-              if (!(provider.isLoading || provider.hasError)) {
-                return ListView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(top: 0),
-                  children: buildBody(provider.value),
-                );
-              } else {
+              if(provider.isLoading){
                 return ListView(
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(top: 0),
                   children: buildLoadingBody(),
                 );
+              }else if(provider.hasError){
+                return Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: 150,
+                    child: ErrorView(() {
+                      ref.invalidate(_disposeFutureProvider);
+                    }));
+              }else {
+                 return ListView(
+                   physics: const BouncingScrollPhysics(),
+                   padding: const EdgeInsets.only(top: 0),
+                   children: buildBody(provider.value),
+                 );
               }
             },
           ),

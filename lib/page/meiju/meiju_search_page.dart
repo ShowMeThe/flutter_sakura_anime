@@ -95,7 +95,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
           210) {
         if (!_isLoading && _canLoadMore) {
           nowPage++;
-          ref.refresh(_futureProvider);
+          ref.invalidate(_futureProvider);
         }
       }
     }

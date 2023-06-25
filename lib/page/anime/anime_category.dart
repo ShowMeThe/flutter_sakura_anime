@@ -58,7 +58,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
           if (!_isLoading && _canLoadMore) {
             nowPage++;
             if (nowPage <= maxPage) {
-              ref.refresh(_futureProvider);
+              ref.invalidate(_futureProvider);
             } else {
               _canLoadMore = false;
             }
@@ -115,7 +115,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                       _canLoadMore = true;
                       debugPrint("onRefresh");
                       nowPage = 1;
-                      ref.refresh(_futureProvider);
+                      ref.invalidate(_futureProvider);
                     },
                   ),
                   SliverGrid(
@@ -254,7 +254,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                 Navigator.pop(context);
                 _canLoadMore = true;
                 nowPage = 1;
-                ref.refresh(_futureProvider);
+                ref.invalidate(_futureProvider);
               },
               child: const Text(
                 "搜索",

@@ -31,7 +31,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
 
-  var controllerStore = <int, ScrollController>{};
+  var controllerStore = <String, ScrollController>{};
 
   @override
   void dispose() {
@@ -81,17 +81,32 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         var index = playData.animeDramas
             .indexWhere((element) => element.listTitle == chapter);
         if (index != -1) {
-          var first = controllerStore[result.chapter]!;
-          while (!first.positions.first.hasContentDimensions) {
-            await Future.delayed(const Duration(milliseconds: 500));
+          var firstController = controllerStore[result.chapter];
+          if (firstController != null) {
+            _scrollToRealPosition(firstController, () {
+              var chapterIndex = playData.animeDramas[index].list
+                  .indexWhere((element) => element.url == result.chapterUrl);
+              firstController.animateTo(chapterIndex * 93.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease);
+            });
           }
-          var chapterIndex = playData.animeDramas[index].list.indexWhere((element) => element.url == result.chapterUrl);
-          first.animateTo(chapterIndex * 93.0,
-              duration: const Duration(milliseconds: 300), curve: Curves.ease);
         }
       }
       return result;
     });
+  }
+
+  void _scrollToRealPosition(
+      ScrollController controller, VoidCallback callback) async {
+    try {
+      while (!controller.position.hasContentDimensions) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+      callback();
+    } catch (e) {
+      debugPrint("scrollToRealPosition exception : $e");
+    }
   }
 
   @override
@@ -156,7 +171,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               return IconButton(
                                   onPressed: () {
                                     unCollect(widget.animeShowUrl);
-                                    ref.refresh(_isCollectFuture);
+                                    ref.invalidate(_isCollectFuture);
                                   },
                                   icon: Image.asset(
                                     A.assets_ic_sakura_collected,
@@ -178,7 +193,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                                   .value
                                                   ?.title ??
                                               "");
-                                      ref.refresh(_isCollectFuture);
+                                      ref.invalidate(_isCollectFuture);
                                     }
                                   },
                                   icon: Image.asset(
@@ -377,7 +392,9 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     List<Widget> child = [];
     for (var parentIndex = 0; parentIndex < list.length; parentIndex++) {
       var element = list[parentIndex];
-      controllerStore[parentIndex] = ScrollController(keepScrollOffset: false);
+      var key = element.listTitle ?? "default";
+      var finalController = ScrollController(keepScrollOffset: false);
+      controllerStore[key] = finalController;
       child.add(Padding(
         padding: const EdgeInsets.only(top: 25, left: 16),
         child: Text(
@@ -391,7 +408,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       child.add(SizedBox(
         height: 58.0,
         child: ListView.builder(
-            controller: controllerStore[parentIndex],
+            controller: finalController,
             scrollDirection: Axis.horizontal,
             itemCount: element.list.length,
             itemBuilder: (context, index) {
@@ -416,7 +433,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           LoadingDialogHelper.showLoading(context);
                           var playUrl = await Api.getAnimePlayUrl(
                               element.list[index].url!);
-                          ref.refresh(_localHisFuture);
+                          ref.invalidate(_localHisFuture);
+
                           if (!mounted) return;
                           LoadingDialogHelper.dismissLoading(context);
                           Navigator.of(context)
@@ -428,7 +446,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     var localHistory = ref.watch(_localHisFuture);
                     if (localHistory.value != null &&
                         (localHistory.value!.chapter) == element.listTitle &&
-                        localHistory.value!.chapterUrl == element.list[index].url) {
+                        localHistory.value!.chapterUrl ==
+                            element.list[index].url) {
                       return const Positioned(
                         bottom: 5,
                         left: 30,

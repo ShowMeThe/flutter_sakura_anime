@@ -172,7 +172,7 @@ class _HanjuSearchState extends ConsumerState {
           ),
           (word) {
             if (word.isNotEmpty) {
-               ref.refresh(_futureProvider);
+               ref.invalidate(_futureProvider);
                saveToHist(word);
             } else {
               ref.refresh(_showEmpty.notifier).state = true;

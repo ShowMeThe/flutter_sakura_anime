@@ -91,7 +91,7 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
                     onRefresh: () async {
                       nowPage = 1;
                       _canLoadMore = true;
-                      ref.refresh(_futureProvider);
+                      ref.invalidate(_futureProvider);
                     },
                   ),
                   SliverGrid(
