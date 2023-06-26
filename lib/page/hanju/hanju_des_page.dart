@@ -7,6 +7,7 @@ import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
+import 'package:flutter_sakura_anime/widget/ErrorView.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../bean/hanju_des_data.dart';
@@ -47,7 +48,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
 
     _desDataProvider = FutureProvider.autoDispose((ref) async {
       var result = await HjApi.getHjDes(widget.url);
-
+      await Future.delayed(const Duration(milliseconds: 400));
       return result;
     });
 
@@ -171,8 +172,8 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                 )),
                             Consumer(builder: (context, ref, _) {
                               var provider = ref.watch(_desDataProvider);
-                              if (provider.value == null || provider.hasError) {
-                                return Container();
+                              if (provider.isLoading || provider.hasError) {
+                                return const SizedBox();
                               } else {
                                 var data = provider.value!;
                                 return SizedBox(
@@ -248,7 +249,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                     ),
                     Consumer(builder: (context, ref, _) {
                       var provider = ref.watch(_desDataProvider);
-                      if (provider.value != null) {
+                      if(provider.valueOrNull == null){
+                        return const SizedBox();
+                      }else{
                         var data = provider.value;
                         return Center(
                             child: Padding(
@@ -263,11 +266,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                 moreTxColor: ColorRes.pink400,
                               ),
                             ));
-                      } else {
-                        return Container();
                       }
                     }),
-                    buildDrams()
+                     buildDrams()
                   ],
                 ),
               )
@@ -281,12 +282,25 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref
-            .watch(_desDataProvider)
-            .value;
-        if (data == null) {
-          return Container();
+        var provider = ref
+            .watch(_desDataProvider);
+        if (provider.isLoading) {
+          return const SizedBox(
+            width: double.infinity,
+            height: 350,
+             child: Center(
+               child: CircularProgressIndicator(color: ColorRes.pink200,),
+             ),
+          );
+        }else if(provider.hasError || provider.valueOrNull == null){
+          return SizedBox(
+              width: double.infinity,
+              height: 350,
+              child: ErrorView(() {
+                ref.invalidate(_desDataProvider);
+              },textColor: Colors.white,));
         } else {
+          var data = provider.value!;
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

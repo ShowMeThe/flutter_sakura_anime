@@ -6,6 +6,7 @@ import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
+import 'package:flutter_sakura_anime/widget/ErrorView.dart';
 
 import '../../widget/fold_text.dart';
 
@@ -34,7 +35,6 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
     super.initState();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
 
     _desDataProvider = FutureProvider.autoDispose((ref) async {
       var result = await MeiJuApi.getDesPage(widget.url);
@@ -86,10 +86,10 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withAlpha(15),
-                            Colors.black.withAlpha(125),
-                            Colors.black
-                          ]))),
+                        Colors.black.withAlpha(15),
+                        Colors.black.withAlpha(125),
+                        Colors.black
+                      ]))),
               SingleChildScrollView(
                 child: Column(
                   children: [
@@ -125,7 +125,8 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                 )),
                             Consumer(builder: (context, ref, _) {
                               var provider = ref.watch(_desDataProvider);
-                              if (provider.value == null || provider.hasError) {
+                              if (provider.valueOrNull == null ||
+                                  provider.hasError) {
                                 return Container();
                               } else {
                                 var data = provider.value!;
@@ -136,20 +137,19 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                     children: [
                                       Positioned(
                                           child: SizedBox(
-                                            width: 55.0,
-                                            height: 40.0,
-                                            child: CustomPaint(
-                                              painter: ScoreShapeBorder(
-                                                  ColorRes.pink400.withAlpha(
-                                                      200)),
-                                            ),
-                                          )),
+                                        width: 55.0,
+                                        height: 40.0,
+                                        child: CustomPaint(
+                                          painter: ScoreShapeBorder(
+                                              ColorRes.pink400.withAlpha(200)),
+                                        ),
+                                      )),
                                       Positioned(
                                           left: 10,
                                           child: Text(
                                             data.score,
-                                            style:
-                                            const TextStyle(color: Colors.white),
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           )),
                                       Positioned(
                                           left: 0,
@@ -164,14 +164,12 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                                     begin: Alignment.topCenter,
                                                     end: Alignment.bottomCenter,
                                                     colors: [
-                                                      Colors.black12.withAlpha(
-                                                          30),
-                                                      Colors.black12.withAlpha(
-                                                          125)
-                                                    ])),
+                                                  Colors.black12.withAlpha(30),
+                                                  Colors.black12.withAlpha(125)
+                                                ])),
                                             child: const Padding(
                                               padding:
-                                              EdgeInsets.only(right: 4.0),
+                                                  EdgeInsets.only(right: 4.0),
                                               child: Text(
                                                 "",
                                                 style: TextStyle(
@@ -202,19 +200,21 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                     ),
                     Consumer(builder: (context, ref, _) {
                       var provider = ref.watch(_desDataProvider);
-                      if (provider.value != null) {
+                      if (provider.valueOrNull != null) {
                         var data = provider.value;
                         return Center(
                             child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8.0, right: 8.0, top: 0.0),
-                              child: FoldTextView(
-                                  data?.des == null ? "" : data!.des,
-                                  4,
-                                  const TextStyle(
-                                      color: Colors.white, fontSize: 12.0),
-                                  320,moreTxColor: ColorRes.pink400,),
-                            ));
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0, top: 0.0),
+                          child: FoldTextView(
+                            data?.des == null ? "" : data!.des,
+                            4,
+                            const TextStyle(
+                                color: Colors.white, fontSize: 12.0),
+                            320,
+                            moreTxColor: ColorRes.pink400,
+                          ),
+                        ));
                       } else {
                         return Container();
                       }
@@ -233,20 +233,29 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref
-            .watch(_desDataProvider)
-            .value;
-        if (data == null) {
-          return Container();
+        var provider = ref.watch(_desDataProvider);
+        if (provider.isLoading) {
+          return const SizedBox(
+              width: double.infinity,
+              height: 350,
+              child: CircularProgressIndicator(
+                color: ColorRes.pink200,
+              ));
+        } else if (provider.valueOrNull == null || provider.hasError) {
+          return SizedBox(
+              width: double.infinity,
+              height: 350,
+              child: ErrorView(() {
+                ref.invalidate(_desDataProvider);
+              }));
         } else {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: buildPlayList(data.playList));
+              children: buildPlayList(provider.value!.playList));
         }
       },
     );
   }
-
 
   List<Widget> buildPlayList(List<MjDesPlayData> list) {
     List<Widget> child = [];
@@ -272,7 +281,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                 children: [
                   Padding(
                     padding:
-                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                        const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
                     child: MaterialButton(
                         minWidth: 85,
                         height: double.infinity,
@@ -287,8 +296,8 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                               element.chapterList[index].url,
                               parentIndex,
                               index);
-                          updateHistory(
-                              widget.url, element.title, element.chapterList[index].url);
+                          updateHistory(widget.url, element.title,
+                              element.chapterList[index].url);
                           ref.refresh(_localHisFuture);
                           debugPrint("url = $url");
                           if (!mounted) return;
@@ -306,14 +315,15 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                     var localHistory = ref.watch(_localHisFuture);
                     if (localHistory.value != null &&
                         (localHistory.value!.chapter) == element.title &&
-                        localHistory.value!.chapterUrl == element.chapterList[index].url) {
+                        localHistory.value!.chapterUrl ==
+                            element.chapterList[index].url) {
                       return const Positioned(
                         bottom: 5,
                         left: 30,
                         child: Text(
                           "上次观看",
                           style:
-                          TextStyle(color: ColorRes.pink400, fontSize: 10),
+                              TextStyle(color: ColorRes.pink400, fontSize: 10),
                         ),
                       );
                     } else {

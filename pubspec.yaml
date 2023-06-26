@@ -37,11 +37,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   dio: ^5.1.2
-  flutter_riverpod: ^2.0.2
+  flutter_riverpod: ^2.3.6
   html: ^0.15.1
   palette_generator: ^0.3.3+2
   extended_image: ^8.0.1
-  video_player: ^2.4.7
+  video_player: ^2.6.1
   flick_video_player: ^0.5.0
   perfect_volume_control: ^1.0.5
   device_display_brightness: ^0.0.6
@@ -56,6 +56,8 @@ dependencies:
   gbk_codec_nohtml: ^1.0.0
   fluttertoast: ^8.2.1
   csslib: 0.17.0
+  flutter_meedu_videoplayer: ^4.2.13
+  wakelock: ^0.6.2
 #  flutter_hls_parser: ^2.0.1
 #  ffmpeg_kit_flutter: ^5.1.0
 

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/widget/ErrorView.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
 import '../../widget/color_container.dart';
@@ -231,7 +232,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             }),
                             Consumer(builder: (context, watch, _) {
                               var provider = watch.watch(_desDataProvider);
-                              if (provider.value == null || provider.hasError) {
+                              if (provider.valueOrNull == null || provider.hasError) {
                                 return Container();
                               } else {
                                 var data = provider.value!;
@@ -294,8 +295,20 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     ),
                     Consumer(builder: (context, watch, _) {
                       var provider = watch.watch(_desDataProvider);
-                      if (provider.value == null || provider.hasError) {
-                        return Container();
+                      if(provider.isLoading){
+                        return const SizedBox(
+                           height: 350,
+                           child: Center(
+                             child: CircularProgressIndicator(color: ColorRes.pink200,),
+                           ),
+                        );
+                      }else if(provider.valueOrNull == null || provider.hasError){
+                        return SizedBox(
+                            width: double.infinity,
+                            height: 350,
+                            child: ErrorView(() {
+                              ref.invalidate(_desDataProvider);
+                            },textColor: Colors.white,));
                       } else {
                         var data = provider.value!;
                         return Column(

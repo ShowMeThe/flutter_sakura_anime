@@ -263,7 +263,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
             if (bool) {
               ref.refresh(typeState.notifier).update((state) => i);
               nowPage = 1;
-              ref.refresh(_futureProvider);
+              ref.invalidate(_futureProvider);
             }
           },
         ),
@@ -289,7 +289,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
             if (bool) {
               ref.refresh(yearState.notifier).update((state) => i);
               nowPage = 1;
-              ref.refresh(_futureProvider);
+              ref.invalidate(_futureProvider);
             }
           },
         ),

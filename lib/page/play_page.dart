@@ -2,32 +2,29 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_sakura_anime/util/api.dart';
+import 'package:flutter_meedu_videoplayer/src/widgets/meedu_video_player.dart';
+import 'package:flutter_meedu_videoplayer/src/controller.dart';
+import 'package:flutter_meedu_videoplayer/src/helpers/data_source.dart';
+import 'package:flutter_meedu_videoplayer/src/helpers/enabled_controls.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:video_player/video_player.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
-
+import 'package:wakelock/wakelock.dart';
 
 class PlayPage extends ConsumerStatefulWidget {
   final String url;
   final String title;
   var fromLocal = false;
 
-  PlayPage(this.url, this.title, {super.key,this.fromLocal = false});
+  PlayPage(this.url, this.title, {super.key, this.fromLocal = false});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _PlayState();
 }
 
 class _PlayState extends ConsumerState<PlayPage> {
-  late AutoDisposeFutureProvider<String> _playNowUrlProvider;
-  final AutoDisposeStateProvider<FlickManager?> _initProvider =
-      StateProvider.autoDispose<FlickManager?>((ref) => null);
-  VideoPlayerController? _controller;
-  FlickManager? flickManager;
   var _totalDuration = 0;
   final _slideX = StateProvider.autoDispose<Duration>(
       (ref) => const Duration(milliseconds: 0));
@@ -52,15 +49,21 @@ class _PlayState extends ConsumerState<PlayPage> {
   VideoPlayerValue? _videoPlayerValue;
   late StreamSubscription<double> _subscription;
 
+  final _meeduPlayerController = MeeduPlayerController(
+    controlsStyle: ControlsStyle.primary,
+  );
+
+  final _bufferReady = AutoDisposeStateProvider((ref) => false);
+
   @override
   void initState() {
     _disposed = false;
     super.initState();
-    _playNowUrlProvider = FutureProvider.autoDispose<String>((ref) async {
-      var playerUrl = widget.url;
-      refreshController(playerUrl);
-      return playerUrl;
+    Wakelock.enable();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _init();
     });
+
     //ref.refresh(_playNowUrlProvider);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
@@ -71,11 +74,42 @@ class _PlayState extends ConsumerState<PlayPage> {
     PerfectVolumeControl.hideUI = false;
   }
 
+  void _init() async {
+    if (widget.fromLocal) {
+      _meeduPlayerController.setDataSource(
+        DataSource(
+          type: DataSourceType.file,
+          source: widget.url,
+        ),
+        autoplay: true,
+      );
+    } else {
+      _meeduPlayerController.setDataSource(
+        DataSource(
+          type: DataSourceType.network,
+          source: widget.url,
+        ),
+        autoplay: true,
+      );
+    }
+
+    _meeduPlayerController.bufferedPercent.stream.listen((event) {
+      var position = event;
+      var state = ref.watch(_bufferReady);
+      if (!state && position > 0) {
+        ref.watch(_bufferReady.notifier).state = true;
+      }
+    });
+
+    _meeduPlayerController.videoFit.value = BoxFit.contain;
+  }
+
   @override
   void dispose() {
     _disposed = true;
+    _meeduPlayerController.dispose();
     _subscription.cancel();
-    flickManager?.dispose();
+
     super.dispose();
 
     DeviceDisplayBrightness.resetBrightness();
@@ -83,50 +117,16 @@ class _PlayState extends ConsumerState<PlayPage> {
         overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
-  }
-
-  void refreshController(String playerUrl) async {
-    if(!mounted || _disposed){
-       return;
-    }
-    if (_controller != null) {
-      _controller?.dispose();
-    }
-    VideoPlayerController controller;
-    if(widget.fromLocal){
-      controller = VideoPlayerController.file(File(playerUrl));
-    }else{
-      controller = VideoPlayerController.network(playerUrl);
-    }
-    await controller.initialize();
-    _controller = controller;
-    if(!mounted || _disposed){
-      return;
-    }
-
-    flickManager = FlickManager(videoPlayerController: controller);
-    await flickManager?.flickControlManager?.play();
-    if(!mounted || _disposed){
-      return;
-    }
-
-    flickManager?.flickDisplayManager?.hidePlayerControls();
-    _videoPlayerValue = flickManager?.flickVideoManager?.videoPlayerValue;
-    _totalDuration = _videoPlayerValue?.duration.inMilliseconds ?? 0;
-    ref.read(_initProvider.notifier).state = flickManager;
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      var watch = ref.watch(_playNowUrlProvider);
-      var controller = ref.watch(_initProvider);
       var media = MediaQuery.sizeOf(context);
       var padding = MediaQuery.paddingOf(context);
       var sizeHeight = (media.width - padding.top) / 2.0;
       var sizeWidth = media.height;
-      if (watch.isRefreshing || controller == null) {
+      if (!ref.watch(_bufferReady)) {
         return Container(
           color: Colors.black,
           width: double.infinity,
@@ -142,49 +142,37 @@ class _PlayState extends ConsumerState<PlayPage> {
           color: Colors.transparent,
           child: Stack(
             children: [
-              Positioned(
-                  left: 65.0,
-                  top: 0,
-                  bottom: 0,
-                  right: 65,
-                  child: FlickVideoPlayer(
-                    flickManager: controller,
-                    systemUIOverlayFullscreen: const [],
-                    systemUIOverlay: const [],
-                    preferredDeviceOrientation: const [
-                      DeviceOrientation.landscapeLeft
-                    ],
-                  )),
+              Positioned.fill(
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: MeeduVideoPlayer(
+                    controller: _meeduPlayerController,
+                  ),
+                ),
+              ),
               Positioned(
                   left: 55,
                   right: sizeHeight + 55,
                   top: 85,
                   bottom: 85,
                   child: GestureDetector(
-                    onTap: () {
-                      var isShow = flickManager
-                              ?.flickDisplayManager?.showPlayerControls ??
-                          false;
-                      if (!isShow) {
-                        flickManager?.flickDisplayManager
-                            ?.handleShowPlayerControls();
-                      }
-                    },
+                    onTap: () {},
                     onPanEnd: (details) {
                       _isBrightness = false;
                       ref
-                          .watch(_isShowBrightDialog.state)
+                          .watch(_isShowBrightDialog.notifier)
                           .update((state) => false);
                     },
                     onPanDown: (detail) async {
                       _downY = detail.globalPosition.dy;
                       _downBrightness =
                           await DeviceDisplayBrightness.getBrightness();
+                      debugPrint("_downBrightness $_downBrightness");
                     },
                     onPanUpdate: (details) async {
                       if (!_isBrightness) {
                         ref
-                            .watch(_isShowBrightDialog.state)
+                            .watch(_isShowBrightDialog.notifier)
                             .update((state) => true);
                       }
                       var dy = details.globalPosition.dy;
@@ -192,7 +180,8 @@ class _PlayState extends ConsumerState<PlayPage> {
                       _nextBrightness =
                           min(max(0.0, _downBrightness + offsetY * 0.5), 1.0);
                       DeviceDisplayBrightness.setBrightness(_nextBrightness);
-                      ref.refresh(_brightness);
+
+                      ref.invalidate(_brightness);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Container(),
@@ -210,21 +199,13 @@ class _PlayState extends ConsumerState<PlayPage> {
                     _slideValue = 0;
                     _downX = details.globalPosition.dy;
                     _downY = details.globalPosition.dx;
-                    _downPosition = controller.flickVideoManager
-                            ?.videoPlayerValue?.position.inMilliseconds ??
-                        0;
-                    ref.read(_slideX.state).update(
-                        (state) => Duration(milliseconds: _downPosition));
-                  },
-                  onTap: () {
-                    var isShow =
-                        flickManager?.flickDisplayManager?.showPlayerControls ??
-                            false;
-                    if (!isShow) {
-                      flickManager?.flickDisplayManager
-                          ?.handleShowPlayerControls();
+                    var duration = await _meeduPlayerController
+                        .videoPlayerController?.position;
+                    if (duration != null) {
+                      ref.watch(_slideX.notifier).update((state) => duration);
                     }
                   },
+                  onTap: () {},
                   onPanUpdate: (details) async {
                     var dx = details.delta.dx;
 
@@ -246,22 +227,25 @@ class _PlayState extends ConsumerState<PlayPage> {
                       if (_slideValue.abs() > 45.0) {
                         _isSeekingChange = true;
                         ref
-                            .read(_isShowSlideDialog.state)
+                            .read(_isShowSlideDialog.notifier)
                             .update((state) => true);
                         var offset = 60 * 1000 * _slideValue ~/ sizeHeight;
                         var nextValue = (_downPosition + offset);
+                        if (_totalDuration == 0) {
+                          _totalDuration = _meeduPlayerController
+                              .duration.value.inMilliseconds;
+                        }
                         if (nextValue >= _totalDuration) {
                           nextValue = _totalDuration;
                         } else if (nextValue <= 0) {
                           nextValue = 0;
                         }
-                        ref.read(_slideX.state).update(
+                        ref.watch(_slideX.notifier).update(
                             (state) => Duration(milliseconds: nextValue));
                       }
                     } else if (_isVolume) {
-                     var offset =  _downVolumeY - details.globalPosition.dy;
+                      var offset = _downVolumeY - details.globalPosition.dy;
                       var nextVolume = _downVolume + offset / sizeWidth;
-                      debugPrint("onPanUpdate $nextVolume");
                       if (nextVolume >= 1) {
                         nextVolume = 1.0;
                       } else if (nextVolume <= 0) {
@@ -273,10 +257,9 @@ class _PlayState extends ConsumerState<PlayPage> {
                   onPanEnd: (details) {
                     if (_isSeeking && _isSeekingChange) {
                       ref
-                          .read(_isShowSlideDialog.state)
+                          .watch(_isShowSlideDialog.notifier)
                           .update((state) => false);
-                      controller.flickControlManager
-                          ?.seekTo(ref.watch(_slideX));
+                      _meeduPlayerController.seekTo(ref.watch(_slideX));
                     }
                     _isSeekingChange = false;
                     _isSeeking = false;
@@ -310,7 +293,7 @@ class _PlayState extends ConsumerState<PlayPage> {
                       child: Text(
                         "${((ref.watch(_brightness).value ?? 0) * 100).toInt()}%",
                         style: const TextStyle(
-                            fontSize: 30.0, color:ColorRes.pink100),
+                            fontSize: 30.0, color: ColorRes.pink100),
                       ),
                     );
                   }),

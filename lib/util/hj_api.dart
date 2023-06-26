@@ -62,6 +62,7 @@ class HjApi {
     var future = await (await HttpClient.get())
         .get(href, options: Options(responseType: ResponseType.json))
         .onError((error, stackTrace) => Future.error("$error",stackTrace));
+
     var document = parse(future.data);
     var des = document.getElementsByClassName("desc hidden-xs")[0].text;
     var nav = document
