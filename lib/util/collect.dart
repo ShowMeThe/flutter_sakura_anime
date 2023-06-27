@@ -5,6 +5,47 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
+class PlayHistory{
+  final String showUrl;
+  final int timeInMills;
+
+  PlayHistory(this.showUrl, this.timeInMills);
+}
+
+PlayHistory? findLocalPlayHistory(String showUrl) {
+  var result = _database
+      .select('select * from PlayHistory where showUrl = ?', [showUrl]);
+  try {
+    var element = result.single;
+    return PlayHistory(
+        element['showUrl'], element['timeInMills']);
+  } catch (e) {
+    debugPrint("findLocalPlayHistory = $e");
+    return null;
+  }
+}
+
+void updatePlayHistory(String showUrl, int timeInMills) {
+  try {
+    var result = _database
+        .select('select * from PlayHistory where showUrl = ?', [showUrl]);
+
+    if (result.isNotEmpty) {
+      _database.execute(
+          "update PlayHistory set timeInMills = ? where showUrl = ?",[timeInMills,showUrl]);
+    } else {
+      var stmt = _database.prepare(
+          "insert into PlayHistory(showUrl,timeInMills) values(?,?)");
+      stmt.execute([showUrl, timeInMills]);
+      stmt.dispose();
+    }
+  } catch (e) {
+    debugPrint("$e");
+  }
+}
+
+
+
 class LocalCollect {
   final String showUrl;
   final String logo;
@@ -36,6 +77,9 @@ void initDb() async {
       "create table if not exists LocalCollect(showUrl text not null primary key,logo text not null,title text not null)");
   db.execute(
       "create table if not exists LocalHistory(showUrl text not null primary key,chapter text not null,chapterUrl text not null)");
+
+  db.execute(
+      "create table if not exists PlayHistory(showUrl text not null primary key,timeInMills integer not null)");
 }
 
 Future<String> getDbDir() async {

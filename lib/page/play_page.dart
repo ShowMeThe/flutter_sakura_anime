@@ -13,6 +13,7 @@ import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:wakelock/wakelock.dart';
 
+// ignore: must_be_immutable
 class PlayPage extends ConsumerStatefulWidget {
   final String url;
   final String title;
@@ -98,10 +99,31 @@ class _PlayState extends ConsumerState<PlayPage> {
       var state = ref.watch(_bufferReady);
       if (!state && position > 0) {
         ref.watch(_bufferReady.notifier).state = true;
+        var playHistory = findLocalPlayHistory(widget.url);
+        if (playHistory != null) {
+          _meeduPlayerController
+              .seekTo(Duration(milliseconds: playHistory.timeInMills));
+        }
       }
     });
 
     _meeduPlayerController.videoFit.value = BoxFit.contain;
+
+    _meeduPlayerController.onSliderPositionChanged.listen((event) {
+      debugPrint("onSliderPositionChanged = ${event.inMilliseconds}");
+      updatePlayHistory(widget.url, event.inMilliseconds);
+    });
+
+    _delayToMarkSlide();
+  }
+
+  /// 最高两秒误差
+  void _delayToMarkSlide() async {
+    while (!_disposed) {
+      await Future.delayed(const Duration(seconds: 2));
+      updatePlayHistory(widget.url,
+          _meeduPlayerController.sliderPosition.value.inMilliseconds);
+    }
   }
 
   @override

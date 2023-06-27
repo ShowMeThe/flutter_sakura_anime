@@ -853,12 +853,11 @@ packages:
     source: hosted
     version: "2.6.1"
   video_player_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: video_player_android
-      sha256: f338a5a396c845f4632959511cad3542cdf3167e1b2a1a948ef07f7123c03608
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "plugins/video_player_android"
+      relative: true
+    source: path
     version: "2.4.9"
   video_player_avfoundation:
     dependency: transitive
