@@ -238,9 +238,9 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
           return const SizedBox(
               width: double.infinity,
               height: 350,
-              child: CircularProgressIndicator(
+              child: Center(child: CircularProgressIndicator(
                 color: ColorRes.pink200,
-              ));
+              ),));
         } else if (provider.valueOrNull == null || provider.hasError) {
           return SizedBox(
               width: double.infinity,

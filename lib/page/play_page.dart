@@ -104,14 +104,8 @@ class _PlayState extends ConsumerState<PlayPage> {
           _meeduPlayerController
               .seekTo(Duration(milliseconds: playHistory.timeInMills));
         }
+        _meeduPlayerController.videoFit.value = BoxFit.contain;
       }
-    });
-
-    _meeduPlayerController.videoFit.value = BoxFit.contain;
-
-    _meeduPlayerController.onSliderPositionChanged.listen((event) {
-      debugPrint("onSliderPositionChanged = ${event.inMilliseconds}");
-      updatePlayHistory(widget.url, event.inMilliseconds);
     });
 
     _delayToMarkSlide();
