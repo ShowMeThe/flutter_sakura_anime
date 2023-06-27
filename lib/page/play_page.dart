@@ -101,8 +101,10 @@ class _PlayState extends ConsumerState<PlayPage> {
         ref.watch(_bufferReady.notifier).state = true;
         var playHistory = findLocalPlayHistory(widget.url);
         if (playHistory != null) {
+          var duration = Duration(milliseconds: playHistory.timeInMills);
           _meeduPlayerController
-              .seekTo(Duration(milliseconds: playHistory.timeInMills));
+              .seekTo(duration);
+          ref.watch(_slideX.notifier).update((state) => duration);
         }
         _meeduPlayerController.videoFit.value = BoxFit.contain;
       }
@@ -215,11 +217,12 @@ class _PlayState extends ConsumerState<PlayPage> {
                     _slideValue = 0;
                     _downX = details.globalPosition.dy;
                     _downY = details.globalPosition.dx;
-                    var duration = await _meeduPlayerController
-                        .videoPlayerController?.position;
-                    if (duration != null) {
-                      ref.watch(_slideX.notifier).update((state) => duration);
-                    }
+
+                    var duration = _meeduPlayerController
+                        .sliderPosition.value;
+                    _downPosition = duration.inMilliseconds;
+                    ref.watch(_slideX.notifier).update((state) => duration);
+
                   },
                   onTap: () {},
                   onPanUpdate: (details) async {
@@ -275,7 +278,7 @@ class _PlayState extends ConsumerState<PlayPage> {
                       ref
                           .watch(_isShowSlideDialog.notifier)
                           .update((state) => false);
-                      _meeduPlayerController.seekTo(ref.watch(_slideX));
+                      _meeduPlayerController.seekTo(ref.read(_slideX));
                     }
                     _isSeekingChange = false;
                     _isSeeking = false;
