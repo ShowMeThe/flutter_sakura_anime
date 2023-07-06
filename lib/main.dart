@@ -4,8 +4,6 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/collect.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-import 'Test.dart';
-
 
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
