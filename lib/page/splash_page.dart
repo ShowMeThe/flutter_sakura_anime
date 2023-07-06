@@ -85,13 +85,13 @@ class _SplashPageState extends State<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: ColorRes.pink600,
+      color: ColorRes.mainColor,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              A.assets_ic_sakura_flower,
+              A.assets_ic_fanju,
               width: 85.0,
               height: 85.0,
               fit: BoxFit.fitWidth,
@@ -101,8 +101,8 @@ class _SplashPageState extends State<SplashPage>
               child: FadeTransition(
                 opacity: _animation,
                 child: const Text(
-                  "樱花番剧",
-                  style: TextStyle(color: Colors.white, fontSize: 23.0),
+                  "番剧",
+                  style: TextStyle(color: Colors.orange, fontSize: 23.0),
                 ),
               ),
             )

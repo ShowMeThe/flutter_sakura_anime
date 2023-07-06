@@ -34,10 +34,11 @@ class HjDesPage extends ConsumerStatefulWidget {
 class _HjDesPageState extends ConsumerState<HjDesPage> {
   late AutoDisposeFutureProvider<HjDesData> _desDataProvider;
   final AutoDisposeStateProvider<int> tabSelect =
-  StateProvider.autoDispose((ref) => 0);
+      StateProvider.autoDispose((ref) => 0);
   late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
   final AutoDisposeStateProvider<bool> downLoadState =
-  StateProvider.autoDispose((ref) => false);
+      StateProvider.autoDispose((ref) => false);
+  final ScrollController _tabScroller = ScrollController();
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     _desDataProvider = FutureProvider.autoDispose((ref) async {
+      debugPrint("_desDataProvider getData");
       var result = await HjApi.getHjDes(widget.url);
       await Future.delayed(const Duration(milliseconds: 400));
       return result;
@@ -54,12 +56,40 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
 
     _localHisFuture = FutureProvider.autoDispose((_) async {
       var result = findLocalHistory(widget.url);
-      debugPrint("result $result");
+      debugPrint("localHistory = $result");
+      if (result != null) {
+        var chapter = result.chapter;
+        var desData = ref.watch(_desDataProvider).value;
+        if (desData != null) {
+          var findIndex = desData.playList
+              .indexWhere((element) => element.title == chapter);
+          if (findIndex != -1) {
+            _scrollToRealPosition(_tabScroller, () {
+               ref.watch(tabSelect.notifier).update((state) => findIndex);
+              _tabScroller.animateTo(findIndex * 75.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease);
+            });
+          }
+        }
+      }
       if (result == null) {
         return null;
       }
       return result;
     });
+  }
+
+  void _scrollToRealPosition(
+      ScrollController controller, VoidCallback callback) async {
+    try {
+      while (!controller.position.hasContentDimensions) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      callback();
+    } catch (e) {
+      debugPrint("scrollToRealPosition exception : $e");
+    }
   }
 
   void _toast(String message) {
@@ -74,7 +104,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _tabScroller.dispose();
     super.dispose();
   }
 
@@ -106,10 +136,10 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withAlpha(15),
-                            Colors.black.withAlpha(125),
-                            Colors.black
-                          ]))),
+                        Colors.black.withAlpha(15),
+                        Colors.black.withAlpha(125),
+                        Colors.black
+                      ]))),
               SingleChildScrollView(
                 child: Column(
                   children: [
@@ -125,33 +155,6 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
-                         /* Consumer(builder: (context, ref, _) {
-                            var data = ref
-                                .watch(_desDataProvider)
-                                .value;
-                            var alpha =
-                            (data != null && data.playList.isNotEmpty)
-                                ? 1.0
-                                : 0.0;
-                            var state = ref
-                                .watch(downLoadState.notifier)
-                                .state;
-                            debugPrint("state = $state");
-                            return AnimatedOpacity(
-                                opacity: alpha,
-                                duration: const Duration(milliseconds: 300),
-                                child: IconButton(
-                                    onPressed: () {
-                                      ref
-                                          .refresh(downLoadState.notifier)
-                                          .state = !state;
-                                      _toast(state ? "观看模式" : "下载模式");
-                                    },
-                                    icon: Icon(
-                                      state ? Icons.play_arrow : Icons.download,
-                                      color: Colors.white,
-                                    )));
-                          })*/
                         ],
                       ),
                     ),
@@ -183,14 +186,13 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                     children: [
                                       Positioned(
                                           child: SizedBox(
-                                            width: 55.0,
-                                            height: 40.0,
-                                            child: CustomPaint(
-                                              painter: ScoreShapeBorder(
-                                                  ColorRes.pink400.withAlpha(
-                                                      200)),
-                                            ),
-                                          )),
+                                        width: 55.0,
+                                        height: 40.0,
+                                        child: CustomPaint(
+                                          painter: ScoreShapeBorder(
+                                              ColorRes.pink400.withAlpha(200)),
+                                        ),
+                                      )),
                                       Positioned(
                                           left: 10,
                                           child: Text(
@@ -211,11 +213,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                                     begin: Alignment.topCenter,
                                                     end: Alignment.bottomCenter,
                                                     colors: [
-                                                      Colors.black12.withAlpha(
-                                                          30),
-                                                      Colors.black12.withAlpha(
-                                                          125)
-                                                    ])),
+                                                  Colors.black12.withAlpha(30),
+                                                  Colors.black12.withAlpha(125)
+                                                ])),
                                             child: Padding(
                                               padding: const EdgeInsets.only(
                                                   right: 4.0),
@@ -249,26 +249,26 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                     ),
                     Consumer(builder: (context, ref, _) {
                       var provider = ref.watch(_desDataProvider);
-                      if(provider.valueOrNull == null){
+                      if (provider.valueOrNull == null) {
                         return const SizedBox();
-                      }else{
+                      } else {
                         var data = provider.value;
                         return Center(
                             child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8.0, right: 8.0, top: 0.0),
-                              child: FoldTextView(
-                                data?.des == null ? "" : data!.des,
-                                3,
-                                const TextStyle(
-                                    color: Colors.white, fontSize: 12.0),
-                                320,
-                                moreTxColor: ColorRes.pink400,
-                              ),
-                            ));
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0, top: 0.0),
+                          child: FoldTextView(
+                            data?.des == null ? "" : data!.des,
+                            3,
+                            const TextStyle(
+                                color: Colors.white, fontSize: 12.0),
+                            320,
+                            moreTxColor: ColorRes.pink400,
+                          ),
+                        ));
                       }
                     }),
-                     buildDrams()
+                    buildDrams()
                   ],
                 ),
               )
@@ -282,23 +282,28 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var provider = ref
-            .watch(_desDataProvider);
+        debugPrint("buildDrams build");
+        var provider = ref.watch(_desDataProvider);
         if (provider.isLoading) {
           return const SizedBox(
             width: double.infinity,
             height: 350,
-             child: Center(
-               child: CircularProgressIndicator(color: ColorRes.pink200,),
-             ),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: ColorRes.pink200,
+              ),
+            ),
           );
-        }else if(provider.hasError || provider.valueOrNull == null){
+        } else if (provider.hasError || provider.valueOrNull == null) {
           return SizedBox(
               width: double.infinity,
               height: 350,
-              child: ErrorView(() {
-                ref.invalidate(_desDataProvider);
-              },textColor: Colors.white,));
+              child: ErrorView(
+                () {
+                  ref.invalidate(_desDataProvider);
+                },
+                textColor: Colors.white,
+              ));
         } else {
           var data = provider.value!;
           return Column(
@@ -315,32 +320,34 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   Widget buildTabs(List<HjDesPlayData> list) {
     return SizedBox(
       height: 45,
-      child: Consumer(
-        builder: (context, ref, _) {
-          var selectedIndex = ref.watch(tabSelect);
-          return ListView.builder(
-              itemCount: list.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                var item = list[index];
-                return TextButton(
-                    child: Text(
-                      item.title,
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: selectedIndex == index
-                              ? ColorRes.pink300
-                              : ColorRes.pink100),
-                    ),
-                    onPressed: () {
-                      ref.refresh(tabSelect.notifier).update((state) => index);
-                    });
-              });
-        },
-      ),
+      child: ListView.builder(
+          controller: _tabScroller,
+          itemCount: list.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            var item = list[index];
+            return SizedBox(
+              width: 75.0,
+              child: Consumer(
+                builder: (context, ref, _) {
+                  return TextButton(
+                      child: Text(
+                        item.title,
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: ref.watch(tabSelect) == index
+                                ? ColorRes.pink300
+                                : ColorRes.pink100),
+                      ),
+                      onPressed: () {
+                        ref.watch(tabSelect.notifier).update((state) => index);
+                      });
+                },
+              ),
+            );
+          }),
     );
   }
-
 
   Widget buildPlayList(List<HjDesPlayData> list) {
     return Consumer(builder: (context, ref, _) {
@@ -364,7 +371,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
             children: [
               Padding(
                 padding:
-                const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
+                    const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
                 child: MaterialButton(
                     minWidth: 85,
                     height: double.infinity,
@@ -375,12 +382,12 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                       LoadingDialogHelper.showLoading(context);
                       var title = widget.title + element.title;
                       updateHistory(widget.url, parentTitle, element.url);
-                      ref.invalidate(_localHisFuture);
                       var url = await HjApi.getPlayUrl(element.url);
-                      debugPrint("url = $url");
+                      ref.invalidate(_localHisFuture);
+
                       if (!mounted) return;
                       LoadingDialogHelper.dismissLoading(context);
-
+                      if (!mounted) return;
                       Navigator.of(context).push(FadeRoute(PlayPage(
                         url,
                         title,
@@ -393,7 +400,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                 var localHistory = ref.watch(_localHisFuture);
                 if (localHistory.value != null &&
                     (localHistory.value!.chapter) == parentTitle &&
-                    localHistory.value!.chapterUrl == element.url ) {
+                    localHistory.value!.chapterUrl == element.url) {
                   return const Positioned(
                     bottom: 5,
                     left: 30,
@@ -417,6 +424,4 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   void downLoadByUrl(String url) {
     //Download.downFile(url);
   }
-
 }
-

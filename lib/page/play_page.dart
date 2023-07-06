@@ -65,7 +65,7 @@ class _PlayState extends ConsumerState<PlayPage> {
       _init();
     });
 
-    //ref.refresh(_playNowUrlProvider);
+
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);

@@ -72,7 +72,6 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
     _localHisFuture = FutureProvider.autoDispose((_) async {
       var result = findLocalHistory(widget.animeShowUrl);
-      debugPrint("result $result");
       if (result == null) {
         return null;
       }
@@ -102,7 +101,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
       ScrollController controller, VoidCallback callback) async {
     try {
       while (!controller.position.hasContentDimensions) {
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 100));
       }
       callback();
     } catch (e) {
@@ -406,7 +405,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     for (var parentIndex = 0; parentIndex < list.length; parentIndex++) {
       var element = list[parentIndex];
       var key = element.listTitle ?? "default";
-      var finalController = ScrollController(keepScrollOffset: false);
+      var finalController = ScrollController(keepScrollOffset: true);
       controllerStore[key] = finalController;
       child.add(Padding(
         padding: const EdgeInsets.only(top: 25, left: 16),

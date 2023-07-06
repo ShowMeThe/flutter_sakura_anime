@@ -4,6 +4,8 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/collect.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import 'Test.dart';
+
 
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return MaterialApp(
-      title: '樱花动漫',
+      title: '番茄',
       theme: ThemeData(
         useMaterial3: true,
         platform: TargetPlatform.android,

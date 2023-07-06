@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
    <application
-        android:label="樱花番剧"
+        android:label="番茄"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
