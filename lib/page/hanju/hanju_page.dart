@@ -194,6 +194,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                                 image:
                                                     ExtendedNetworkImageProvider(
                                                   _movies[index].logo,
+                                                  headers: HjApi.imageHeaders,
                                                   cache: true,
                                                 ),
                                                 width: double.infinity,

@@ -28,7 +28,7 @@ class PlayPage extends ConsumerStatefulWidget {
 class _PlayState extends ConsumerState<PlayPage> {
   var _totalDuration = 0;
   final _slideX = StateProvider.autoDispose<Duration>(
-      (ref) => const Duration(milliseconds: 0));
+          (ref) => const Duration(milliseconds: 0));
   final _isShowSlideDialog = StateProvider.autoDispose<bool>((ref) => false);
   final _isShowBrightDialog = StateProvider.autoDispose<bool>((ref) => false);
   final _brightness = FutureProvider.autoDispose<double>((ref) async {
@@ -70,6 +70,7 @@ class _PlayState extends ConsumerState<PlayPage> {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
 
+
     DeviceDisplayBrightness.getBrightness().then((value) {});
     _subscription = PerfectVolumeControl.stream.listen((value) {});
     PerfectVolumeControl.hideUI = false;
@@ -98,7 +99,9 @@ class _PlayState extends ConsumerState<PlayPage> {
       var position = event;
       var state = ref.watch(_bufferReady);
       if (!state && position > 0) {
-        ref.watch(_bufferReady.notifier).state = true;
+        ref
+            .watch(_bufferReady.notifier)
+            .state = true;
         var playHistory = findLocalPlayHistory(widget.url);
         if (playHistory != null) {
           var duration = Duration(milliseconds: playHistory.timeInMills);
@@ -106,7 +109,10 @@ class _PlayState extends ConsumerState<PlayPage> {
               .seekTo(duration);
           ref.watch(_slideX.notifier).update((state) => duration);
         }
-        _meeduPlayerController.videoFit.value = BoxFit.contain;
+        _meeduPlayerController
+          ..videoFit.value = BoxFit.contain
+          ..fullscreen.value = true;
+        ;
       }
     });
 
@@ -184,7 +190,7 @@ class _PlayState extends ConsumerState<PlayPage> {
                     onPanDown: (detail) async {
                       _downY = detail.globalPosition.dy;
                       _downBrightness =
-                          await DeviceDisplayBrightness.getBrightness();
+                      await DeviceDisplayBrightness.getBrightness();
                       debugPrint("_downBrightness $_downBrightness");
                     },
                     onPanUpdate: (details) async {
@@ -222,7 +228,6 @@ class _PlayState extends ConsumerState<PlayPage> {
                         .sliderPosition.value;
                     _downPosition = duration.inMilliseconds;
                     ref.watch(_slideX.notifier).update((state) => duration);
-
                   },
                   onTap: () {},
                   onPanUpdate: (details) async {
@@ -260,7 +265,7 @@ class _PlayState extends ConsumerState<PlayPage> {
                           nextValue = 0;
                         }
                         ref.watch(_slideX.notifier).update(
-                            (state) => Duration(milliseconds: nextValue));
+                                (state) => Duration(milliseconds: nextValue));
                       }
                     } else if (_isVolume) {
                       var offset = _downVolumeY - details.globalPosition.dy;
@@ -294,7 +299,9 @@ class _PlayState extends ConsumerState<PlayPage> {
                       duration: const Duration(milliseconds: 250),
                       opacity: ref.watch(_isShowSlideDialog) ? 1.0 : 0.0,
                       child: Text(
-                        "${getTimeInDuration(ref.watch(_slideX))}/${getTimeInDuration(Duration(milliseconds: _totalDuration))}",
+                        "${getTimeInDuration(
+                            ref.watch(_slideX))}/${getTimeInDuration(
+                            Duration(milliseconds: _totalDuration))}",
                         style: const TextStyle(
                             fontSize: 30.0, color: ColorRes.pink100),
                       ),
@@ -310,7 +317,9 @@ class _PlayState extends ConsumerState<PlayPage> {
                       duration: const Duration(milliseconds: 250),
                       opacity: ref.watch(_isShowBrightDialog) ? 1.0 : 0.0,
                       child: Text(
-                        "${((ref.watch(_brightness).value ?? 0) * 100).toInt()}%",
+                        "${((ref
+                            .watch(_brightness)
+                            .value ?? 0) * 100).toInt()}%",
                         style: const TextStyle(
                             fontSize: 30.0, color: ColorRes.pink100),
                       ),
@@ -328,9 +337,9 @@ class _PlayState extends ConsumerState<PlayPage> {
   String getTimeInDuration(Duration duration) {
     String hours = duration.inHours.toString().padLeft(0, '2');
     String minutes =
-        duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     String seconds =
-        duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    duration.inSeconds.remainder(60).toString().padLeft(2, '0');
     if (hours == "0") {
       return "$minutes:$seconds";
     } else {

@@ -129,13 +129,12 @@ packages:
     source: hosted
     version: "8.0.2"
   extended_image_library:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: extended_image_library
-      sha256: af3ff1c09c23ca7663f94272313d63499a6bd19121e99378e375e0cf2ac7a3e4
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.5.2"
+      path: "plugins/extended_image_library"
+      relative: true
+    source: path
+    version: "3.5.3"
   fade_shimmer:
     dependency: "direct main"
     description:
@@ -291,18 +290,18 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      sha256: "759d1a329847dd0f39226c688d3e06a6b8679668e350e2891a6474f8b4bb8525"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.13.6"
+    version: "1.1.0"
   http_client_helper:
     dependency: transitive
     description:
       name: http_client_helper
-      sha256: "14c6e756644339f561321dab021215475ba4779aa962466f59ccb3ecf66b36c3"
+      sha256: "8a9127650734da86b5c73760de2b404494c968a3fd55602045ffec789dac3cb1"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.4"
+    version: "3.0.0"
   http_parser:
     dependency: transitive
     description:
@@ -395,10 +394,10 @@ packages:
     dependency: transitive
     description:
       name: media_kit
-      sha256: "080cfb5af8d04f8cc454cb4c5ea34b19de5b8e1a1b3af62a34e766364b5244ad"
+      sha256: "8c7d9417bed724a3fcaadd91c722fea042737cafb153aa1f1e6461a0fee683a3"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.0.11"
+    version: "1.0.2"
   media_kit_libs_linux:
     dependency: transitive
     description:
@@ -427,18 +426,18 @@ packages:
     dependency: transitive
     description:
       name: media_kit_native_event_loop
-      sha256: "521125e534603c3f603b93283db3938f557f33ecc383fbd62edd4beb3bf73747"
+      sha256: "5351f0c28124b5358756515d8619abad182cdefe967468d7fb5b274737cc2f59"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.6"
   media_kit_video:
     dependency: transitive
     description:
       name: media_kit_video
-      sha256: "89d3c2cdb0f74d1bb597a9c9a7678f656fe538d20620ad1317b7354fd5d1af15"
+      sha256: d31a0eab80cafadccdedb663d8a127750e38b8c75c1aa83d8943f8119b88cf99
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.0.12"
+    version: "1.0.2"
   meedu:
     dependency: transitive
     description:
@@ -871,10 +870,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_media_kit
-      sha256: f83872f20bbb198341cc749bf186157779c1ce34cd34b94514747f79cc3ddd64
+      sha256: a1e3b85c362c85ecba96cc4bf61aeffd146a08b9cd0b1ccad9aa8ec4ba064168
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.0.16"
+    version: "0.0.17"
   video_player_platform_interface:
     dependency: transitive
     description:

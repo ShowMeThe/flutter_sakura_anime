@@ -17,6 +17,7 @@ class HjApi {
       "https://3532.cc/search.html?searchtype=5&order=time&tid=1";
   static const String baseUrl2 = "https://3532.cc/search.html?searchtype=5&order=time&tid=2";
   static const String searchUrl = "https://3532.cc/search.html?";
+  static const Map<String,String> imageHeaders = {"user-agent":"com.douban.frodo/7.55.0(264)"};
 
   static Future<HjHomeData> getHomePage(
       {String year = "", int page = 1,int type = 0}) async {
@@ -43,6 +44,8 @@ class HjApi {
       var href = base + els.attributes["href"]!;
       var logo = els.attributes["data-original"]!;
       logo = formatLogoUrl(logo);
+      logo = logo.replaceAll("img2", "img9");
+      //debugPrint("logo = ${logo}");
       var title = els.attributes["title"]!;
       var score = element.getElementsByClassName("pic-tag pic-tag-top")[0].text;
       score = score.substring(3, score.length - 1);
