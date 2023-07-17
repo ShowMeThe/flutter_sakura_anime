@@ -4,7 +4,7 @@ import 'package:flutter_sakura_anime/page/hanju/hanju_des_page.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
-import 'package:flutter_sakura_anime/widget/ErrorView.dart';
+import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../bean/hanju_home_data.dart';
@@ -194,12 +194,11 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                                 image:
                                                     ExtendedNetworkImageProvider(
                                                   _movies[index].logo,
-                                                  headers: HjApi.imageHeaders,
                                                   cache: true,
                                                 ),
                                                 width: double.infinity,
                                                 height: 150,
-                                                fit: BoxFit.fitWidth,
+                                                fit: BoxFit.cover,
                                               )),
                                           Positioned.fill(
                                               top: 130,
@@ -248,7 +247,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
 
   List<Widget> _buildTypeChip(int selectedYear) {
     var list = <Widget>[];
-    var title = ["韩剧", "电影"];
+    var title = ["韩剧", "日剧"];
     for (int i = 0; i < 2; i++) {
       var selected = selectedYear == i;
       list.add(Padding(

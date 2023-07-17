@@ -4,7 +4,7 @@ import 'package:flutter_sakura_anime/page/meiju/meiju_des_page.dart';
 import 'package:flutter_sakura_anime/page/meiju/meiju_search_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
-import 'package:flutter_sakura_anime/widget/ErrorView.dart';
+import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:flutter_sakura_anime/widget/color_container.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 

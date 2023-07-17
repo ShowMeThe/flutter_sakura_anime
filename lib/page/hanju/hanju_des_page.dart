@@ -7,7 +7,7 @@ import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
-import 'package:flutter_sakura_anime/widget/ErrorView.dart';
+import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../bean/hanju_des_data.dart';

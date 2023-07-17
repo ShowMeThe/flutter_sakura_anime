@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/anime/time_table_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/fade_route.dart';
-import 'package:flutter_sakura_anime/widget/ErrorView.dart';
+import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../widget/color_container.dart';

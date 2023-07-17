@@ -60,9 +60,8 @@ class _HanjuSearchState extends ConsumerState {
       }
       _isLoading = true;
       debugPrint("nowPage $nowPage");
-      var result =
-      await HjApi.getSearchPage(editController.text, page: nowPage);
-      _canLoadMore = result.loadMore;
+      var result = await HjApi.getSearchPage(editController.text, page: nowPage);
+     // _canLoadMore = result.loadMore;
       ref.refresh(_showEmpty.notifier).update((state) => false);
       ref.refresh(_showHis.notifier).state = false;
       return result;
@@ -100,14 +99,14 @@ class _HanjuSearchState extends ConsumerState {
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
-    if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
-          210) {
-        if (!_isLoading && _canLoadMore) {
-          nowPage++;
-        }
-      }
-    }
+    // if (notification is ScrollUpdateNotification) {
+    //   if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
+    //       210) {
+    //     if (!_isLoading && _canLoadMore) {
+    //       nowPage++;
+    //     }
+    //   }
+    // }
     return false;
   }
 
@@ -215,9 +214,9 @@ class _HanjuSearchState extends ConsumerState {
                         onTap: () {
                           clearHist();
                         },
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(
                               Icons.delete,
                               color: Colors.pink,
@@ -249,10 +248,10 @@ class _HanjuSearchState extends ConsumerState {
                 slivers: [
                   CupertinoSliverRefreshControl(
                     onRefresh: () async {
-                      _canLoadMore = true;
-                      debugPrint("onRefresh");
-                      nowPage = 1;
-                      ref.refresh(_futureProvider);
+                      // _canLoadMore = true;
+                      // debugPrint("onRefresh");
+                      // nowPage = 1;
+                      // ref.refresh(_futureProvider);
                     },
                   ),
                   SliverGrid(
@@ -349,7 +348,7 @@ class _HanjuSearchState extends ConsumerState {
           onTap: () {
             _focusNode.unfocus();
             editController.text = element;
-            ref.refresh(_futureProvider);
+            ref.invalidate(_futureProvider);
             ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
             editController.selection =
                 TextSelection.collapsed(offset: element.length);

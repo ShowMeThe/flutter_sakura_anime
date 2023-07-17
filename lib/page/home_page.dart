@@ -27,7 +27,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   final _titles = [
     "动漫",
-    "韩剧",
+    "日/韩剧",
     "美剧",
   ];
 

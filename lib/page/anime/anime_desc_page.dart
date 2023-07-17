@@ -4,7 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:flutter_sakura_anime/widget/ErrorView.dart';
+import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
 import '../../widget/color_container.dart';

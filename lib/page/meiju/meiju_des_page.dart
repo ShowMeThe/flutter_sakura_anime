@@ -6,7 +6,7 @@ import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
-import 'package:flutter_sakura_anime/widget/ErrorView.dart';
+import 'package:flutter_sakura_anime/widget/error_view.dart';
 
 import '../../widget/fold_text.dart';
 
