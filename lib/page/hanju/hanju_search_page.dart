@@ -277,14 +277,26 @@ class _HanjuSearchState extends ConsumerState {
                                     children: [
                                       Hero(
                                           tag: _movies[index].logo + _HeroTag,
-                                          child: Image(
-                                            image: ExtendedNetworkImageProvider(
-                                              _movies[index].logo,
-                                              cache: true,
-                                            ),
+                                          child:ExtendedImage.network(
+                                            _movies[index].logo,
                                             width: double.infinity,
                                             height: 150,
                                             fit: BoxFit.fitWidth,
+                                            cache: true,
+                                            loadStateChanged: (state){
+                                              switch (state.extendedImageLoadState){
+                                                case LoadState.loading:
+                                                  return null;
+                                                case LoadState.failed:
+                                                  return Image(image: ExtendedNetworkImageProvider(
+                                                    HjApi.errorPic,
+                                                    cache: true,
+                                                  ));
+                                                case LoadState.completed:
+                                                    return state.completedWidget;
+
+                                              }
+                                            },
                                           )),
                                       Positioned.fill(
                                           top: 130,
