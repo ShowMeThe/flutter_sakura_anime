@@ -134,8 +134,8 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                     width: double.infinity,
                     height: 150,
                     child: ErrorView(() {
-                  ref.invalidate(_futureProvider);
-                }));
+                      ref.invalidate(_futureProvider);
+                    }));
               } else {
                 var data = provider.value!;
                 if (!provider.isLoading) {
@@ -190,26 +190,10 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                           Hero(
                                               tag: _movies[index].logo +
                                                   _HeroTag,
-                                              child: ExtendedImage.network(
+                                              child: showImage(
                                                 _movies[index].logo,
-                                                width: double.infinity,
-                                                height: 150,
-                                                fit: BoxFit.fitWidth,
-                                                cache: true,
-                                                loadStateChanged: (state){
-                                                  switch (state.extendedImageLoadState){
-                                                    case LoadState.loading:
-                                                      return null;
-                                                    case LoadState.failed:
-                                                      return Image(image: ExtendedNetworkImageProvider(
-                                                        HjApi.errorPic,
-                                                        cache: true,
-                                                      ));
-                                                    case LoadState.completed:
-                                                      return state.completedWidget;
-
-                                                  }
-                                                },
+                                                double.infinity,
+                                                150,
                                               )),
                                           Positioned.fill(
                                               top: 130,
@@ -258,8 +242,8 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
 
   List<Widget> _buildTypeChip(int selectedYear) {
     var list = <Widget>[];
-    var title = ["韩剧", "日剧"];
-    for (int i = 0; i < 2; i++) {
+    var title = ["韩剧", "日剧","电影"];
+    for (int i = 0; i < title.length; i++) {
       var selected = selectedYear == i;
       list.add(Padding(
         padding: const EdgeInsets.only(left: 8.0, right: 8.0),

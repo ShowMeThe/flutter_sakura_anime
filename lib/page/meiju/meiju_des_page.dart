@@ -10,6 +10,7 @@ import 'package:flutter_sakura_anime/widget/error_view.dart';
 
 import '../../widget/fold_text.dart';
 
+// ignore: must_be_immutable
 class MjDesPage extends ConsumerStatefulWidget {
   final String logo;
   final String url;
@@ -115,14 +116,9 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           children: [
                             Hero(
                                 tag: widget.logo + widget.heroTag,
-                                child: Image(
-                                  image: ExtendedNetworkImageProvider(
-                                      widget.logo,
-                                      cache: true),
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  height: 200,
-                                )),
+                                child: showImage(
+                                    widget.logo, double.infinity, 200,
+                                    boxFit: BoxFit.cover)),
                             Consumer(builder: (context, ref, _) {
                               var provider = ref.watch(_desDataProvider);
                               if (provider.valueOrNull == null ||
@@ -238,9 +234,11 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
           return const SizedBox(
               width: double.infinity,
               height: 350,
-              child: Center(child: CircularProgressIndicator(
-                color: ColorRes.pink200,
-              ),));
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: ColorRes.pink200,
+                ),
+              ));
         } else if (provider.valueOrNull == null || provider.hasError) {
           return SizedBox(
               width: double.infinity,

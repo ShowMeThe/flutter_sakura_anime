@@ -27,7 +27,6 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
   late ScrollController _controller;
   late AutoDisposeFutureProvider<HomeData> _disposeFutureProvider;
 
-
   @override
   void initState() {
     super.initState();
@@ -109,13 +108,13 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           child: Consumer(
             builder: (context, ref, _) {
               var provider = ref.watch(_disposeFutureProvider);
-              if(provider.isLoading){
+              if (provider.isLoading) {
                 return ListView(
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(top: 0),
                   children: buildLoadingBody(),
                 );
-              }else if(provider.hasError){
+              } else if (provider.hasError) {
                 return Container(
                     color: Colors.white,
                     width: double.infinity,
@@ -123,12 +122,12 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
                     child: ErrorView(() {
                       ref.invalidate(_disposeFutureProvider);
                     }));
-              }else {
-                 return ListView(
-                   physics: const BouncingScrollPhysics(),
-                   padding: const EdgeInsets.only(top: 0),
-                   children: buildBody(provider.value),
-                 );
+              } else {
+                return ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 0),
+                  children: buildBody(provider.value),
+                );
               }
             },
           ),
@@ -243,21 +242,19 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
                         child: Column(
                           children: [
                             Hero(
-                                tag: childList[index].img!,
-                                child: Image(
-                                  image: ExtendedNetworkImageProvider(
-                                      childList[index].img!,
-                                      cache: true),
-                                  width: double.infinity,
-                                  height: 150,
-                                  fit: BoxFit.fitWidth,
-                                )),
+                              tag: childList[index].img!,
+                              child: showImage(
+                                childList[index].img!,
+                                double.infinity,
+                                150,
+                              ),
+                            ),
                             Expanded(
                                 child: ColorContainer(
-                                  url: childList[index].img!,
-                                  baseColor: ColorRes.mainColor,
-                                  title: childList[index].title!,
-                                ))
+                              url: childList[index].img!,
+                              baseColor: ColorRes.mainColor,
+                              title: childList[index].title!,
+                            ))
                           ],
                         ),
                       )),

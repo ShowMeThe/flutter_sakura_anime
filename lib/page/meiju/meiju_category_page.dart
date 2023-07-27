@@ -106,19 +106,19 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 5,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
+          return const Padding(
+            padding: EdgeInsets.only(left: 15.0, top: 15.0, right: 15.0),
             child: SizedBox(
                 width: double.infinity,
                 height: 210,
                 child: Card(
                   color: ColorRes.mainColor,
-                  shape: const RoundedRectangleBorder(
+                  shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12.0))),
                   clipBehavior: Clip.antiAlias,
                   child: Row(
                     children: [
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.all(8.0),
                         child: FadeShimmer(
                             height: double.infinity,
@@ -129,9 +129,9 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
                       ),
                       Expanded(
                           child: Padding(
-                        padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+                        padding: EdgeInsets.only(left: 12.0, right: 12.0),
                         child: Column(
-                          children: const [
+                          children: [
                             Padding(
                               padding: EdgeInsets.only(top: 15.0),
                               child: FadeShimmer(
@@ -212,15 +212,7 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Hero(
                       tag: item.logo + widget.heroTag,
-                      child: Image(
-                        image: ExtendedNetworkImageProvider(
-                          item.logo,
-                          cache: true,
-                        ),
-                        width: 150,
-                        height: double.infinity,
-                        fit: BoxFit.fitWidth,
-                      )),
+                      child: showImage(item.logo, 150, double.infinity)),
                 ),
                 Expanded(
                     child: Padding(

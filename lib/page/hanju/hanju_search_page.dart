@@ -46,8 +46,6 @@ class _HanjuSearchState extends ConsumerState {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
-
-
     _focusNode = FocusNode();
     _hisSearchProvider = FutureProvider.autoDispose<List<String>>((ref) async {
       localList = (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
@@ -60,20 +58,20 @@ class _HanjuSearchState extends ConsumerState {
       }
       _isLoading = true;
       debugPrint("nowPage $nowPage");
-      var result = await HjApi.getSearchPage(editController.text, page: nowPage);
-     // _canLoadMore = result.loadMore;
+      var result =
+          await HjApi.getSearchPage(editController.text, page: nowPage);
+      // _canLoadMore = result.loadMore;
       ref.refresh(_showEmpty.notifier).update((state) => false);
       ref.refresh(_showHis.notifier).state = false;
       return result;
     });
 
     sub = AndroidKeyboardListener.onChange((visible) async {
-      if(!visible){
+      if (!visible) {
         await Future.delayed(const Duration(milliseconds: 350));
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
       }
     });
-
   }
 
   void saveToHist(String newKey) async {
@@ -148,7 +146,9 @@ class _HanjuSearchState extends ConsumerState {
                 onTap: () {
                   if (opacity != 0.0) {
                     editController.clear();
-                    ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
+                    ref
+                        .refresh(_opacityProvider.notifier)
+                        .update((state) => 0.0);
                     ref.refresh(_showEmpty.notifier).state = true;
                     if (localList.isNotEmpty) {
                       ref.refresh(_showHis.notifier).state = true;
@@ -171,8 +171,8 @@ class _HanjuSearchState extends ConsumerState {
           ),
           (word) {
             if (word.isNotEmpty) {
-               ref.invalidate(_futureProvider);
-               saveToHist(word);
+              ref.invalidate(_futureProvider);
+              saveToHist(word);
             } else {
               ref.refresh(_showEmpty.notifier).state = true;
               if (localList.isNotEmpty) {
@@ -180,7 +180,7 @@ class _HanjuSearchState extends ConsumerState {
               }
             }
           }),
-      body:Consumer(
+      body: Consumer(
         builder: (context, ref, _) {
           var provider = ref.watch(_futureProvider);
           var isEmpty = ref.watch(_showEmpty);
@@ -262,8 +262,14 @@ class _HanjuSearchState extends ConsumerState {
                           child: GestureDetector(
                             onTap: () {
                               var item = _movies[index];
-                              Navigator.of(context)
-                                  .push(FadeRoute(HjDesPage(item.logo,item.href,item.title,item.score,item.update,heroTag: _HeroTag,)));
+                              Navigator.of(context).push(FadeRoute(HjDesPage(
+                                item.logo,
+                                item.href,
+                                item.title,
+                                item.score,
+                                item.update,
+                                heroTag: _HeroTag,
+                              )));
                             },
                             child: SizedBox(
                                 width: 90,
@@ -277,36 +283,22 @@ class _HanjuSearchState extends ConsumerState {
                                     children: [
                                       Hero(
                                           tag: _movies[index].logo + _HeroTag,
-                                          child:ExtendedImage.network(
+                                          child: showImage(
                                             _movies[index].logo,
-                                            width: double.infinity,
-                                            height: 150,
-                                            fit: BoxFit.fitWidth,
-                                            cache: true,
-                                            loadStateChanged: (state){
-                                              switch (state.extendedImageLoadState){
-                                                case LoadState.loading:
-                                                  return null;
-                                                case LoadState.failed:
-                                                  return Image(image: ExtendedNetworkImageProvider(
-                                                    HjApi.errorPic,
-                                                    cache: true,
-                                                  ));
-                                                case LoadState.completed:
-                                                    return state.completedWidget;
-
-                                              }
-                                            },
+                                            double.infinity,
+                                            150,
                                           )),
                                       Positioned.fill(
                                           top: 130,
                                           child: Container(
                                             decoration: BoxDecoration(
-                                                color: Colors.black.withAlpha(45)),
+                                                color:
+                                                    Colors.black.withAlpha(45)),
                                             child: Text(
                                               _movies[index].update,
                                               textAlign: TextAlign.right,
-                                              style: const TextStyle(color: Colors.white),
+                                              style: const TextStyle(
+                                                  color: Colors.white),
                                             ),
                                           )),
                                       Positioned.fill(
@@ -315,13 +307,15 @@ class _HanjuSearchState extends ConsumerState {
                                           child: Container(
                                             color: ColorRes.mainColor,
                                             child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Center(
                                                 child: Text(
                                                   _movies[index].title,
                                                   style: const TextStyle(
                                                     fontSize: 10.0,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                   maxLines: 2,
                                                 ),
@@ -337,11 +331,11 @@ class _HanjuSearchState extends ConsumerState {
                           addAutomaticKeepAlives: false,
                           childCount: _movies.length),
                       gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                          childAspectRatio: 0.55))
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 5,
+                              childAspectRatio: 0.55))
                 ],
               ),
             );

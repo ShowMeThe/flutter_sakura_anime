@@ -40,11 +40,14 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
           } else {
             _movies.clear();
             _movies.addAll(provider.value!);
-            if(_movies.isEmpty){
+            if (_movies.isEmpty) {
               return const Center(
-                child: Text("追番列表为空",style: TextStyle(color: Colors.grey),),
+                child: Text(
+                  "追番列表为空",
+                  style: TextStyle(color: Colors.grey),
+                ),
               );
-            }else{
+            } else {
               return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
@@ -55,8 +58,8 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding:
-                      const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+                      padding: const EdgeInsets.only(
+                          left: 2.0, top: 2.0, bottom: 2.0),
                       child: GestureDetector(
                         onTap: () {
                           var url = _movies[index].showUrl;
@@ -72,27 +75,20 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
                             child: Card(
                               shape: const RoundedRectangleBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(12.0))),
+                                      BorderRadius.all(Radius.circular(12.0))),
                               clipBehavior: Clip.antiAlias,
                               child: Column(
                                 children: [
                                   Hero(
                                       tag: _movies[index].logo + _HeroTag,
-                                      child: Image(
-                                        image: ExtendedNetworkImageProvider(
-                                          _movies[index].logo,
-                                          cache: true,
-                                        ),
-                                        width: double.infinity,
-                                        height: 150,
-                                        fit: BoxFit.fitWidth,
-                                      )),
+                                      child: showImage(_movies[index].logo,
+                                          double.infinity, 150)),
                                   Expanded(
                                       child: ColorContainer(
-                                        url: _movies[index].logo!,
-                                        baseColor: ColorRes.mainColor,
-                                        title: _movies[index].title!,
-                                      ))
+                                    url: _movies[index].logo,
+                                    baseColor: ColorRes.mainColor,
+                                    title: _movies[index].title,
+                                  ))
                                 ],
                               ),
                             )),

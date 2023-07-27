@@ -13,9 +13,11 @@ class AnimeCategoryPage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() =>
       AnimeCategoryPageState();
 }
-class Pair{
+
+class Pair {
   String key;
   int index;
+
   Pair(this.key, this.index);
 
   @override
@@ -24,9 +26,9 @@ class Pair{
   }
 }
 
-
 class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
-  final AutoDisposeStateProvider<Pair> _queryProvider = StateProvider.autoDispose((ref) => Pair(Api.AREA, 0));
+  final AutoDisposeStateProvider<Pair> _queryProvider =
+      StateProvider.autoDispose((ref) => Pair(Api.AREA, 0));
   late AutoDisposeFutureProvider<AnimeMovieData> _futureProvider;
   final List<AnimeMovieListData> _movies = [];
   static const _HeroTag = "category";
@@ -45,34 +47,34 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
       debugPrint("nowPage $nowPage");
-      var result = await Api.getCategory(ref.read(_queryProvider),nowPage: nowPage);
+      var result =
+          await Api.getCategory(ref.read(_queryProvider), nowPage: nowPage);
       maxPage = result.pageCount;
       return result;
     });
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
-      if (notification is ScrollUpdateNotification) {
-        if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
-            210) {
-          if (!_isLoading && _canLoadMore) {
-            nowPage++;
-            if (nowPage <= maxPage) {
-              ref.invalidate(_futureProvider);
-            } else {
-              _canLoadMore = false;
-            }
+    if (notification is ScrollUpdateNotification) {
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
+          210) {
+        if (!_isLoading && _canLoadMore) {
+          nowPage++;
+          if (nowPage <= maxPage) {
+            ref.invalidate(_futureProvider);
+          } else {
+            _canLoadMore = false;
           }
         }
       }
-      return false;
+    }
+    return false;
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-
   }
 
   @override
@@ -144,21 +146,14 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                                     children: [
                                       Hero(
                                           tag: _movies[index].logo! + _HeroTag,
-                                          child: Image(
-                                            image: ExtendedNetworkImageProvider(
-                                              _movies[index].logo!,
-                                              cache: true,
-                                            ),
-                                            width: double.infinity,
-                                            height: 150,
-                                            fit: BoxFit.fitWidth,
-                                          )),
+                                          child: showImage(_movies[index].logo!,
+                                              double.infinity, 150)),
                                       Expanded(
                                           child: ColorContainer(
-                                            url: _movies[index].logo!,
-                                            baseColor: ColorRes.mainColor,
-                                            title: _movies[index].title!,
-                                          ))
+                                        url: _movies[index].logo!,
+                                        baseColor: ColorRes.mainColor,
+                                        title: _movies[index].title!,
+                                      ))
                                     ],
                                   ),
                                 )),
@@ -300,13 +295,12 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
       debugPrint("state = $state");
       return Wrap(
         spacing: 12.0,
-        children: _buildChips(key, list,state),
+        children: _buildChips(key, list, state),
       );
     });
   }
 
-  List<Widget> _buildChips(String key, List<String> list,
-      Pair pair) {
+  List<Widget> _buildChips(String key, List<String> list, Pair pair) {
     List<Widget> widgets = [];
     for (int index = 0, size = list.length; index < size; index++) {
       var content = list[index];
@@ -319,9 +313,9 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
           style: TextStyle(color: check ? Colors.white : Colors.black),
         ),
         onSelected: (bool) {
-         if(bool){
-           ref.watch(_queryProvider.notifier).state = Pair(key, index);
-         }
+          if (bool) {
+            ref.watch(_queryProvider.notifier).state = Pair(key, index);
+          }
         },
       ));
     }

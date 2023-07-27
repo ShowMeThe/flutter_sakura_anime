@@ -121,14 +121,10 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
                                     children: [
                                       Hero(
                                           tag: _movies[index].logo! + _HeroTag,
-                                          child: Image(
-                                            image: ExtendedNetworkImageProvider(
-                                              _movies[index].logo!,
-                                              cache: true,
-                                            ),
-                                            width: double.infinity,
-                                            height: 150,
-                                            fit: BoxFit.fitWidth,
+                                          child: showImage(
+                                            _movies[index].logo!,
+                                            double.infinity,
+                                            150,
                                           )),
                                       Expanded(
                                           child: ColorContainer(

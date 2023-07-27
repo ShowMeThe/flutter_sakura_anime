@@ -49,21 +49,21 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
     return Consumer(
       builder: (context, ref, _) {
         var provider = ref.watch(_homeProvider);
-        if(provider.isLoading){
+        if (provider.isLoading) {
           return ListView(
             physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
             children: buildLoadingBody(),
           );
-        }else if( provider.hasError){
-           return Container(
-               color: Colors.white,
-               width: double.infinity,
-               height: 150,
-               child: ErrorView(() {
-                 ref.invalidate(_homeProvider);
-               }));
-        }else{
+        } else if (provider.hasError) {
+          return Container(
+              color: Colors.white,
+              width: double.infinity,
+              height: 150,
+              child: ErrorView(() {
+                ref.invalidate(_homeProvider);
+              }));
+        } else {
           return Scaffold(
             backgroundColor: Colors.white,
             body: ListView(
@@ -195,8 +195,12 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                     const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(
-                        FadeRoute(MjDesPage(item.img, item.url, item.title,heroTag: _heroTag,)));
+                    Navigator.of(context).push(FadeRoute(MjDesPage(
+                      item.img,
+                      item.url,
+                      item.title,
+                      heroTag: _heroTag,
+                    )));
                   },
                   child: SizedBox(
                       width: 90,
@@ -210,14 +214,8 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                           children: [
                             Hero(
                                 tag: item.img + _heroTag,
-                                child: Image(
-                                  image: ExtendedNetworkImageProvider(
-                                      item.img,
-                                      cache: true),
-                                  width: double.infinity,
-                                  height: 150,
-                                  fit: BoxFit.fitWidth,
-                                )),
+                                child:
+                                    showImage(item.img, double.infinity, 150)),
                             Positioned.fill(
                                 top: 130,
                                 child: Container(

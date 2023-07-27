@@ -165,14 +165,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                           children: [
                             Hero(
                                 tag: widget.logo + widget.heroTag,
-                                child: Image(
-                                  image: ExtendedNetworkImageProvider(
-                                      widget.logo,
-                                      cache: true),
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  height: 200,
-                                )),
+                                child: showImage(widget.logo, double.infinity, 200,boxFit: BoxFit.cover)),
                             Consumer(builder: (context, ref, _) {
                               var provider = ref.watch(_desDataProvider);
                               if (provider.isLoading || provider.hasError) {

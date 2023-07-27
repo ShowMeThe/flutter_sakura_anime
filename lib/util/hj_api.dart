@@ -22,7 +22,7 @@ class HjApi {
       "https://www.xcdyy.com/search/";
   static String errorPic = "https://www.xcdyy.com/public/tpl/zanpianadmin/no.jpg";
 
-  static final Map<int,String> _typeMap = {0:"hanguoju",1:"ribenju"};
+  static final Map<int,String> _typeMap = {0:"hanguoju",1:"ribenju",2:"dianying"};
 
   static Future<HjHomeData> getHomePage(
       {String year = "", int page = 1, int type = 0}) async {
