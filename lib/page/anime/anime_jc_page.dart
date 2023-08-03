@@ -63,9 +63,11 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.primaryColor,
       appBar: AppBar(
-        title: const Text("OVA"),
+        title: Text("OVA" ,style: theme.textTheme.displayMedium,),
       ),
       body: Consumer(
         builder: (context, ref, _) {

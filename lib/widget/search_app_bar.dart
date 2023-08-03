@@ -51,9 +51,9 @@ class _SearchAppBarState extends State<SearchAppBar> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     widget.appBarBackgroundColor =
-        widget.appBarBackgroundColor ?? theme.colorScheme.primary;
+        widget.appBarBackgroundColor ?? theme.primaryColor;
     SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light));
+        SystemUiOverlayStyle(statusBarIconBrightness: theme.brightness));
     return SizedBox(
       height: widget.appBarHeight,
       child: Material(

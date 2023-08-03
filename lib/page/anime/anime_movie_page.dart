@@ -64,9 +64,11 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.primaryColor,
       appBar: AppBar(
-        title: const Text("剧场版"),
+        title: Text("剧场版",style: theme.textTheme.displayMedium),
       ),
       body: Consumer(
         builder: (context, ref, _) {

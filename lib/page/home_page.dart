@@ -69,7 +69,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).primaryColor,
       body: PageView.builder(
         itemBuilder: (BuildContext context, int index) {
           return _pages[index];
@@ -88,7 +88,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               showSelectedLabels: true,
               showUnselectedLabels: false,
               selectedFontSize: 12,
-              selectedItemColor: ColorRes.pink400,
               onTap: onTap,
               currentIndex: currentIndex,
               items: [

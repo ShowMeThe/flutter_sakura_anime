@@ -79,13 +79,15 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.primaryColor,
       appBar: AppBar(
-        title: const Text("分类"),
+        title: Text("分类", style: theme.textTheme.displayMedium),
         actions: [
           GestureDetector(
               onTap: () {
-                _showBottomModel();
+                _showBottomModel(theme);
               },
               child: const Padding(
                 padding: EdgeInsets.all(8.0),
@@ -223,21 +225,20 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
         });
   }
 
-  void _showBottomModel() {
+  void _showBottomModel(ThemeData theme) {
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15.0),
                 topRight: Radius.circular(15.0))),
         builder: (context) {
-          return _buildFilter(context);
+          return _buildFilter(context, theme);
         });
   }
 
-  Widget _buildFilter(BuildContext context) {
+  Widget _buildFilter(BuildContext context, ThemeData theme) {
     return SizedBox(
       height: 550,
       child: Column(
@@ -251,9 +252,9 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
                 nowPage = 1;
                 ref.invalidate(_futureProvider);
               },
-              child: const Text(
+              child: Text(
                 "搜索",
-                style: TextStyle(fontSize: 18, color: ColorRes.pink400),
+                style: TextStyle(fontSize: 18, color: theme.cardColor),
               ),
             ),
           ),
@@ -261,7 +262,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
               child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: ListView(
-              children: buildPairs(Api.map),
+              children: buildPairs(Api.map,theme),
             ),
           ))
         ],
@@ -269,13 +270,13 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
     );
   }
 
-  List<Widget> buildPairs(HashMap<String, List<String>> pair) {
+  List<Widget> buildPairs(HashMap<String, List<String>> pair,ThemeData theme) {
     List<Widget> widgets = [];
     for (var element in pair.entries) {
       widgets
         ..add(Padding(
           padding: const EdgeInsets.only(top: 12.0),
-          child: Text(element.key, style: const TextStyle(fontSize: 21)),
+          child: Text(element.key, style: TextStyle(fontSize: 21,color: theme.cardColor.withAlpha(125))),
         ))
         ..add(const Divider(
           color: Colors.grey,
@@ -306,11 +307,9 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
       var content = list[index];
       var check = pair.index == index && key == pair.key;
       widgets.add(ChoiceChip(
-        selectedColor: ColorRes.pink300,
         selected: check,
         label: Text(
           content,
-          style: TextStyle(color: check ? Colors.white : Colors.black),
         ),
         onSelected: (bool) {
           if (bool) {

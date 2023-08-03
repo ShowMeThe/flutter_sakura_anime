@@ -26,15 +26,17 @@ class _TimeTableState extends ConsumerState<TimeTablePage>
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("时间表"),
+        title: Text(
+          "时间表",
+          style: theme.textTheme.displayMedium,
+        ),
         bottom: TabBar(
           isScrollable: true,
-          indicatorColor: ColorRes.pink400,
-          labelColor: ColorRes.pink400,
-          unselectedLabelColor: ColorRes.pink200,
+          dividerColor: theme.primaryColor,
           controller: _tabController,
           tabs: tabs(),
         ),
@@ -59,8 +61,8 @@ class _TimeTableState extends ConsumerState<TimeTablePage>
     var tabView = <Widget>[];
     if (Api.homeData?.homeTimeTable != null) {
       for (int index = 0, size = Api.homeData?.homeTimeTable.length ?? 0;
-      index < size;
-      index++) {
+          index < size;
+          index++) {
         tabView.add(_WeekTabPage(index));
       }
     }
@@ -93,16 +95,20 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ListView.builder(
-        itemCount: list.length,
-        physics: BouncingScrollPhysics(),
-        controller: _scrollController,
-        itemBuilder: (context, index) {
-          return buildChild(index);
-        });
+    var theme = Theme.of(context);
+    return Container(
+      color: theme.primaryColor,
+      child: ListView.builder(
+          itemCount: list.length,
+          physics: const BouncingScrollPhysics(),
+          controller: _scrollController,
+          itemBuilder: (context, index) {
+            return buildChild(index,theme);
+          }),
+    );
   }
 
-  Widget buildChild(int index) {
+  Widget buildChild(int index,ThemeData theme) {
     var item = list[index];
     return GestureDetector(
       onTap: () {
@@ -111,9 +117,10 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
         }
       },
       child: Card(
-        color: Colors.white,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12.0))),
+        color: theme.primaryColor,
+        shape: RoundedRectangleBorder(
+            side: BorderSide(color: theme.dividerColor.withAlpha(125),width: 0.25),
+            borderRadius: const BorderRadius.all(Radius.circular(12.0))),
         child: SizedBox(
           width: double.infinity,
           child: Padding(
@@ -121,10 +128,10 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(width: 220, child: Text(item.title)),
+                SizedBox(width: 220, child: Text(item.title,style: theme.textTheme.displaySmall,)),
                 Text(
                   item.episode,
-                  style: const TextStyle(color: ColorRes.pink50),
+                  style: theme.textTheme.bodySmall,
                 )
               ],
             ),

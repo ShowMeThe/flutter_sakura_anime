@@ -51,14 +51,15 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     super.build(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.primaryColor,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(FadeRoute(const AnimeSearchPage()));
         },
-        backgroundColor: ColorRes.pink400,
+        backgroundColor: theme.cardColor,
         child: const Icon(
           Icons.search,
           color: Colors.white,
@@ -71,10 +72,10 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           var top = MediaQuery.paddingOf(context).top;
           return [
             SliverAppBar(
+              backgroundColor: theme.primaryColor,
               expandedHeight: 110,
               collapsedHeight: 95,
               pinned: false,
-              backgroundColor: Colors.white,
               flexibleSpace: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -104,7 +105,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           ];
         },
         body: Container(
-          color: Colors.white,
+          color: theme.primaryColor,
           child: Consumer(
             builder: (context, ref, _) {
               var provider = ref.watch(_disposeFutureProvider);
@@ -208,7 +209,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           padding: const EdgeInsets.all(8.0),
           child: Text(
             element.title,
-            style: const TextStyle(fontSize: 20),
+            style: Theme.of(context).textTheme.displayMedium,
           ),
         ));
         widget.add(GridView.builder(
@@ -267,6 +268,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
   }
 
   Widget buildIcon(int index) {
+    var theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
         onTap(index);
@@ -276,9 +278,9 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
         height: 68,
         child: Container(
           decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.appBarTheme.backgroundColor,
               borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-              border: Border.all(width: 1, color: ColorRes.pink600)),
+              border: Border.all(width: 1, color: theme.appBarTheme.foregroundColor!)),
           child: Column(
             children: [
               Padding(
@@ -286,7 +288,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
                 child: Center(
                   child: Image.asset(
                     getImageIndex(index),
-                    color: ColorRes.pink400,
+                    color: theme.appBarTheme.iconTheme!.color,
                     width: 30,
                     height: 30,
                     fit: BoxFit.fitWidth,
@@ -297,7 +299,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
                 padding: const EdgeInsets.only(top: 6.0),
                 child: Text(
                   getTextIndex(index),
-                  style: const TextStyle(color: ColorRes.pink400),
+                  style: theme.textTheme.displaySmall,
                 ),
               )
             ],

@@ -97,7 +97,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
     return false;
   }
 
-  List<Widget> getHisWidget(Iterable<String> str) {
+  List<Widget> getHisWidget(Iterable<String> str,ThemeData theme) {
     var list = <Widget>[];
     for (var element in str) {
       list.add(Padding(
@@ -114,12 +114,12 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           child: Container(
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                  border: Border.all(color: ColorRes.pink400, width: 2.0)),
+                  border: Border.all(color: theme.cardColor, width: 2.0)),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   element,
-                  style: const TextStyle(color: ColorRes.pink600),
+                  style: TextStyle(color: theme.cardColor),
                 ),
               )),
         ),
@@ -140,12 +140,13 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
       appBar: SearchAppBar(
           focusNode: _focusNode,
           paddingLeft: 15,
-          appBarBackgroundColor: Colors.white,
-          textColor: Colors.black,
+          appBarBackgroundColor: theme.primaryColor,
+          textColor: theme.textTheme.displaySmall!.color,
           hintTextColor: Colors.grey,
           cursorColor: Colors.grey.withAlpha(125),
           controller: editController,
@@ -162,11 +163,11 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
             onTap: () {
               Navigator.of(context).pop();
             },
-            child: const Padding(
-              padding: EdgeInsets.only(left: 12.0),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12.0),
               child: Icon(
                 Icons.arrow_back,
-                color: Colors.black,
+                color: theme.cardColor,
               ),
             ),
           ),
@@ -189,9 +190,9 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 150),
                     opacity: opacity,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
-                      color: Colors.black,
+                      color: theme.cardColor,
                     ),
                   ),
                 ),
@@ -234,7 +235,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Wrap(
-                        children: getHisWidget(searchList.reversed),
+                        children: getHisWidget(searchList.reversed,theme),
                       ),
                     ),
                     Padding(
@@ -243,14 +244,14 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
                         onTap: () {
                           clearHist();
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.delete,
-                              color: Colors.pink,
+                              color: theme.cardColor,
                             ),
-                            Text("删除历史记录")
+                            Text("删除历史记录",style: theme.textTheme.titleSmall,)
                           ],
                         ),
                       ),

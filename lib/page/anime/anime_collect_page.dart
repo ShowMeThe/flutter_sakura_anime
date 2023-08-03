@@ -28,9 +28,11 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.primaryColor,
       appBar: AppBar(
-        title: const Text("追番"),
+        title: Text("追番",style: theme.textTheme.displayMedium),
       ),
       body: Consumer(
         builder: (context, ref, _) {
@@ -41,10 +43,10 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
             _movies.clear();
             _movies.addAll(provider.value!);
             if (_movies.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
                   "追番列表为空",
-                  style: TextStyle(color: Colors.grey),
+                  style: theme.textTheme.displaySmall,
                 ),
               );
             } else {

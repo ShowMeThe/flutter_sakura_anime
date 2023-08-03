@@ -55,10 +55,10 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title,style: theme.textTheme.displayMedium),
       ),
       body: Consumer(builder: (context, ref, _) {
         var provider = ref.watch(_futureProvider);

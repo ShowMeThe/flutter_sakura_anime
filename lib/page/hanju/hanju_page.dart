@@ -69,13 +69,14 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.primaryColor,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(FadeRoute(const HanjuSearchPage()));
         },
-        backgroundColor: ColorRes.pink400,
+        backgroundColor: theme.cardColor,
         heroTag: "hanju",
         child: const Icon(
           Icons.search,
@@ -91,7 +92,6 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                 expandedHeight: 120,
                 collapsedHeight: 120,
                 pinned: false,
-                backgroundColor: Colors.white,
                 flexibleSpace: Consumer(
                   builder: (context, ref, _) {
                     var endYearSelected = ref.watch(yearState);
@@ -248,11 +248,9 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
       list.add(Padding(
         padding: const EdgeInsets.only(left: 8.0, right: 8.0),
         child: ChoiceChip(
-          selectedColor: ColorRes.pink300,
           selected: selected,
           label: Text(
             title[i],
-            style: TextStyle(color: selected ? Colors.white : Colors.black),
           ),
           onSelected: (bool) {
             if (bool) {
@@ -274,11 +272,9 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
       list.add(Padding(
         padding: const EdgeInsets.only(left: 8.0, right: 8.0),
         child: ChoiceChip(
-          selectedColor: ColorRes.pink300,
           selected: selected,
           label: Text(
             "$i",
-            style: TextStyle(color: selected ? Colors.white : Colors.black),
           ),
           onSelected: (bool) {
             if (bool) {

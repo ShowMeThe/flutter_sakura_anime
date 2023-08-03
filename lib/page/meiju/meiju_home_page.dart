@@ -46,6 +46,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    var theme = Theme.of(context);
     return Consumer(
       builder: (context, ref, _) {
         var provider = ref.watch(_homeProvider);
@@ -65,18 +66,17 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
               }));
         } else {
           return Scaffold(
-            backgroundColor: Colors.white,
             body: ListView(
               controller: _controller,
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
-              children: buildBody(provider.value),
+              children: buildBody(provider.value,theme),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(FadeRoute(const MjSearchPage()));
               },
-              backgroundColor: ColorRes.pink400,
+              backgroundColor: theme.cardColor,
               heroTag: "meiju",
               child: const Icon(
                 Icons.search,
@@ -151,7 +151,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
     return widget;
   }
 
-  List<Widget> buildBody(List<MjHomeData>? list) {
+  List<Widget> buildBody(List<MjHomeData>? list,ThemeData themeData) {
     List<Widget> widget = [];
     if (list != null) {
       for (var element in list) {
@@ -161,21 +161,18 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
             Navigator.of(context)
                 .push(FadeRoute(MjCategoryPage(element.url, element.title)));
           },
-          child: Container(
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    element.title,
-                    style: const TextStyle(fontSize: 20),
-                  ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  element.title,
+                  style: const TextStyle(fontSize: 20),
                 ),
-                const Icon(Icons.navigate_next)
-              ],
-            ),
+              ),
+              Icon(Icons.navigate_next,color: themeData.colorScheme.secondary,)
+            ],
           ),
         ));
         widget.add(GridView.builder(
