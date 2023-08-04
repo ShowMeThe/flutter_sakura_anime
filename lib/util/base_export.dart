@@ -18,6 +18,7 @@ export 'package:flutter_sakura_anime/util/collect.dart';
 export 'package:flutter_sakura_anime/bean/anime_movie_data.dart';
 export 'package:flutter_sakura_anime/page/loading_dialog_helper.dart';
 export 'package:flutter_sakura_anime/util/base_widget_function.dart';
+export 'package:flutter_sakura_anime/util/style.dart';
 
 void printLongText(String? msg) {
   if (msg == null) {

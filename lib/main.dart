@@ -3,15 +3,10 @@ import 'package:flutter_sakura_anime/page/splash_page.dart';
 import 'package:flutter_sakura_anime/test_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/collect.dart';
+import 'dart:ui';
 
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
-  var style = const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.transparent);
-  SystemChrome.setSystemUIOverlayStyle(style);
   initDb();
 }
 
@@ -43,8 +38,10 @@ class MyApp extends StatelessWidget {
           cardColor: Colors.blue,
           dividerColor: Colors.white,
           chipTheme: const ChipThemeData(
-            secondaryLabelStyle: TextStyle(color: Colors.black,fontFamily: Static.fonts),
-            labelStyle: TextStyle(color: Colors.white,fontFamily: Static.fonts),
+            secondaryLabelStyle:
+                TextStyle(color: Colors.black, fontFamily: Static.fonts),
+            labelStyle:
+                TextStyle(color: Colors.white, fontFamily: Static.fonts),
           ),
           tabBarTheme: TabBarTheme(
             indicatorColor: Colors.blue,
@@ -74,8 +71,10 @@ class MyApp extends StatelessWidget {
           cardColor: Colors.pink,
           dividerColor: Colors.transparent,
           chipTheme: const ChipThemeData(
-            secondaryLabelStyle: TextStyle(color: Colors.white,fontFamily: Static.fonts),
-            labelStyle: TextStyle(color: Colors.black,fontFamily: Static.fonts),
+            secondaryLabelStyle:
+                TextStyle(color: Colors.white, fontFamily: Static.fonts),
+            labelStyle:
+                TextStyle(color: Colors.black, fontFamily: Static.fonts),
           ),
           colorScheme: ColorScheme(
               brightness: Brightness.light,
@@ -109,8 +108,11 @@ class MyApp extends StatelessWidget {
             unselectedItemColor: Colors.pink.withAlpha(125),
           ),
           fontFamily: Static.fonts),
-      home: const Material(
-        child: SplashPage(),
+      home: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: setSystemUi(),
+        child: const Material(
+          child: SplashPage(),
+        ),
       ),
     );
   }

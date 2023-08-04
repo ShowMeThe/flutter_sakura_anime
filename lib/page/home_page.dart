@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_sakura_anime/page/anime/anime_home_page.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
@@ -68,40 +70,43 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: PageView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          return _pages[index];
-        },
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: _pages.length,
-        controller: _pageController,
-        onPageChanged: (index) {
-          onChange(ref, index);
-        },
-      ),
-      bottomNavigationBar: ScrollHidden(
-        child: Consumer(builder: (context, ref, _) {
-          var currentIndex = ref.watch(_pageProvider.notifier).state;
-          return BottomNavigationBar(
-              showSelectedLabels: true,
-              showUnselectedLabels: false,
-              selectedFontSize: 12,
-              onTap: onTap,
-              currentIndex: currentIndex,
-              items: [
-                BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage(A.assets_ic_sakura_flower)),
-                    label: _titles[0]),
-                BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage(A.assets_ic_hanju)),
-                    label: _titles[1]),
-                BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
-                    label: _titles[2]),
-              ]);
-        }),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: setSystemUi(),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+        body: PageView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            return _pages[index];
+          },
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _pages.length,
+          controller: _pageController,
+          onPageChanged: (index) {
+            onChange(ref, index);
+          },
+        ),
+        bottomNavigationBar: ScrollHidden(
+          child: Consumer(builder: (context, ref, _) {
+            var currentIndex = ref.watch(_pageProvider.notifier).state;
+            return BottomNavigationBar(
+                showSelectedLabels: true,
+                showUnselectedLabels: false,
+                selectedFontSize: 12,
+                onTap: onTap,
+                currentIndex: currentIndex,
+                items: [
+                  BottomNavigationBarItem(
+                      icon: ImageIcon(AssetImage(A.assets_ic_sakura_flower)),
+                      label: _titles[0]),
+                  BottomNavigationBarItem(
+                      icon: ImageIcon(AssetImage(A.assets_ic_hanju)),
+                      label: _titles[1]),
+                  BottomNavigationBarItem(
+                      icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
+                      label: _titles[2]),
+                ]);
+          }),
+        ),
       ),
     );
   }

@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/widget/color_size_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +35,6 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
   static const SEARCH_HIS = "SEARCH_MJ_HIS";
   var localList = <String>[];
   final _showHis = StateProvider.autoDispose<bool>((ref) => true);
-  late StreamSubscription<dynamic> sub;
 
   @override
   void initState() {
@@ -68,12 +65,6 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
       return result;
     });
 
-    sub = AndroidKeyboardListener.onChange((visible) async {
-      if (!visible) {
-        await Future.delayed(const Duration(milliseconds: 350));
-        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-      }
-    });
   }
 
   void saveToHist(String newKey) async {
@@ -106,15 +97,13 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    sub.cancel();
     _focusNode.dispose();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    return Scaffold(
+    return AnnotatedRegion(value: setSystemUi(),child: Scaffold(
       appBar: SearchAppBar(
           focusNode: _focusNode,
           paddingLeft: 15,
@@ -173,7 +162,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
               );
             },
           ),
-          (word) {
+              (word) {
             if (word.isNotEmpty) {
               ref.refresh(_futureProvider);
               saveToHist(word);
@@ -262,7 +251,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
           );
         }
       }),
-    );
+    ));
   }
 
   var providers = <int, AutoDisposeStateProvider<Color>>{};

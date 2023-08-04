@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:android_keyboard_listener/android_keyboard_listener.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/color_container.dart';
@@ -32,7 +30,6 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   var localList = <String>[];
   late FocusNode _focusNode;
-  late StreamSubscription<dynamic> sub;
 
   @override
   void initState() {
@@ -43,7 +40,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
 
     _futureProvider = FutureProvider.autoDispose((ref) async {
       _isLoading = true;
-      if(editController.text.isEmpty) return null;
+      if (editController.text.isEmpty) return null;
       var result =
           await Api.getSearchAnimeList(editController.text, nowPage: nowPage);
 
@@ -56,13 +53,6 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
     _hisSearchProvider = FutureProvider.autoDispose<List<String>>((ref) async {
       localList = (await _prefs).getStringList(SEARCH_HIS) ?? <String>[];
       return localList;
-    });
-
-    sub = AndroidKeyboardListener.onChange((visible) async {
-      if(!visible){
-        await Future.delayed(const Duration(milliseconds: 350));
-        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-      }
     });
   }
 
@@ -97,7 +87,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
     return false;
   }
 
-  List<Widget> getHisWidget(Iterable<String> str,ThemeData theme) {
+  List<Widget> getHisWidget(Iterable<String> str, ThemeData theme) {
     var list = <Widget>[];
     for (var element in str) {
       list.add(Padding(
@@ -132,214 +122,222 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    sub.cancel();
     _focusNode.dispose();
     editController.dispose();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    return Scaffold(
-      appBar: SearchAppBar(
-          focusNode: _focusNode,
-          paddingLeft: 15,
-          appBarBackgroundColor: theme.primaryColor,
-          textColor: theme.textTheme.displaySmall!.color,
-          hintTextColor: Colors.grey,
-          cursorColor: Colors.grey.withAlpha(125),
-          controller: editController,
-          onChange: (word) {
-            if (word.isNotEmpty) {
-              ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
-              ref.refresh(_showHis.notifier).update((state) => false);
-            } else {
-              ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
-              ref.refresh(_showHis.notifier).update((state) => true);
-            }
-          },
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0),
-              child: Icon(
-                Icons.arrow_back,
-                color: theme.cardColor,
-              ),
-            ),
-          ),
-          suffix: Consumer(
-            builder: (context, ref, _) {
-              var opacity = ref.watch(_opacityProvider);
-              return GestureDetector(
+    return AnnotatedRegion(
+        value: setSystemUi(),
+        child: Scaffold(
+          appBar: SearchAppBar(
+              focusNode: _focusNode,
+              paddingLeft: 15,
+              appBarBackgroundColor: theme.primaryColor,
+              textColor: theme.textTheme.displaySmall!.color,
+              hintTextColor: Colors.grey,
+              cursorColor: Colors.grey.withAlpha(125),
+              controller: editController,
+              onChange: (word) {
+                if (word.isNotEmpty) {
+                  ref.refresh(_opacityProvider.notifier).update((state) => 1.0);
+                  ref.refresh(_showHis.notifier).update((state) => false);
+                } else {
+                  ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
+                  ref.refresh(_showHis.notifier).update((state) => true);
+                }
+              },
+              leading: GestureDetector(
                 onTap: () {
-                  if (opacity != 0.0) {
-                    editController.clear();
-                    ref.refresh(_opacityProvider.notifier).update((state) => 0.0);
-                    ref.refresh(_showEmpty.notifier).state = true;
-                    if (localList.isNotEmpty) {
-                      ref.refresh(_showHis.notifier).state = true;
-                    }
-                  }
+                  Navigator.of(context).pop();
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 150),
-                    opacity: opacity,
-                    child: Icon(
-                      Icons.close,
-                      color: theme.cardColor,
-                    ),
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: theme.cardColor,
                   ),
                 ),
-              );
-            },
-          ),
-          (word) {
-            if (word.isNotEmpty) {
-              ref.invalidate(_futureProvider);
-              saveToHist(word);
-            } else {
-              ref.refresh(_showEmpty.notifier).state = true;
-              if (localList.isNotEmpty) {
-                ref.refresh(_showHis.notifier).state = true;
-              }
-            }
-          }),
-      body: Consumer(
-        builder: (context, ref, _) {
-          var showEmpty = ref.watch(_showEmpty);
-          var provider = ref.watch(_futureProvider);
-          var showHis = ref.watch(_showHis);
-          if (showHis) {
-            return Consumer(builder: (context, ref, _) {
-              var searchList = ref.watch(_hisSearchProvider).value;
-              if (searchList == null || searchList.isEmpty) {
-                return Container();
-              } else {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "搜索历史",
-                        style: TextStyle(fontSize: 18.0),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        children: getHisWidget(searchList.reversed,theme),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          clearHist();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.delete,
-                              color: theme.cardColor,
-                            ),
-                            Text("删除历史记录",style: theme.textTheme.titleSmall,)
-                          ],
+              ),
+              suffix: Consumer(
+                builder: (context, ref, _) {
+                  var opacity = ref.watch(_opacityProvider);
+                  return GestureDetector(
+                    onTap: () {
+                      if (opacity != 0.0) {
+                        editController.clear();
+                        ref
+                            .refresh(_opacityProvider.notifier)
+                            .update((state) => 0.0);
+                        ref.refresh(_showEmpty.notifier).state = true;
+                        if (localList.isNotEmpty) {
+                          ref.refresh(_showHis.notifier).state = true;
+                        }
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 150),
+                        opacity: opacity,
+                        child: Icon(
+                          Icons.close,
+                          color: theme.cardColor,
                         ),
                       ),
-                    )
-                  ],
-                );
-              }
-            });
-          } else if (provider.value == null || showEmpty) {
-            return Container();
-          } else {
-            if (!provider.isLoading) {
-              var data = provider.value!;
-              if (nowPage == 1) {
-                _movies.clear();
-              }
-              _movies.addAll(data.movies);
-              _isLoading = false;
-            }
-            return NotificationListener<ScrollNotification>(
-              onNotification: _handleLoadMoreScroll,
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  CupertinoSliverRefreshControl(
-                    onRefresh: () async {
-                      nowPage = 1;
-                      _canLoadMore = true;
-                      ref.refresh(_futureProvider);
-                    },
-                  ),
-                  SliverGrid(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                              left: 2.0, top: 2.0, bottom: 2.0),
+                    ),
+                  );
+                },
+              ),
+              (word) {
+                if (word.isNotEmpty) {
+                  ref.invalidate(_futureProvider);
+                  saveToHist(word);
+                } else {
+                  ref.refresh(_showEmpty.notifier).state = true;
+                  if (localList.isNotEmpty) {
+                    ref.refresh(_showHis.notifier).state = true;
+                  }
+                }
+              }),
+          body: Consumer(
+            builder: (context, ref, _) {
+              var showEmpty = ref.watch(_showEmpty);
+              var provider = ref.watch(_futureProvider);
+              var showHis = ref.watch(_showHis);
+              if (showHis) {
+                return Consumer(builder: (context, ref, _) {
+                  var searchList = ref.watch(_hisSearchProvider).value;
+                  if (searchList == null || searchList.isEmpty) {
+                    return Container();
+                  } else {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "搜索历史",
+                            style: TextStyle(fontSize: 18.0),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Wrap(
+                            children: getHisWidget(searchList.reversed, theme),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
                           child: GestureDetector(
                             onTap: () {
-                              var url = _movies[index].url;
-                              Navigator.of(context).push(FadeRoute(AnimeDesPage(
-                                url!,
-                                _movies[index].logo!,
-                                heroTag: _HeroTag,
-                              )));
+                              clearHist();
                             },
-                            child: SizedBox(
-                                width: 90,
-                                height: double.infinity,
-                                child: Card(
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(12.0))),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: Column(
-                                    children: [
-                                      Hero(
-                                          tag: _movies[index].logo! + _HeroTag,
-                                          child: showImage(
-                                            _movies[index].logo!,
-                                            double.infinity,
-                                            150,
-                                          )),
-                                      Expanded(
-                                          child: ColorContainer(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.delete,
+                                  color: theme.cardColor,
+                                ),
+                                Text(
+                                  "删除历史记录",
+                                  style: theme.textTheme.titleSmall,
+                                )
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                });
+              } else if (provider.value == null || showEmpty) {
+                return Container();
+              } else {
+                if (!provider.isLoading) {
+                  var data = provider.value!;
+                  if (nowPage == 1) {
+                    _movies.clear();
+                  }
+                  _movies.addAll(data.movies);
+                  _isLoading = false;
+                }
+                return NotificationListener<ScrollNotification>(
+                  onNotification: _handleLoadMoreScroll,
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      CupertinoSliverRefreshControl(
+                        onRefresh: () async {
+                          nowPage = 1;
+                          _canLoadMore = true;
+                          ref.refresh(_futureProvider);
+                        },
+                      ),
+                      SliverGrid(
+                          delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 2.0, top: 2.0, bottom: 2.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  var url = _movies[index].url;
+                                  Navigator.of(context)
+                                      .push(FadeRoute(AnimeDesPage(
+                                    url!,
+                                    _movies[index].logo!,
+                                    heroTag: _HeroTag,
+                                  )));
+                                },
+                                child: SizedBox(
+                                    width: 90,
+                                    height: double.infinity,
+                                    child: Card(
+                                      shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(12.0))),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: Column(
+                                        children: [
+                                          Hero(
+                                              tag: _movies[index].logo! +
+                                                  _HeroTag,
+                                              child: showImage(
+                                                _movies[index].logo!,
+                                                double.infinity,
+                                                150,
+                                              )),
+                                          Expanded(
+                                              child: ColorContainer(
                                             url: _movies[index].logo!,
                                             baseColor: ColorRes.mainColor,
                                             title: _movies[index].title!,
                                           ))
-                                    ],
-                                  ),
-                                )),
-                          ),
-                        );
-                      },
-                          addAutomaticKeepAlives: false,
-                          childCount: _movies.length),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 5,
-                              mainAxisSpacing: 5,
-                              childAspectRatio: 0.55))
-                ],
-              ),
-            );
-          }
-        },
-      ),
-    );
+                                        ],
+                                      ),
+                                    )),
+                              ),
+                            );
+                          },
+                              addAutomaticKeepAlives: false,
+                              childCount: _movies.length),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 5,
+                                  mainAxisSpacing: 5,
+                                  childAspectRatio: 0.55))
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+        ));
   }
 }

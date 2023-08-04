@@ -359,7 +359,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
       list.add(
         SizedBox(
           width: 90.0,
-          height: 45.0,
+          height: 55.0,
           child: Stack(
             children: [
               Padding(
