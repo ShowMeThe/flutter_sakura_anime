@@ -19,6 +19,7 @@ class LoadingDialogHelper {
   }
 }
 
+// ignore: must_be_immutable
 class LoadingDialogWidget extends StatelessWidget {
 
   bool dismissible = false;

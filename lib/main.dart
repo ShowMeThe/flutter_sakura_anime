@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
           platform: TargetPlatform.android,
           brightness: Brightness.light,
           primarySwatch: Colors.pink,
-          primaryColor: Colors.white,
+          primaryColor: Colors.pink,
           cardColor: Colors.pink,
           dividerColor: Colors.transparent,
           chipTheme: const ChipThemeData(

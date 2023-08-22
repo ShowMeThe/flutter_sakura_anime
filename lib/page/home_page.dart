@@ -73,7 +73,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: setSystemUi(),
       child: Scaffold(
-        backgroundColor: Theme.of(context).primaryColor,
         body: PageView.builder(
           itemBuilder: (BuildContext context, int index) {
             return _pages[index];

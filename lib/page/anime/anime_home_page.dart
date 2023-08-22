@@ -54,7 +54,6 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
     var theme = Theme.of(context);
     super.build(context);
     return Scaffold(
-      backgroundColor: theme.primaryColor,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(FadeRoute(const AnimeSearchPage()));
@@ -72,7 +71,6 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           var top = MediaQuery.paddingOf(context).top;
           return [
             SliverAppBar(
-              backgroundColor: theme.primaryColor,
               expandedHeight: 110,
               collapsedHeight: 95,
               pinned: false,
@@ -105,7 +103,6 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
           ];
         },
         body: Container(
-          color: theme.primaryColor,
           child: Consumer(
             builder: (context, ref, _) {
               var provider = ref.watch(_disposeFutureProvider);

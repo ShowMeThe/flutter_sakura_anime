@@ -71,7 +71,6 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
     super.build(context);
     var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.primaryColor,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(FadeRoute(const HanjuSearchPage()));
