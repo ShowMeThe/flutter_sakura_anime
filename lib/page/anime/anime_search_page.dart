@@ -135,7 +135,7 @@ class _SearchPageState extends ConsumerState<AnimeSearchPage> {
           appBar: SearchAppBar(
               focusNode: _focusNode,
               paddingLeft: 15,
-              appBarBackgroundColor: theme.primaryColor,
+              appBarBackgroundColor: theme.colorScheme.background,
               textColor: theme.textTheme.displaySmall!.color,
               hintTextColor: Colors.grey,
               cursorColor: Colors.grey.withAlpha(125),

@@ -81,7 +81,7 @@ class AnimeCategoryPageState extends ConsumerState<AnimeCategoryPage> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text("分类", style: theme.textTheme.displayMedium),
         actions: [

@@ -66,7 +66,7 @@ class _AnimeMoviePageState extends ConsumerState<AnimeMoviePage> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text("剧场版",style: theme.textTheme.displayMedium),
       ),

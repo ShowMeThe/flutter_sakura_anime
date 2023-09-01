@@ -33,9 +33,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     _disposeFutureProvider = FutureProvider.autoDispose<HomeData>((_) async {
-      var result = await Api.getHomeData().catchError((onError) {
-        debugPrint(onError);
-      });
+      var result = await Api.getHomeData();
       return result;
     });
     _controller = HiddenController.instant.newController(this);
@@ -102,33 +100,31 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
             ),
           ];
         },
-        body: Container(
-          child: Consumer(
-            builder: (context, ref, _) {
-              var provider = ref.watch(_disposeFutureProvider);
-              if (provider.isLoading) {
-                return ListView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(top: 0),
-                  children: buildLoadingBody(),
-                );
-              } else if (provider.hasError) {
-                return Container(
-                    color: Colors.white,
-                    width: double.infinity,
-                    height: 150,
-                    child: ErrorView(() {
-                      ref.invalidate(_disposeFutureProvider);
-                    }));
-              } else {
-                return ListView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(top: 0),
-                  children: buildBody(provider.value),
-                );
-              }
-            },
-          ),
+        body: Consumer(
+          builder: (context, ref, _) {
+            var provider = ref.watch(_disposeFutureProvider);
+            if (provider.isLoading) {
+              return ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(top: 0),
+                children: buildLoadingBody(),
+              );
+            } else if (provider.hasError) {
+              return Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 150,
+                  child: ErrorView(() {
+                    ref.invalidate(_disposeFutureProvider);
+                  }));
+            } else {
+              return ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(top: 0),
+                children: buildBody(provider.value),
+              );
+            }
+          },
         ),
       )),
     );

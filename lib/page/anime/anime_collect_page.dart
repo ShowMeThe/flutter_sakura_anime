@@ -30,7 +30,7 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text("追番",style: theme.textTheme.displayMedium),
       ),
