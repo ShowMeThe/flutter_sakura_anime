@@ -57,8 +57,9 @@ dependencies:
   csslib: 0.17.0
   flutter_meedu_videoplayer: ^4.2.13
   wakelock: ^0.6.2
-#  flutter_hls_parser: ^2.0.1
-#  ffmpeg_kit_flutter: ^5.1.0
+  flutter_hls_parser: ^2.0.1
+  ffmpeg_kit_flutter: ^5.1.0
+  json_annotation: ^4.8.1
 
   video_sniffing:
     path: ./plugins/video_sniffing_plugin
@@ -76,7 +77,11 @@ dependency_overrides:
   extended_image_library:
       path: ./plugins/extended_image_library
 
+
+
 dev_dependencies:
+  build_runner: ^2.3.3
+  json_serializable: ^6.7.1
   flutter_test:
     sdk: flutter
 

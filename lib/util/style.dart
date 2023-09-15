@@ -6,7 +6,6 @@ import 'base_export.dart';
 
 SystemUiOverlayStyle setSystemUi(){
   var brightness = PlatformDispatcher.instance.platformBrightness;
-  debugPrint("brightness = $brightness");
   SystemUiOverlayStyle style;
   if(brightness == Brightness.light){
     style = const SystemUiOverlayStyle(

@@ -191,7 +191,7 @@ class _PlayState extends ConsumerState<PlayPage> {
                       _downY = detail.globalPosition.dy;
                       _downBrightness =
                       await DeviceDisplayBrightness.getBrightness();
-                      debugPrint("_downBrightness $_downBrightness");
+
                     },
                     onPanUpdate: (details) async {
                       if (!_isBrightness) {

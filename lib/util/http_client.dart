@@ -19,13 +19,13 @@ class HttpClient {
       baseUrl: _baseUrl,
       sendTimeout: _timeOut,
       connectTimeout: _timeOut,
-      receiveTimeout: _timeOut);
+      receiveTimeout: _timeOut)
+    ..headers.clear();
 
   static Future<String> getAppDir() async {
     var future = await getApplicationDocumentsDirectory();
     return future.path;
   }
-
 
   static Future<Dio> get() async {
     _dio ??= Dio(_option)
@@ -52,9 +52,8 @@ class HttpClient {
     return _dio2!;
   }
 
-  static Dio get3()  {
+  static Dio get3() {
     _dio3 ??= Dio(_option);
     return _dio3!;
   }
-
 }

@@ -131,7 +131,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                 return Container(
                     color: Colors.white,
                     width: double.infinity,
-                    height: 150,
+                    height: double.infinity,
                     child: ErrorView(() {
                       ref.invalidate(_futureProvider);
                     }));

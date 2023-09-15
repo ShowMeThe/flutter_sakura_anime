@@ -16,7 +16,8 @@ class _ErrorViewState extends State<ErrorView> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: widget.onTry,
-        child: SizedBox(
+        child: Container(
+          color: Colors.transparent,
           width: double.infinity,
           height: double.infinity,
           child: Column(

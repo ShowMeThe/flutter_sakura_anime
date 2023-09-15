@@ -168,7 +168,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   element.title,
-                  style: const TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 20,color: themeData.textTheme.titleSmall?.color),
                 ),
               ),
               Icon(Icons.navigate_next,color: themeData.colorScheme.secondary,)

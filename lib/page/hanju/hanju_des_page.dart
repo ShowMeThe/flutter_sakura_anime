@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import 'package:flutter_sakura_anime/util/download_dialog.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:flutter_sakura_anime/widget/error_view.dart';
@@ -65,7 +66,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
               .indexWhere((element) => element.title == chapter);
           if (findIndex != -1) {
             _scrollToRealPosition(_tabScroller, () {
-               ref.watch(tabSelect.notifier).update((state) => findIndex);
+              ref.watch(tabSelect.notifier).update((state) => findIndex);
               _tabScroller.animateTo(findIndex * 75.0,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.ease);
@@ -155,6 +156,24 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
+                          Consumer(builder: (context, ref, _) {
+                            var desData = ref.watch(_desDataProvider);
+                            if (desData.valueOrNull != null &&
+                                desData.valueOrNull?.playList.isNotEmpty ==
+                                    true) {
+                              return IconButton(
+                                  onPressed: () {
+                                    _showDownLoadDialog(
+                                        context, ref, desData.value);
+                                  },
+                                  icon: const Icon(
+                                    Icons.download,
+                                    color: Colors.white,
+                                  ));
+                            } else {
+                              return Container();
+                            }
+                          })
                         ],
                       ),
                     ),
@@ -165,7 +184,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                           children: [
                             Hero(
                                 tag: widget.logo + widget.heroTag,
-                                child: showImage(widget.logo, double.infinity, 200,boxFit: BoxFit.cover)),
+                                child: showImage(
+                                    widget.logo, double.infinity, 200,
+                                    boxFit: BoxFit.cover)),
                             Consumer(builder: (context, ref, _) {
                               var provider = ref.watch(_desDataProvider);
                               if (provider.isLoading || provider.hasError) {
@@ -372,17 +393,20 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                         borderRadius: BorderRadius.circular(8.0)),
                     color: ColorRes.mainColor,
                     onPressed: () async {
-                      LoadingDialogHelper.showLoading(context);
                       var title = widget.title + element.title;
                       updateHistory(widget.url, parentTitle, element.url);
-                      var url = await HjApi.getPlayUrl(element.url);
                       ref.invalidate(_localHisFuture);
-
-                      if (!mounted) return;
-                      LoadingDialogHelper.dismissLoading(context);
+                      var playUrl = getPlayUrlsCache(widget.url, element.url);
+                      if (playUrl == null) {
+                        LoadingDialogHelper.showLoading(context);
+                        playUrl = await HjApi.getPlayUrl(element.url);
+                        updateChapterPlayUrls(widget.url, element.url, playUrl);
+                        if (!mounted) return;
+                        LoadingDialogHelper.dismissLoading(context);
+                      }
                       if (!mounted) return;
                       Navigator.of(context).push(FadeRoute(PlayPage(
-                        url,
+                        playUrl,
                         title,
                         fromLocal: false,
                       )));
@@ -416,5 +440,25 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
 
   void downLoadByUrl(String url) {
     //Download.downFile(url);
+  }
+
+  void _showDownLoadDialog(
+      BuildContext context, WidgetRef ref, HjDesData? value) {
+    if (value != null) {
+      var downLoadChapter = getDownLoadChapters(widget.url);
+      var chapters = value.playList.first.chapterList
+          .map((e) => DownloadChapter(
+              e.title,
+              e.url,
+              downLoadChapter
+                      .where((element) => element.chapter == e.url)
+                      .firstOrNull
+                      ?.localCacheFileDir ??
+                  ""))
+          .toList();
+      var downLoadBean =
+          DownLoadBean(widget.logo, widget.title, widget.url, chapters);
+      showDownloadBottomModel(context, ref, downLoadBean);
+    }
   }
 }

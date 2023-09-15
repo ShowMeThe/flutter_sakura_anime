@@ -33,7 +33,8 @@ class HjApi {
 
     var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace) => Future.error("$error", stackTrace));
+        .onError((error, stackTrace) => Future.error("$error", stackTrace))
+    ;
     var document = parse(future.data);
 
     var list = <HjHomeDataItem>[];
