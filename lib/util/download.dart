@@ -97,7 +97,7 @@ class Download {
       final mediaPlaylistUrls = playList.segments.map((e) => e.url);
       await compute(
           computeDownload, ComputeData(host, segmentsDir, mediaPlaylistUrls));
-      combineAll(segmentsDir);
+      combineAll(segmentsDir,mediaPlaylistUrls);
     }
   }
 
@@ -107,20 +107,46 @@ class Download {
       debugPrint("tls = $tls");
       var tlsFile = File("${data.segmentsDir.path}/$url");
       if (!tlsFile.existsSync()) {
-        await HttpClient.get3().download(tls, tlsFile.path);
+        int tryCount = 0;
+        while(true){
+          try{
+            await HttpClient.get3().download(tls, tlsFile.path);
+            break;
+          }catch(e){
+            printLongText("$e");
+            if(tryCount < 5){
+              tryCount++;
+              break;
+            }
+          }
+        }
       }
     }
   }
 
-  static void combineAll(Directory segmentsDir) {
-    var m3u8File = File("${segmentsDir.path}/mixed.m3u8");
+  static void combineAll(Directory segmentsDir,
+      Iterable<String?> list) {
+    String text = "concat:";
     var playFile = File("${segmentsDir.path}/play.mp4");
-    String cmd =
-        '-allowed_extensions ALL -i ${m3u8File.path}  ${playFile.path}';
-    FFmpegKit.executeAsync(cmd, (FFmpegSession session) {
+    var tlsFiles = <File>[];
+    for(String? url in list){
+      var tlsFile = File("${segmentsDir.path}/$url");
+      if(tlsFile.existsSync()){
+        tlsFiles.add(tlsFile);
+        text +="${tlsFile.path}|";
+      }
+    }
+    String cmd = "-i ${text} -c copy ${playFile.path}";
+    FFmpegKit.executeAsync(cmd, (FFmpegSession session) async {
       debugPrint(
           'DownloadUtil, FFmpegKit session completeCallback cmd=${session.getCommand()}');
-    }, (Log log) {
+      var code = await session.getReturnCode();
+      if(code?.isValueSuccess() == true){
+         for (var element in tlsFiles) {
+            element.delete();
+         }
+      }
+      }, (Log log) {
       debugPrint('DownloadUtil, FFmpegKit log===${log.getMessage()}');
     }, (Statistics statistics) {
       debugPrint(

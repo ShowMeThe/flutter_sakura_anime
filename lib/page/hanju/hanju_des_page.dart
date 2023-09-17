@@ -451,13 +451,14 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
               e.title,
               e.url,
               downLoadChapter
-                      .where((element) => element.chapter == e.url)
+                      .where((element) => element.url == e.url)
                       .firstOrNull
                       ?.localCacheFileDir ??
                   ""))
           .toList();
       var downLoadBean =
           DownLoadBean(widget.logo, widget.title, widget.url, chapters);
+      debugPrint("$downLoadBean");
       showDownloadBottomModel(context, ref, downLoadBean);
     }
   }

@@ -108,6 +108,7 @@ void updateDownLoadChapter(DownLoadBean downLoadBean) {
           .toList();
       chapterList.clear();
       chapterList.addAll(downLoadBean.chapter);
+      downLoadBean.chapter = chapterList;
       _insertOrUpdateChapters(downLoadBean, update: true);
     } else {
       _insertOrUpdateChapters(downLoadBean, update: false);
@@ -122,8 +123,8 @@ void _insertOrUpdateChapters(DownLoadBean bean, {bool update = false}) {
   var chapterJson = json.encode(list);
   if (update) {
     _database.execute(
-        "update DownLoadHistory set showUrl = ? , chapter = ? where showUrl = ?",
-        [bean.showUrl, chapterJson, bean.showUrl]);
+        "update DownLoadHistory set chapter = ? where showUrl = ?",
+        [chapterJson, bean.showUrl]);
   } else {
     var stmt = _database.prepare(
         "insert into DownLoadHistory(showUrl,imageUrl,title,chapter) values(?,?,?,?)");

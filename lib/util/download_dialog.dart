@@ -28,6 +28,7 @@ class DownloadChapter {
 
   DownloadChapter(this.chapter, this.url, this.localCacheFileDir);
 
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -110,20 +111,19 @@ void showDownloadBottomModel(
 
 void _addBackMission(BuildContext context, String showUrl,
     DownloadChapter chapter, CacheFileUpdateCallbackBack callbackBack) async {
-  if (chapter.localCacheFileDir.isEmpty) {
-    var playUrl = getPlayUrlsCache(showUrl, chapter.url);
-    if (playUrl == null) {
-      LoadingDialogHelper.showLoading(context);
-      playUrl = await HjApi.getPlayUrl(chapter.url);
-      if (!context.mounted) return;
-      LoadingDialogHelper.dismissLoading(context);
-    }
-    var filePath = await Download.getDownFileDir(playUrl);
-    chapter.localCacheFileDir = filePath;
-    callbackBack(chapter);
-    debugPrint("start downLoad");
-    //Download.downFile(playUrl);
+  var playUrl = getPlayUrlsCache(showUrl, chapter.url);
+  if (playUrl == null) {
+    LoadingDialogHelper.showLoading(context);
+    playUrl = await HjApi.getPlayUrl(chapter.url);
+    updateChapterPlayUrls(showUrl, chapter.url, playUrl);
+    if (!context.mounted) return;
+    LoadingDialogHelper.dismissLoading(context);
   }
+  var filePath = await Download.getDownFileDir(playUrl);
+  chapter.localCacheFileDir = filePath;
+  callbackBack(chapter);
+  debugPrint("start downLoad");
+  Download.downFile(playUrl);
 }
 
 typedef UrlCallbackBack = Function(DownloadChapter chapter);
@@ -149,8 +149,9 @@ List<Widget> buildChild(
                   color: ColorRes.mainColor,
                   onPressed: () {
                     if (!showIcon) {
-                      callbackBack(e);
+
                     }
+                    callbackBack(e);
                   },
                   child: Text(e.chapter)),
               showDownIcon(showIcon)
