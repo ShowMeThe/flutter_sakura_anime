@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Listener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -87,13 +88,15 @@ final class VideoPlayer {
 
     buildHttpDataSourceFactory(httpHeaders);
 
-    File cacheDir = new File(context.getCacheDir(), "video-cache");
-    SimpleCache cache = CacheUtil.get(context,cacheDir);
-    DataSource.Factory  dataSourceFactory = new CacheDataSource.Factory().setCache(cache).setUpstreamDataSourceFactory(
-            httpDataSourceFactory);
-
-//    DataSource.Factory dataSourceFactory =
-//        new DefaultDataSource.Factory(context, httpDataSourceFactory);
+    DataSource.Factory dataSourceFactory;
+    if(dataSource.startsWith("file")){
+      dataSourceFactory = new DefaultDataSource.Factory(context, httpDataSourceFactory);
+    }else {
+      File cacheDir = new File(context.getCacheDir(), "video-cache");
+      SimpleCache cache = CacheUtil.get(context,cacheDir);
+      dataSourceFactory = new CacheDataSource.Factory().setCache(cache).setUpstreamDataSourceFactory(
+              httpDataSourceFactory);
+    }
 
     MediaSource mediaSource = buildMediaSource(uri, dataSourceFactory, formatHint);
 

@@ -3,6 +3,7 @@ import 'package:flutter_sakura_anime/util/download_dialog.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart';
+import '../bean/down_load_list_item.dart';
 import 'base_export.dart';
 import 'dart:ffi';
 import 'dart:io';
@@ -118,6 +119,56 @@ void updateDownLoadChapter(DownLoadBean downLoadBean) {
   }
 }
 
+List<DownLoadListItem> getDownLoadHistory() {
+  var list = <DownLoadListItem>[];
+  try {
+    var result = _database.select("select * from DownLoadHistory");
+    if (result.isNotEmpty) {
+      for (var element in result) {
+        var imageUrl = element["imageUrl"];
+        var title = element["title"];
+        var showUrl = element["showUrl"];
+        var chapterList = (jsonDecode(element["chapter"]) as List)
+            .map((e) => DownloadChapter.fromJson(e))
+            .where((element) => element.localCacheFileDir.isNotEmpty)
+            .toList();
+        for (var ele in chapterList) {
+          var bean = DownLoadListItem(imageUrl, title, showUrl, ele.chapter,
+              ele.url, ele.state, ele.localCacheFileDir);
+          list.add(bean);
+        }
+      }
+    }
+  } catch (e) {
+    debugPrint("$e");
+  }
+  return list;
+}
+
+void updateDownLoadChapterState(String showUrl, String downLoadUrl) {
+  try {
+    var result = _database
+        .select("select * from DownLoadHistory where showUrl = ?", [showUrl]);
+    if (result.isNotEmpty) {
+      var element = result.first;
+      var chapterList = (jsonDecode(element["chapter"]) as List)
+          .map((e) => DownloadChapter.fromJson(e))
+          .toList();
+
+      chapterList.firstWhere((element) {
+        return element.url == downLoadUrl;
+      }).state = DownloadChapter.STATE_COMPLETE;
+      var list = chapterList.map((e) => e.toJson()).toList();
+      var chapterJson = json.encode(list);
+      _database.execute(
+          "update DownLoadHistory set chapter = ? where showUrl = ?",
+          [chapterJson, showUrl]);
+    }
+  } catch (e) {
+    debugPrint("exception $e");
+  }
+}
+
 void _insertOrUpdateChapters(DownLoadBean bean, {bool update = false}) {
   var list = bean.chapter.map((e) => e.toJson()).toList();
   var chapterJson = json.encode(list);
@@ -133,19 +184,18 @@ void _insertOrUpdateChapters(DownLoadBean bean, {bool update = false}) {
   }
 }
 
-List<DownloadChapter> getDownLoadChapters(String showUrl){
+List<DownloadChapter> getDownLoadChapters(String showUrl) {
   var list = <DownloadChapter>[];
-  try{
-    var result = _database.select(
-        "select * from DownLoadHistory where showUrl = ?",
-        [showUrl]);
+  try {
+    var result = _database
+        .select("select * from DownLoadHistory where showUrl = ?", [showUrl]);
     if (result.isNotEmpty) {
       var element = result.first;
       list = (jsonDecode(element["chapter"]) as List)
           .map((e) => DownloadChapter.fromJson(e))
           .toList();
     }
-  }catch(e){
+  } catch (e) {
     debugPrint("$e");
   }
   return list;
@@ -200,7 +250,7 @@ String? getPlayUrlsCache(String showUrl, String chapterUrl) {
   try {
     var result = _database
         .select("select * from PlayUrlHistory where showUrl = ?", [showUrl]);
-    debugPrint("getPlayUrlsCache = $result");
+    //debugPrint("getPlayUrlsCache = $result");
     if (result.isEmpty) return null;
     var element = result.first;
     var playUrls = element["playUrls"];

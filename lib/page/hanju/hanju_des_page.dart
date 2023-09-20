@@ -438,10 +438,6 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
     return list;
   }
 
-  void downLoadByUrl(String url) {
-    //Download.downFile(url);
-  }
-
   void _showDownLoadDialog(
       BuildContext context, WidgetRef ref, HjDesData? value) {
     if (value != null) {

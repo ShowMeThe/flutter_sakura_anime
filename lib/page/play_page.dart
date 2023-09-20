@@ -81,7 +81,7 @@ class _PlayState extends ConsumerState<PlayPage> {
       _meeduPlayerController.setDataSource(
         DataSource(
           type: DataSourceType.file,
-          source: widget.url,
+          file: File(widget.url),
         ),
         autoplay: true,
       );

@@ -20,10 +20,16 @@ class DownLoadBean {
   }
 }
 
+
 @JsonSerializable()
 class DownloadChapter {
+
+  static int STATE_DOWNLOAD = 1;
+  static int STATE_COMPLETE = 2;
+
   String chapter;
   String url;
+  int state = STATE_DOWNLOAD;
   String localCacheFileDir = "";
 
   DownloadChapter(this.chapter, this.url, this.localCacheFileDir);
@@ -35,14 +41,21 @@ class DownloadChapter {
       other is DownloadChapter &&
           runtimeType == other.runtimeType &&
           chapter == other.chapter &&
-          url == other.url;
+          url == other.url &&
+          state == other.state &&
+          localCacheFileDir == other.localCacheFileDir;
 
   @override
-  int get hashCode => chapter.hashCode ^ url.hashCode;
+  int get hashCode =>
+      chapter.hashCode ^
+      url.hashCode ^
+      state.hashCode ^
+      localCacheFileDir.hashCode;
+
 
   @override
   String toString() {
-    return 'DownloadChapter{chapter: $chapter, url: $url, localCacheFileDir: $localCacheFileDir}';
+    return 'DownloadChapter{chapter: $chapter, url: $url, state: $state, localCacheFileDir: $localCacheFileDir}';
   }
 
   factory DownloadChapter.fromJson(Map<String, dynamic> json) =>
@@ -92,14 +105,13 @@ void showDownloadBottomModel(
                     value.add(newChapter);
                     ref.refresh(onDownLoadProvider.notifier).state = value;
 
+
                     var index = downLoadBean.chapter.indexWhere(
                         (element) => element.chapter == newChapter.chapter);
                     if (index != -1) {
                       downLoadBean.chapter[index] = newChapter;
-                    } else {
-                      downLoadBean.chapter.add(newChapter);
+                      updateDownLoadChapter(downLoadBean);
                     }
-                    updateDownLoadChapter(downLoadBean);
                   });
                 }),
               )
@@ -123,7 +135,9 @@ void _addBackMission(BuildContext context, String showUrl,
   chapter.localCacheFileDir = filePath;
   callbackBack(chapter);
   debugPrint("start downLoad");
-  Download.downFile(playUrl);
+  Download.addDownLoadCall(showUrl, chapter.url);
+  Download.downFile(chapter.url,playUrl);
+
 }
 
 typedef UrlCallbackBack = Function(DownloadChapter chapter);
