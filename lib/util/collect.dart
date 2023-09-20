@@ -119,7 +119,7 @@ void updateDownLoadChapter(DownLoadBean downLoadBean) {
   }
 }
 
-List<DownLoadListItem> getDownLoadHistory() {
+Future<List<DownLoadListItem>> getDownLoadHistory() async {
   var list = <DownLoadListItem>[];
   try {
     var result = _database.select("select * from DownLoadHistory");
@@ -133,6 +133,13 @@ List<DownLoadListItem> getDownLoadHistory() {
             .where((element) => element.localCacheFileDir.isNotEmpty)
             .toList();
         for (var ele in chapterList) {
+          var mp4File = File("${ele.localCacheFileDir}/play.mp4");
+          var fileExist = await mp4File.exists();
+          if(!fileExist){
+            ele.state = DownloadChapter.STATE_DOWNLOAD;
+          }else{
+            ele.state = DownloadChapter.STATE_COMPLETE;
+          }
           var bean = DownLoadListItem(imageUrl, title, showUrl, ele.chapter,
               ele.url, ele.state, ele.localCacheFileDir);
           list.add(bean);
@@ -145,7 +152,7 @@ List<DownLoadListItem> getDownLoadHistory() {
   return list;
 }
 
-void updateDownLoadChapterState(String showUrl, String downLoadUrl) {
+void updateDownLoadChapterState(String showUrl, String chapterUrl) {
   try {
     var result = _database
         .select("select * from DownLoadHistory where showUrl = ?", [showUrl]);
@@ -156,7 +163,7 @@ void updateDownLoadChapterState(String showUrl, String downLoadUrl) {
           .toList();
 
       chapterList.firstWhere((element) {
-        return element.url == downLoadUrl;
+        return element.url == chapterUrl;
       }).state = DownloadChapter.STATE_COMPLETE;
       var list = chapterList.map((e) => e.toJson()).toList();
       var chapterJson = json.encode(list);
@@ -199,6 +206,33 @@ List<DownloadChapter> getDownLoadChapters(String showUrl) {
     debugPrint("$e");
   }
   return list;
+}
+
+void deleteDownChapter(String showUrl,String chapterUrl){
+  try {
+    var result = _database
+        .select("select * from DownLoadHistory where showUrl = ?", [showUrl]);
+    if (result.isNotEmpty) {
+      var element = result.first;
+      var chapterList = (jsonDecode(element["chapter"]) as List)
+          .map((e) => DownloadChapter.fromJson(e))
+          .toList();
+
+      var item = chapterList.firstWhere((element) {
+        return element.url == chapterUrl;
+      });
+      var dirFile = File(item.localCacheFileDir);
+      dirFile.delete(recursive: true);
+      chapterList.remove(item);
+      var list = chapterList.map((e) => e.toJson()).toList();
+      var chapterJson = json.encode(list);
+      _database.execute(
+          "update DownLoadHistory set chapter = ? where showUrl = ?",
+          [chapterJson, showUrl]);
+    }
+  } catch (e) {
+    debugPrint("exception $e");
+  }
 }
 
 void updateChapterPlayUrls(String showUrl, String chapterUrl, String playUrl) {

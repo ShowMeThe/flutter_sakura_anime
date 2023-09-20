@@ -176,7 +176,7 @@ class Download {
         }
         var showUrl = _downLoadUrls[chapterUrl];
         if (showUrl != null) {
-          updateDownLoadChapterState(showUrl, chapterUrl);
+          updateDownLoadChapterState(showUrl,chapterUrl);
         }
       }
     }, (Log log) {
