@@ -1,5 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:math';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_session.dart';
 import 'package:ffmpeg_kit_flutter/log.dart';
@@ -14,6 +16,15 @@ import 'package:flutter_sakura_anime/util/http_client.dart';
 
 import 'base_export.dart';
 
+typedef DownloadCallbackBack = Function(String chapterUrl, double progress);
+
+class _Progress {
+  String chapterUrl;
+  double progress;
+
+  _Progress(this.chapterUrl, this.progress);
+}
+
 class Download {
   static final HashMap<String, String> _downLoadUrls = HashMap();
 
@@ -21,8 +32,18 @@ class Download {
     _downLoadUrls[chapterUrl] = showUrl;
   }
 
+  static DownloadCallbackBack? _downFunction;
+
+  static addDownFunction(DownloadCallbackBack downFunction) {
+    _downFunction = downFunction;
+  }
+
+  static removeDownFunction() {
+    _downFunction = null;
+  }
+
   static bool inDownLoadCall(String chapterUrl) {
-   return _downLoadUrls.containsKey(chapterUrl);
+    return _downLoadUrls.containsKey(chapterUrl);
   }
 
   static void _postDownloadError(String url) {
@@ -42,12 +63,12 @@ class Download {
     return tempDir.path;
   }
 
-  static void downFile(String chapterUrl,String url) async {
+  static void downFile(String chapterUrl, String url) async {
     var fileName = md5.convert(utf8.encode(url)).toString();
     var cacheDir = await getTemporaryDirectory();
     var tempDir = Directory("${cacheDir.path}/video/$fileName");
     var mp4File = File("${tempDir.path}/play.mp4");
-    if(mp4File.existsSync()){
+    if (mp4File.existsSync()) {
       var showUrl = _downLoadUrls[chapterUrl];
       if (showUrl != null) {
         updateDownLoadChapterState(showUrl, chapterUrl);
@@ -67,10 +88,11 @@ class Download {
         return;
       }
     }
-    downM3u8(chapterUrl,url, tempDir, m3u8File);
+    downM3u8(chapterUrl, url, tempDir, m3u8File);
   }
 
-  static void downM3u8(String chapterUrl,String url, Directory segmentsDir, File m3u8File) async {
+  static void downM3u8(String chapterUrl, String url, Directory segmentsDir,
+      File m3u8File) async {
     HlsPlaylist? playList;
     try {
       playList = await HlsPlaylistParser.create()
@@ -101,8 +123,8 @@ class Download {
     }
   }
 
-  static void downMix(
-  String chapterUrl, String url, Directory segmentsDir, File mixFile) async {
+  static void downMix(String chapterUrl, String url, Directory segmentsDir,
+      File mixFile) async {
     HlsPlaylist? playList;
     debugPrint("mixurl ${url}");
     var host = url.substring(0, url.lastIndexOf("/"));
@@ -114,13 +136,26 @@ class Download {
     }
     if (playList != null && playList is HlsMediaPlaylist) {
       final mediaPlaylistUrls = playList.segments.map((e) => e.url);
-      await compute(
-          computeDownload, ComputeData(host, segmentsDir, mediaPlaylistUrls));
+      var receiverPort = ReceivePort();
+      var args = <dynamic>[];
+      args.add(receiverPort.sendPort);
+      args.add(ComputeData(chapterUrl, host, segmentsDir, mediaPlaylistUrls));
+      receiverPort.listen((message) {
+        if (_downFunction != null && message is _Progress) {
+          _downFunction!(message.chapterUrl, message.progress);
+        }
+      });
+      await compute(computeDownload, args);
+      receiverPort.close();
       combineAll(chapterUrl, segmentsDir, mediaPlaylistUrls);
     }
   }
 
-  static void computeDownload(ComputeData data) async {
+  static void computeDownload(List<dynamic> args) async {
+    ComputeData data = args[1];
+    SendPort sendPort = args[0];
+    var index = 0;
+    var length = data.mediaPlaylistUrls.length + 1;
     for (var url in data.mediaPlaylistUrls) {
       var httpIndex = url?.indexOf("http") ?? -1;
       var tls = "";
@@ -130,7 +165,9 @@ class Download {
         tls = url?.substring(httpIndex) ?? "";
       }
       debugPrint("tls = $tls");
-      if(tls.isEmpty) return;
+      index++;
+      sendPort.send(_Progress(data.chapterUrl, index / length));
+      if (tls.isEmpty) return;
       var tlsFile = File("${data.segmentsDir.path}/$url");
       if (!tlsFile.existsSync()) {
         int tryCount = 0;
@@ -176,7 +213,10 @@ class Download {
         }
         var showUrl = _downLoadUrls[chapterUrl];
         if (showUrl != null) {
-          updateDownLoadChapterState(showUrl,chapterUrl);
+          updateDownLoadChapterState(showUrl, chapterUrl);
+          if (_downFunction != null) {
+            _downFunction!(chapterUrl, 1);
+          }
         }
       }
     }, (Log log) {
@@ -189,9 +229,11 @@ class Download {
 }
 
 class ComputeData {
+  final String chapterUrl;
   final String host;
   final Directory segmentsDir;
   final Iterable<String?> mediaPlaylistUrls;
 
-  ComputeData(this.host, this.segmentsDir, this.mediaPlaylistUrls);
+  ComputeData(
+      this.chapterUrl, this.host, this.segmentsDir, this.mediaPlaylistUrls);
 }

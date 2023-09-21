@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'base_export.dart';
 
 export 'package:flutter_sakura_anime/util/http_client.dart';
 export 'package:flutter/material.dart';
@@ -31,4 +34,15 @@ void printLongText(String? msg) {
     msg = msg.substring(maxStrLength);
   }
   debugPrint(msg);
+}
+
+
+void toast(String message) {
+  Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.white,
+      textColor: ColorRes.pink600,
+      fontSize: 12.0);
 }

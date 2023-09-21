@@ -22,6 +22,8 @@ class DownLoadPage extends ConsumerStatefulWidget {
 class DownLoadPageState extends ConsumerState<DownLoadPage> {
   late AutoDisposeFutureProvider<List<DownLoadListItem>> _provider;
 
+  final _stateProgressProvider = <String, AutoDisposeStateProvider<double>>{};
+
   @override
   void initState() {
     // TODO: implement initState
@@ -29,6 +31,20 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
     _provider = FutureProvider.autoDispose((ref) async {
       return getDownLoadHistory();
     });
+
+    Download.addDownFunction((chapterUrl, progress) {
+      var progressProvider = _stateProgressProvider[chapterUrl];
+      printLongText("progress = $chapterUrl $progress");
+      if (progressProvider != null) {
+        ref.refresh(progressProvider.notifier).state = progress;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    Download.removeDownFunction();
+    super.dispose();
   }
 
   @override
@@ -42,9 +58,7 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
         ),
       ),
       body: Consumer(builder: (context, ref, _) {
-        var value = ref
-            .watch(_provider)
-            .valueOrNull;
+        var value = ref.watch(_provider).valueOrNull;
         return RefreshIndicator(
             onRefresh: () async {
               return ref.refresh(_provider);
@@ -56,11 +70,16 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
 
   Widget buildList(List<DownLoadListItem>? value, ThemeData theme) {
     if (value == null || value.isEmpty) {
-      return Center(
-        child: Text(
-          "下载列表为空",
-          style: theme.textTheme.titleSmall,
-        ),
+      return ListView(
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              "下载列表为空",
+              style: theme.textTheme.titleSmall,
+            ),
+          )
+        ],
       );
     } else {
       var list = value;
@@ -68,47 +87,54 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
           itemCount: list.length,
           itemBuilder: (context, index) {
             var item = list[index];
-            return;
-          })
+            var provider = _stateProgressProvider[item.url];
+            if (provider == null) {
+              _stateProgressProvider[item.url] =
+                  StateProvider.autoDispose((ref) => 0);
+            }
+            return buildBody(item);
+          });
     }
   }
 
   Widget buildBody(DownLoadListItem item) {
     return GestureDetector(
       onLongPress: () {
+        HapticFeedback.vibrate();
         showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                content:
-                Text("是否删除${item.title}-${item.chapter}?"),
+                content: Text(
+                  "是否删除${item.title}-${item.chapter}?",
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 actions: [
-                  MaterialButton(
+                  TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                     child: const Text(
                       "否",
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
-                  MaterialButton(
+                  TextButton(
                     onPressed: () {
+                      _stateProgressProvider.remove(item.url);
                       Navigator.of(context).pop();
                       deleteDownChapter(item.showUrl, item.url);
                       ref.invalidate(_provider);
                     },
                     child: const Text("是",
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.green)),
+                        style: TextStyle(fontSize: 14, color: Colors.green)),
                   )
                 ],
               );
             });
       },
       onTap: () {
-        var mp4File =
-        File("${item.localCacheFileDir}/play.mp4");
+        var mp4File = File("${item.localCacheFileDir}/play.mp4");
         if (mp4File.existsSync()) {
           Navigator.of(context).push(FadeRoute(PlayPage(
             mp4File.path,
@@ -123,61 +149,97 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
         height: 180,
         callback: (isBlack) {},
         shape: const RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.all(Radius.circular(12.0))),
+            borderRadius: BorderRadius.all(Radius.circular(12.0))),
         child: Row(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: showImage(
-                  item.imageUrl, 150, double.infinity),
+              child: showImage(item.imageUrl, 150, double.infinity),
             ),
             Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 12.0, right: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Text(
-                            item.title,
-                            style: TextStyle(
-                                fontSize: item.title.length > 20
-                                    ? 12
-                                    : 15),
-                          )),
-                      Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Text(
-                            item.chapter,
-                            style: TextStyle(
-                                fontSize: item.title.length > 20
-                                    ? 12
-                                    : 15),
-                          )),
-                      Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Text(
-                            getShowContent(item.state),
-                            style: TextStyle(
-                                fontSize: item.title.length > 20
-                                    ? 12
-                                    : 15),
-                          )),
-                      Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Align(
-                              alignment: Alignment.centerRight,
-                              child: showDownLoadButton(item))),
-                    ],
-                  ),
-                ))
+              padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        item.title,
+                        style: TextStyle(
+                            fontSize: item.title.length > 20 ? 12 : 15),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        item.chapter,
+                        style: TextStyle(
+                            fontSize: item.title.length > 20 ? 12 : 15),
+                      )),
+                  Consumer(builder: (context, ref, _) {
+                    var provider = _stateProgressProvider[item.url];
+                    var progress = -1.0;
+                    if (provider != null) {
+                      progress = ref.watch(provider);
+                    }
+                    if (progress == 1) {
+                      item.state = DownloadChapter.STATE_COMPLETE;
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              getShowContent(item.state),
+                              style: TextStyle(
+                                  fontSize: item.title.length > 20 ? 12 : 15),
+                            )),
+                        Row(
+                          children: [
+                            Expanded(child: showProgress(progress)),
+                            showProgressText(progress),
+                            showDownLoadButton(item)
+                          ],
+                        )
+                      ],
+                    );
+                  })
+                ],
+              ),
+            ))
           ],
         ),
       ),
     );
+  }
+
+  Widget showProgressText(double progress){
+    if(progress > 0 && progress < 1){
+      return Padding(
+        padding: const EdgeInsets.only(left: 8.0,right: 8.0),
+        child: Text(
+          "${(progress * 100).toInt()}%",
+          style:
+          const TextStyle(color: Colors.white, fontSize: 13,),
+        ),
+      );
+    }else{
+      return Container();
+    }
+  }
+
+  Widget showProgress(double progress) {
+    if (progress > 0 && progress < 1) {
+      return LinearProgressIndicator(
+        minHeight: 8,
+        value: progress,
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+      );
+    } else {
+      return Container();
+    }
   }
 
   Widget showDownLoadButton(DownLoadListItem item) {

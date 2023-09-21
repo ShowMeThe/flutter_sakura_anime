@@ -109,6 +109,7 @@ void updateDownLoadChapter(DownLoadBean downLoadBean) {
           .toList();
       chapterList.clear();
       chapterList.addAll(downLoadBean.chapter);
+      printLongText("chapter = $chapterList");
       downLoadBean.chapter = chapterList;
       _insertOrUpdateChapters(downLoadBean, update: true);
     } else {
@@ -119,7 +120,7 @@ void updateDownLoadChapter(DownLoadBean downLoadBean) {
   }
 }
 
-Future<List<DownLoadListItem>> getDownLoadHistory() async {
+List<DownLoadListItem> getDownLoadHistory() {
   var list = <DownLoadListItem>[];
   try {
     var result = _database.select("select * from DownLoadHistory");
@@ -134,10 +135,10 @@ Future<List<DownLoadListItem>> getDownLoadHistory() async {
             .toList();
         for (var ele in chapterList) {
           var mp4File = File("${ele.localCacheFileDir}/play.mp4");
-          var fileExist = await mp4File.exists();
-          if(!fileExist){
+          var fileExist = mp4File.existsSync();
+          if (!fileExist) {
             ele.state = DownloadChapter.STATE_DOWNLOAD;
-          }else{
+          } else {
             ele.state = DownloadChapter.STATE_COMPLETE;
           }
           var bean = DownLoadListItem(imageUrl, title, showUrl, ele.chapter,
@@ -150,6 +151,31 @@ Future<List<DownLoadListItem>> getDownLoadHistory() async {
     debugPrint("$e");
   }
   return list;
+}
+
+File? getDownLoadFile(String showUrl, String chapterUrl) {
+  try {
+    var result = _database.select(
+        "select * from DownLoadHistory where showUrl = ?", [showUrl]);
+    if (result.isNotEmpty) {
+      var element = result.first;
+      var chapters = (jsonDecode(element["chapter"]) as List)
+          .map((e) => DownloadChapter.fromJson(e))
+          .where((element) =>
+              element.url == chapterUrl &&
+              element.localCacheFileDir.isNotEmpty);
+      if (chapters.isNotEmpty) {
+        var element = chapters.firstOrNull;
+        var file = File("${element?.localCacheFileDir}/play.mp4");
+        if (file.existsSync()) {
+          return file;
+        }
+      }
+    }
+  } catch (e) {
+    debugPrint("$e");
+  }
+  return null;
 }
 
 void updateDownLoadChapterState(String showUrl, String chapterUrl) {
@@ -208,7 +234,7 @@ List<DownloadChapter> getDownLoadChapters(String showUrl) {
   return list;
 }
 
-void deleteDownChapter(String showUrl,String chapterUrl){
+void deleteDownChapter(String showUrl, String chapterUrl) {
   try {
     var result = _database
         .select("select * from DownLoadHistory where showUrl = ?", [showUrl]);

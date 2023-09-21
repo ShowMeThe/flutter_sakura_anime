@@ -107,7 +107,7 @@ void showDownloadBottomModel(
 
 
                     var index = downLoadBean.chapter.indexWhere(
-                        (element) => element.chapter == newChapter.chapter);
+                        (element) => element.url == newChapter.url);
                     if (index != -1) {
                       downLoadBean.chapter[index] = newChapter;
                       updateDownLoadChapter(downLoadBean);
@@ -163,9 +163,10 @@ List<Widget> buildChild(
                   color: ColorRes.mainColor,
                   onPressed: () {
                     if (!showIcon) {
-
+                      callbackBack(e);
+                    }else{
+                      toast("已存在下载列表");
                     }
-                    callbackBack(e);
                   },
                   child: Text(e.chapter)),
               showDownIcon(showIcon)

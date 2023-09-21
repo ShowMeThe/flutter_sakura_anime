@@ -93,16 +93,6 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
     }
   }
 
-  void _toast(String message) {
-    Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.white,
-        textColor: ColorRes.pink600,
-        fontSize: 12.0);
-  }
-
   @override
   void dispose() {
     _tabScroller.dispose();
@@ -379,7 +369,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
       var element = data.chapterList[index];
       list.add(
         SizedBox(
-          width: 90.0,
+          width: 100.0,
           height: 55.0,
           child: Stack(
             children: [
@@ -396,6 +386,16 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                       var title = widget.title + element.title;
                       updateHistory(widget.url, parentTitle, element.url);
                       ref.invalidate(_localHisFuture);
+                      var cacheFile = getDownLoadFile(widget.url, element.url);
+                      if (cacheFile != null) {
+                        Navigator.of(context).push(FadeRoute(PlayPage(
+                          cacheFile.path,
+                          title,
+                          fromLocal: true,
+                        )));
+                        printLongText("video from local file");
+                        return;
+                      }
                       var playUrl = getPlayUrlsCache(widget.url, element.url);
                       if (playUrl == null) {
                         LoadingDialogHelper.showLoading(context);
