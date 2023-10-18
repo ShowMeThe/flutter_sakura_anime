@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter_sakura_anime/util/download.dart';
+import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'base_export.dart';
 import 'hj_api.dart';
@@ -64,8 +65,15 @@ class DownloadChapter {
   Map<String, dynamic> toJson() => _$DownloadChapterToJson(this);
 }
 
+const JAPAN_JU_VIDEO_TYPE = 0;
+const HAN_JU_VIDEO_TYPE = 1;
+const MEI_JU_VIDEO_TYPE = 2;
+
+
 void showDownloadBottomModel(
-    BuildContext context, WidgetRef ref, DownLoadBean downLoadBean) {
+    BuildContext context, WidgetRef ref,
+    int videoType,
+    DownLoadBean downLoadBean) {
   var onDownLoadProvider = StateProvider.autoDispose((ref) => downLoadBean
       .chapter
       .where((element) => element.localCacheFileDir.isNotEmpty)
@@ -99,7 +107,9 @@ void showDownloadBottomModel(
                 childAspectRatio: 1.5,
                 children: buildChild(downLoadBean.chapter, onDownLoadProvider,
                     (chapter) async {
-                  _addBackMission(context, downLoadBean.showUrl, chapter,
+                  _addBackMission(context,
+                      videoType,
+                      downLoadBean.showUrl, chapter,
                       (newChapter) {
                     var value = ref.read(onDownLoadProvider);
                     value.add(newChapter);
@@ -121,12 +131,21 @@ void showDownloadBottomModel(
       });
 }
 
-void _addBackMission(BuildContext context, String showUrl,
+void _addBackMission(BuildContext context,
+    int videoType,
+    String showUrl,
     DownloadChapter chapter, CacheFileUpdateCallbackBack callbackBack) async {
   var playUrl = getPlayUrlsCache(showUrl, chapter.url);
   if (playUrl == null) {
     LoadingDialogHelper.showLoading(context);
-    playUrl = await HjApi.getPlayUrl(chapter.url);
+    if(videoType == HAN_JU_VIDEO_TYPE){
+      playUrl = await HjApi.getPlayUrl(chapter.url);
+    }else if(videoType == MEI_JU_VIDEO_TYPE){
+      playUrl = await MeiJuApi.getPlayUrl(chapter.url);
+    }else{
+      playUrl = await Api.getAnimePlayUrl(chapter.url);
+    }
+    if (playUrl == null) return;
     updateChapterPlayUrls(showUrl, chapter.url, playUrl);
     if (!context.mounted) return;
     LoadingDialogHelper.dismissLoading(context);

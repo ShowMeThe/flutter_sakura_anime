@@ -455,7 +455,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
       var downLoadBean =
           DownLoadBean(widget.logo, widget.title, widget.url, chapters);
       debugPrint("$downLoadBean");
-      showDownloadBottomModel(context, ref, downLoadBean);
+      showDownloadBottomModel(context, ref, HAN_JU_VIDEO_TYPE,downLoadBean);
     }
   }
 }

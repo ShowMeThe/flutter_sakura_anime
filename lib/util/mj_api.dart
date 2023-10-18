@@ -84,53 +84,62 @@ class MeiJuApi {
     return MjDesData(des, score, playList);
   }
 
-  static Future<String?> getPlayUrl(
-      String url, int parentIndex, int index) async {
+  static Future<String?> getPlayUrl(String url) async {
     var requestUrl = baseUrl + url;
-    var future = await (await HttpClient.get2())
-        .get(requestUrl)
-        .onError((error, stackTrace) =>Future.error("$error",stackTrace));
-    String html = gbk_bytes.decode(future.data);
-    //debugPrint("html $html");
-    var document = parse(html);
-    var bofang = document.getElementById("bofang");
-    var map = <int, List<String>>{};
-    if (bofang != null) {
-      var script = bofang.getElementsByTagName("script");
-      for (var element in script) {
-        var src = element.attributes["src"] ?? "";
-        debugPrint("src $src");
-        if (src.contains("playdata")) {
-          var playdata = await (await HttpClient.get())
-              .get(baseUrl + src)
-              .onError((error, stackTrace) =>Future.error("$error",stackTrace));
-          String data = playdata.data;
-          var firstIndex = data.indexOf("[");
-          var endIndex = data.lastIndexOf("]");
-          var json = data.substring(firstIndex, endIndex);
-          var key = -1;
-          json.split(",").forEach((element) {
-            var text = element
-                .replaceAll("[", "")
-                .replaceAll('"', "")
-                .replaceAll("]", "");
-            if (text.length == 18) {
-              key++;
-            }
-            if (text.contains("m3u8")) {
-              var list = map[key] ?? [];
-              var play = text.substring(0, text.length - 5) +
-                  text.substring(text.length - 4, text.length);
-              list.add(play);
-              map[key] = list;
-            }
-          });
-          break;
-        }
-      }
-    }
-    return map[parentIndex]?[index];
+    var playUrl = await VideoSniffing.getCustomData(requestUrl, "url");
+    printLongText("playUrl = $playUrl");
+    return playUrl ?? "";
   }
+
+  //
+  //
+  // static Future<String?> getPlayUrl(
+  //     String url, int parentIndex, int index) async {
+  //   var requestUrl = baseUrl + url;
+  //   var future = await (await HttpClient.get2())
+  //       .get(requestUrl)
+  //       .onError((error, stackTrace) =>Future.error("$error",stackTrace));
+  //   String html = gbk_bytes.decode(future.data);
+  //   //debugPrint("html $html");
+  //   var document = parse(html);
+  //   var bofang = document.getElementById("bofang");
+  //   var map = <int, List<String>>{};
+  //   if (bofang != null) {
+  //     var script = bofang.getElementsByTagName("script");
+  //     for (var element in script) {
+  //       var src = element.attributes["src"] ?? "";
+  //       debugPrint("src $src");
+  //       if (src.contains("playdata")) {
+  //         var playdata = await (await HttpClient.get())
+  //             .get(baseUrl + src)
+  //             .onError((error, stackTrace) =>Future.error("$error",stackTrace));
+  //         String data = playdata.data;
+  //         var firstIndex = data.indexOf("[");
+  //         var endIndex = data.lastIndexOf("]");
+  //         var json = data.substring(firstIndex, endIndex);
+  //         var key = -1;
+  //         json.split(",").forEach((element) {
+  //           var text = element
+  //               .replaceAll("[", "")
+  //               .replaceAll('"', "")
+  //               .replaceAll("]", "");
+  //           if (text.length == 18) {
+  //             key++;
+  //           }
+  //           if (text.contains("m3u8")) {
+  //             var list = map[key] ?? [];
+  //             var play = text.substring(0, text.length - 5) +
+  //                 text.substring(text.length - 4, text.length);
+  //             list.add(play);
+  //             map[key] = list;
+  //           }
+  //         });
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   return map[parentIndex]?[index];
+  // }
 
   static Future<MjCategoryData> getCategoryPage(String url,
       {int page = 1}) async {

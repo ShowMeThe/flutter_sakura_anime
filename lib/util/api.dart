@@ -9,7 +9,7 @@ import 'package:video_sniffing/video_sniffing.dart';
 
 AsyncError getException(Object? error,StackTrace stackTrace) {
   debugPrint("$error");
-  if (error is DioError) {
+  if (error is DioException) {
     return AsyncError("${error.message}",stackTrace);
   }
   return AsyncError("$error",stackTrace);

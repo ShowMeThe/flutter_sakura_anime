@@ -8,6 +8,7 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:flutter_sakura_anime/widget/error_view.dart';
 
+import '../../util/download_dialog.dart';
 import '../../widget/fold_text.dart';
 
 // ignore: must_be_immutable
@@ -106,6 +107,24 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
+                          Consumer(builder: (context, ref, _) {
+                            var desData = ref.watch(_desDataProvider);
+                            if (desData.valueOrNull != null &&
+                                desData.valueOrNull?.playList.isNotEmpty ==
+                                    true) {
+                              return IconButton(
+                                  onPressed: () {
+                                    _showDownLoadDialog(
+                                        context, ref, desData.value);
+                                  },
+                                  icon: const Icon(
+                                    Icons.download,
+                                    color: Colors.white,
+                                  ));
+                            } else {
+                              return Container();
+                            }
+                          })
                         ],
                       ),
                     ),
@@ -287,16 +306,15 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                             borderRadius: BorderRadius.circular(8.0)),
                         color: ColorRes.mainColor,
                         onPressed: () async {
+                          debugPrint("url = ${element.chapterList[index].url}");
                           LoadingDialogHelper.showLoading(context);
                           var title =
                               widget.title + element.chapterList[index].title;
                           var url = await MeiJuApi.getPlayUrl(
-                              element.chapterList[index].url,
-                              parentIndex,
-                              index);
+                              element.chapterList[index].url);
                           updateHistory(widget.url, element.title,
                               element.chapterList[index].url);
-                          ref.refresh(_localHisFuture);
+                          ref.invalidate(_localHisFuture);
                           debugPrint("url = $url");
                           if (!mounted) return;
                           if (url == null) {
@@ -335,4 +353,28 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
     }
     return child;
   }
+
+
+  void _showDownLoadDialog(
+      BuildContext context, WidgetRef ref, MjDesData? value) {
+    if (value != null) {
+      var downLoadChapter = getDownLoadChapters(widget.url);
+      var chapters = value.playList.first.chapterList
+          .map((e) => DownloadChapter(
+          e.title,
+          e.url,
+          downLoadChapter
+              .where((element) => element.url == e.url)
+              .firstOrNull
+              ?.localCacheFileDir ??
+              ""))
+          .toList();
+      var downLoadBean =
+      DownLoadBean(widget.logo, widget.title, widget.url, chapters);
+      debugPrint("$downLoadBean");
+      showDownloadBottomModel(context, ref, MEI_JU_VIDEO_TYPE,downLoadBean);
+    }
+  }
+
+
 }
