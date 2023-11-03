@@ -220,16 +220,14 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               } else {
                                 return Hero(
                                     tag: logo + widget.heroTag,
-                                    child:  showImage(
-                                      logo,
-                                      double.infinity,
-                                      200,boxFit: BoxFit.cover
-                                    ));
+                                    child: showImage(logo, double.infinity, 200,
+                                        boxFit: BoxFit.cover));
                               }
                             }),
                             Consumer(builder: (context, watch, _) {
                               var provider = watch.watch(_desDataProvider);
-                              if (provider.valueOrNull == null || provider.hasError) {
+                              if (provider.valueOrNull == null ||
+                                  provider.hasError) {
                                 return Container();
                               } else {
                                 var data = provider.value!;
@@ -292,20 +290,26 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                     ),
                     Consumer(builder: (context, watch, _) {
                       var provider = watch.watch(_desDataProvider);
-                      if(provider.isLoading){
+                      if (provider.isLoading) {
                         return const SizedBox(
-                           height: 350,
-                           child: Center(
-                             child: CircularProgressIndicator(color: ColorRes.pink200,),
-                           ),
+                          height: 350,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: ColorRes.pink200,
+                            ),
+                          ),
                         );
-                      }else if(provider.valueOrNull == null || provider.hasError){
+                      } else if (provider.valueOrNull == null ||
+                          provider.hasError) {
                         return SizedBox(
                             width: double.infinity,
                             height: 350,
-                            child: ErrorView(() {
-                              ref.invalidate(_desDataProvider);
-                            },textColor: Colors.white,));
+                            child: ErrorView(
+                              () {
+                                ref.invalidate(_desDataProvider);
+                              },
+                              textColor: Colors.white,
+                            ));
                       } else {
                         var data = provider.value!;
                         return Column(
@@ -437,16 +441,20 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           var largeTitle =
                               ref.read(_desDataProvider).value?.title;
                           var title = largeTitle! + element.list[index].title!;
-
                           updateHistory(widget.animeShowUrl, element.listTitle!,
-                              element.list[index].url!);
-                          LoadingDialogHelper.showLoading(context);
-                          var playUrl = await Api.getAnimePlayUrl(
                               element.list[index].url!);
                           ref.invalidate(_localHisFuture);
 
-                          if (!mounted) return;
-                          LoadingDialogHelper.dismissLoading(context);
+                          var playUrl = getPlayUrlsCache(
+                              widget.animeShowUrl, element.list[index].url!);
+                          if (playUrl == null || playUrl.isEmpty) {
+                            LoadingDialogHelper.showLoading(context);
+                            playUrl = await Api.getAnimePlayUrl(
+                                element.list[index].url!);
+                            updateChapterPlayUrls(widget.animeShowUrl, element.list[index].url!, playUrl);
+                            if (!mounted) return;
+                            LoadingDialogHelper.dismissLoading(context);
+                          }
                           Navigator.of(context)
                               .push(FadeRoute(PlayPage(playUrl, title)));
                         },
@@ -516,13 +524,12 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             topRight: Radius.circular(8.0),
                             topLeft: Radius.circular(8.0)),
                         child: Hero(
-                          tag: list[index].logo! + _HeroTag,
-                          child:  showImage(
-                            list[index].logo!,
-                            double.infinity,
-                            150,
-                          )
-                        ),
+                            tag: list[index].logo! + _HeroTag,
+                            child: showImage(
+                              list[index].logo!,
+                              double.infinity,
+                              150,
+                            )),
                       ),
                       Expanded(
                           child: ClipRRect(

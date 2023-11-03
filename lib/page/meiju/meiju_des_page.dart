@@ -307,23 +307,33 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                         color: ColorRes.mainColor,
                         onPressed: () async {
                           debugPrint("url = ${element.chapterList[index].url}");
-                          LoadingDialogHelper.showLoading(context);
                           var title =
                               widget.title + element.chapterList[index].title;
-                          var url = await MeiJuApi.getPlayUrl(
-                              element.chapterList[index].url);
                           updateHistory(widget.url, element.title,
                               element.chapterList[index].url);
                           ref.invalidate(_localHisFuture);
-                          debugPrint("url = $url");
-                          if (!mounted) return;
-                          if (url == null) {
-                            LoadingDialogHelper.dismissLoading(context);
+                          var cacheFile = getDownLoadFile(widget.url, element.chapterList[index].url);
+                          if (cacheFile != null) {
+                            Navigator.of(context).push(FadeRoute(PlayPage(
+                              cacheFile.path,
+                              title,
+                              fromLocal: true,
+                            )));
+                            printLongText("video from local file");
                             return;
                           }
-                          LoadingDialogHelper.dismissLoading(context);
+                          var playUrl = getPlayUrlsCache(widget.url, element.chapterList[index].url);
+                          if (playUrl == null || playUrl.isEmpty) {
+                            LoadingDialogHelper.showLoading(context);
+                            playUrl = await MeiJuApi.getPlayUrl(
+                                element.chapterList[index].url);
+                            updateChapterPlayUrls(widget.url, element.chapterList[index].url, playUrl);
+                            if (!mounted) return;
+                            LoadingDialogHelper.dismissLoading(context);
+                          }
+                          if (!mounted) return;
                           Navigator.of(context)
-                              .push(FadeRoute(PlayPage(url, title)));
+                              .push(FadeRoute(PlayPage(playUrl, title)));
                         },
                         child: Text(element.chapterList[index].title)),
                   ),

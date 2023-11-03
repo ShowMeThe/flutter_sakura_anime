@@ -84,7 +84,7 @@ class MeiJuApi {
     return MjDesData(des, score, playList);
   }
 
-  static Future<String?> getPlayUrl(String url) async {
+  static Future<String> getPlayUrl(String url) async {
     var requestUrl = baseUrl + url;
     var playUrl = await VideoSniffing.getCustomData(requestUrl, "url");
     printLongText("playUrl = $playUrl");

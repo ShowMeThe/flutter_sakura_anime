@@ -57,7 +57,7 @@ class _HanjuSearchState extends ConsumerState {
       _isLoading = true;
       var result =
           await HjApi.getSearchPage(editController.text, page: nowPage);
-      // _canLoadMore = result.loadMore;
+       _canLoadMore = result.loadMore;
       ref.refresh(_showEmpty.notifier).update((state) => false);
       ref.refresh(_showHis.notifier).state = false;
       return result;
@@ -86,14 +86,15 @@ class _HanjuSearchState extends ConsumerState {
   }
 
   bool _handleLoadMoreScroll(ScrollNotification notification) {
-    // if (notification is ScrollUpdateNotification) {
-    //   if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
-    //       210) {
-    //     if (!_isLoading && _canLoadMore) {
-    //       nowPage++;
-    //     }
-    //   }
-    // }
+    if (notification is ScrollUpdateNotification) {
+      if (notification.metrics.maxScrollExtent - notification.metrics.pixels <
+          210) {
+        if (!_isLoading && _canLoadMore) {
+          nowPage++;
+          ref.invalidate(_futureProvider);
+        }
+      }
+    }
     return false;
   }
 
@@ -243,10 +244,10 @@ class _HanjuSearchState extends ConsumerState {
                     slivers: [
                       CupertinoSliverRefreshControl(
                         onRefresh: () async {
-                          // _canLoadMore = true;
-                          // debugPrint("onRefresh");
-                          // nowPage = 1;
-                          // ref.refresh(_futureProvider);
+                          _canLoadMore = true;
+                          debugPrint("onRefresh");
+                          nowPage = 1;
+                          ref.invalidate(_futureProvider);
                         },
                       ),
                       SliverGrid(

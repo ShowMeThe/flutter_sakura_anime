@@ -356,6 +356,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   Widget buildPlayList(List<HjDesPlayData> list) {
     return Consumer(builder: (context, ref, _) {
       var parentIndex = ref.watch(tabSelect);
+      if(list.isEmpty || parentIndex > list.length - 1){
+        return Container();
+      }
       var element = list[parentIndex];
       return Wrap(
         children: buildChild(element, element.title),
@@ -397,7 +400,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                         return;
                       }
                       var playUrl = getPlayUrlsCache(widget.url, element.url);
-                      if (playUrl == null) {
+                      if (playUrl == null || playUrl.isEmpty) {
                         LoadingDialogHelper.showLoading(context);
                         playUrl = await HjApi.getPlayUrl(element.url);
                         updateChapterPlayUrls(widget.url, element.url, playUrl);
