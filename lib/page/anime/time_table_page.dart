@@ -97,7 +97,7 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
     super.build(context);
     var theme = Theme.of(context);
     return Container(
-      color: theme.primaryColor,
+      color: theme.colorScheme.background,
       child: ListView.builder(
           itemCount: list.length,
           physics: const BouncingScrollPhysics(),
@@ -117,7 +117,7 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
         }
       },
       child: Card(
-        color: theme.primaryColor,
+        color: theme.cardColor,
         shape: RoundedRectangleBorder(
             side: BorderSide(color: theme.dividerColor.withAlpha(125),width: 0.25),
             borderRadius: const BorderRadius.all(Radius.circular(12.0))),
@@ -128,10 +128,10 @@ class __WeekTabPageState extends ConsumerState<_WeekTabPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(width: 220, child: Text(item.title,style: theme.textTheme.displaySmall,)),
+                SizedBox(width: 220, child: Text(item.title,style: theme.textTheme.bodyMedium,)),
                 Text(
                   item.episode,
-                  style: theme.textTheme.bodySmall,
+                  style: theme.textTheme.bodyMedium,
                 )
               ],
             ),

@@ -55,6 +55,7 @@ class MyApp extends StatelessWidget {
           textTheme: const TextTheme(
               titleSmall: TextStyle(color: Colors.white, fontSize: 15),
               bodySmall: TextStyle(color: Colors.blue, fontSize: 12),
+              bodyMedium: TextStyle(color: Colors.white, fontSize: 12),
               displaySmall: TextStyle(color: Colors.white, fontSize: 12),
               displayMedium: TextStyle(color: Colors.white, fontSize: 20)),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -100,6 +101,7 @@ class MyApp extends StatelessWidget {
           textTheme: const TextTheme(
               titleSmall: TextStyle(color: Colors.black, fontSize: 15),
               bodySmall: TextStyle(color: Colors.pink, fontSize: 12),
+              bodyMedium: TextStyle(color: Colors.white, fontSize: 12),
               displaySmall: TextStyle(color: Colors.pink, fontSize: 12),
               displayMedium: TextStyle(color: Colors.pink, fontSize: 20)),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(

@@ -17,7 +17,7 @@ AsyncError getException(Object? error,StackTrace stackTrace) {
 
 class Api {
   static const String baseImgHead = "";
-  static const String baseUrl = "http://www.yinghuacd.com";
+  static const String baseUrl = "http://www.iyinghua.io/";
   static const String movieUrl = "$baseUrl/37/";
   static const String jcUrl = "$baseUrl/36/";
 
@@ -223,30 +223,6 @@ class Api {
       var dataVid = iFrame.attributes["data-vid"]!;
       playerUrl = dataVid.substring(0, dataVid.indexOf("\$"));
     }
-    /*
-    if (iFrame != null) {
-      var playerUrl = iFrame.attributes["src"]!;
-      playerUrl = baseUrl + playerUrl;
-      var reg = RegExp("[?&]+url=([^&]*)");
-      var matcherUrl = reg
-          .stringMatch(playerUrl)!
-          .replaceAll(RegExp("/[+]{1}/g"), " ")
-          .replaceAll("&url=", "");
-      var dvpt = DateTime.now().millisecond / 1000 / 1800;
-      matcherUrl = Uri.decodeComponent(matcherUrl);
-      var host = "www.yhpdm.com".codeUnits;
-      var hostAndDvpt = "";
-      for (int i = 0; i < host.length; i++) {
-        hostAndDvpt = hostAndDvpt + host[i].toString();
-      }
-      var dvptStr = dvpt.toString() + hostAndDvpt;
-      var xup = "&";
-      if (!matcherUrl.contains("?")) {
-        xup = "?";
-      }
-      matcherUrl = "$matcherUrl${xup}dvpt=$dvptStr";
-      return matcherUrl;
-    }*/
     return playerUrl;
   }
 
