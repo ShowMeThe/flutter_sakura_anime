@@ -160,7 +160,6 @@ class Api {
     var document = parse(future.data);
     List<AnimeDramasData> dramasList = [];
     var elements = document.querySelectorAll("div.movurl > ul");
-    //debugPrint(future.data);
     var tabs = document.querySelectorAll("div.tabs > ul > li");
     for (int i = 0; i < tabs.length; i++) {
       var tabName = tabs[i].text;

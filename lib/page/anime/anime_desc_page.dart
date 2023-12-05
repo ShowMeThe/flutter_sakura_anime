@@ -7,6 +7,7 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
+import '../../util/download_dialog.dart';
 import '../../widget/color_container.dart';
 
 class AnimeDesPage extends ConsumerStatefulWidget {
@@ -56,13 +57,12 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
     _desDataProvider = FutureProvider.autoDispose<AnimeDesData>((_) async {
       var result = await Api.getAnimeDes(widget.animeShowUrl);
-      //ref.refresh(_playDataProvider);
+      ref.invalidate(_playDataProvider);
       ref.read(_logoProvider.notifier).update((state) => result.logo!);
       return result;
     });
-    _playDataProvider =
-        FutureProvider.autoDispose<AnimePlayListData>((_) async {
-      var url = ref.watch(_desDataProvider).value?.url;
+    _playDataProvider = FutureProvider.autoDispose<AnimePlayListData>((_) async {
+      var url = ref.watch(_desDataProvider).valueOrNull?.url;
       var result = await Api.getAnimePlayList(url!);
       return result;
     });
@@ -76,7 +76,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         return null;
       }
       var chapter = result.chapter;
-      var playData = ref.watch(_playDataProvider).value;
+      var playData = ref.watch(_playDataProvider).valueOrNull;
       if (playData != null) {
         var index = playData.animeDramas
             .indexWhere((element) => element.listTitle == chapter);
@@ -163,48 +163,68 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
-                          Consumer(builder: (context, ref, _) {
-                            var localCollect =
-                                ref.watch(_isCollectFuture).value;
-                            var logo = ref.watch(_logoProvider);
-                            if (localCollect != null) {
-                              return IconButton(
-                                  onPressed: () {
-                                    unCollect(widget.animeShowUrl);
-                                    ref.invalidate(_isCollectFuture);
-                                  },
-                                  icon: Image.asset(
-                                    A.assets_ic_sakura_collected,
-                                    color: ColorRes.pink400,
-                                    width: 30,
-                                    height: 30,
-                                    fit: BoxFit.fitWidth,
-                                  ));
-                            } else {
-                              return IconButton(
-                                  onPressed: () {
-                                    if (widget.animeShowUrl.isNotEmpty &&
-                                        logo.isNotEmpty) {
-                                      collect(
-                                          widget.animeShowUrl,
-                                          logo,
-                                          ref
-                                                  .watch(_desDataProvider)
-                                                  .value
-                                                  ?.title ??
-                                              "");
-                                      ref.invalidate(_isCollectFuture);
-                                    }
-                                  },
-                                  icon: Image.asset(
-                                    A.assets_ic_sakura_collect,
-                                    color: ColorRes.pink400,
-                                    width: 30,
-                                    height: 30,
-                                    fit: BoxFit.fitWidth,
-                                  ));
-                            }
-                          })
+                          Row(
+                            children: [
+                              Consumer(builder: (context,ref,_){
+                                var playData = ref.watch(_playDataProvider).valueOrNull;
+                                if(playData != null){
+                                  var list = playData.animeDramas;
+                                  return IconButton(
+                                      onPressed: () {
+                                        _showDownLoadDialog(context, ref, list);
+                                      },
+                                      icon: const Icon(
+                                        Icons.download,
+                                        color: Colors.white,
+                                      ));
+                                }else{
+                                  return Container();
+                                }
+                              }),
+                              Consumer(builder: (context, ref, _) {
+                                var localCollect =
+                                    ref.watch(_isCollectFuture).value;
+                                var logo = ref.watch(_logoProvider);
+                                if (localCollect != null) {
+                                  return IconButton(
+                                      onPressed: () {
+                                        unCollect(widget.animeShowUrl);
+                                        ref.invalidate(_isCollectFuture);
+                                      },
+                                      icon: Image.asset(
+                                        A.assets_ic_sakura_collected,
+                                        color: ColorRes.pink400,
+                                        width: 30,
+                                        height: 30,
+                                        fit: BoxFit.fitWidth,
+                                      ));
+                                } else {
+                                  return IconButton(
+                                      onPressed: () {
+                                        if (widget.animeShowUrl.isNotEmpty &&
+                                            logo.isNotEmpty) {
+                                          collect(
+                                              widget.animeShowUrl,
+                                              logo,
+                                              ref
+                                                      .watch(_desDataProvider)
+                                                      .value
+                                                      ?.title ??
+                                                  "");
+                                          ref.invalidate(_isCollectFuture);
+                                        }
+                                      },
+                                      icon: Image.asset(
+                                        A.assets_ic_sakura_collect,
+                                        color: ColorRes.pink400,
+                                        width: 30,
+                                        height: 30,
+                                        fit: BoxFit.fitWidth,
+                                      ));
+                                }
+                              })
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -367,6 +387,28 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
     );
   }
 
+  void _showDownLoadDialog(
+      BuildContext context, WidgetRef ref,
+      List<AnimeDramasData>? value) {
+    if (value != null) {
+      var downLoadChapter = getDownLoadChapters(widget.animeShowUrl);
+      var chapters = value.first.list
+          .map((e) => DownloadChapter(
+          e.title??"",
+          e.url??"",
+          downLoadChapter
+              .where((element) => element.url == e.url)
+              .firstOrNull
+              ?.localCacheFileDir ??
+              ""))
+          .toList();
+      var downLoadBean =
+      DownLoadBean(widget.logo, ref.watch(_desDataProvider).valueOrNull?.title??"", widget.animeShowUrl, chapters);
+      debugPrint("$downLoadBean");
+      showDownloadBottomModel(context, ref, JAPAN_JU_VIDEO_TYPE,downLoadBean);
+    }
+  }
+
   List<Widget> buildTag(AnimeDesData? data) {
     var list = <Widget>[];
     if (data != null) {
@@ -389,7 +431,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref.watch(_playDataProvider).value;
+        var data = ref.watch(_playDataProvider).valueOrNull;
         if (data == null) {
           return Container();
         } else {
@@ -451,7 +493,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             LoadingDialogHelper.showLoading(context);
                             playUrl = await Api.getAnimePlayUrl(
                                 element.list[index].url!);
-                            updateChapterPlayUrls(widget.animeShowUrl, element.list[index].url!, playUrl);
+                            updateChapterPlayUrls(widget.animeShowUrl,
+                                element.list[index].url!, playUrl);
                             if (!mounted) return;
                             LoadingDialogHelper.dismissLoading(context);
                           }
