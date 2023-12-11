@@ -79,6 +79,48 @@ class WebViewConnect {
         }
     }
 
+    private fun getResourcesUrl(resourcesName:String) {
+        Log.e("VideoSniffingPlugin", "${sortCtx}")
+        if (sortCtx == null || sortCtx?.get() == null) return
+        val ctx = requireNotNull(sortCtx?.get())
+        if (mWebView == null) {
+            mWebView = WebView(ctx)
+            Log.e("VideoSniffingPlugin", "${mWebView}")
+            mWebView?.apply {
+                settings.javaScriptEnabled = true
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                addJavascriptInterface(VideoSniffing(), "video_sniffing")
+                webViewClient = object : WebViewClient() {
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        Log.e("VideoSniffingPlugin", "error = ${error?.description}")
+                    }
+                    override fun shouldInterceptRequest(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): WebResourceResponse? {
+                        Log.e("VideoSniffingPlugin", "request = ${request?.url}")
+                        var resourcesUrl = request?.url?.toString()
+                        if(resourcesUrl != null && resourcesUrl.contains(resourcesName)){
+                            callbacks?.invoke(resourcesUrl)
+                            onDestroy()
+                        }
+                        return super.shouldInterceptRequest(view, request)
+                    }
+
+                    override fun onPageFinished(view: WebView, url: String?) {
+                        super.onPageFinished(view, url)
+                        Log.e("VideoSniffingPlugin", "finish")
+                    }
+                }
+            }
+        }
+    }
+
     inner class VideoSniffing() {
 
         @JavascriptInterface
@@ -116,6 +158,12 @@ class WebViewConnect {
 
     fun loadCustomData(baseUrl: String,jsCode:String, callback: String?.() -> Unit) {
         loadWebViewCustomData(jsCode)
+        mWebView?.loadUrl(baseUrl)
+        callbacks = callback
+    }
+
+    fun getResourcesUrl(baseUrl: String,resourcesName:String, callback: String?.() -> Unit) {
+        getResourcesUrl(resourcesName)
         mWebView?.loadUrl(baseUrl)
         callbacks = callback
     }

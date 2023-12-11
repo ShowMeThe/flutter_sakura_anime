@@ -3,8 +3,13 @@ import '../widget/ball_cliprotate_pulse.dart';
 
 Widget showImage(String url, double width, double height,
     {BoxFit boxFit = BoxFit.fitWidth}) {
+  var headers = <String,String>{};
+  if(url.contains(Api.newBaseRefer)){
+    headers["Referer"] = Api.newBaseUrl;
+  }
   return ExtendedImage.network(
     url,
+    headers: headers,
     width: width,
     height: height,
     fit: boxFit,

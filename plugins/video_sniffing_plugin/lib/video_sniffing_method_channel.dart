@@ -21,4 +21,11 @@ class MethodChannelVideoSniffing extends VideoSniffingPlatform {
         'getCustomData', {"baseUrl": baseUrl, "jsCode": jsCode});
     return result;
   }
+
+  @override
+  Future<String?> getResourcesUrl(String baseUrl, String resourcesName) async {
+    final result = await methodChannel.invokeMethod<String>(
+        'getResourcesUrl', {"baseUrl": baseUrl, "resourcesName": resourcesName});
+    return result;
+  }
 }

@@ -21,7 +21,6 @@ class AnimeRecommendData {
 class AnimeDramasData {
   String? listTitle;
   List<AnimeDramasDetailsData> list = [];
-
 }
 
 class AnimeDramasDetailsData {

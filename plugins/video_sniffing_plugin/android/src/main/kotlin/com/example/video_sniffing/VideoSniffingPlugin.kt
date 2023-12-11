@@ -51,7 +51,20 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
                     result.success(this)
                 }
             }
-        } else {
+        } else if(call.method == "getResourcesUrl"){
+            val url = call.argument<String>("baseUrl")
+            val resourcesName = call.argument<String>("resourcesName")
+            Log.e("VideoSniffingPlugin","${url}")
+            if(url.isNullOrBlank().not()){
+                if (this::webViewConnect.isInitialized.not()) {
+                    webViewConnect = WebViewConnect()
+                    webViewConnect.setContext(mContext)
+                }
+                webViewConnect.getResourcesUrl(url!!,resourcesName!!){
+                    result.success(this)
+                }
+            }
+        }else {
             result.notImplemented()
         }
     }

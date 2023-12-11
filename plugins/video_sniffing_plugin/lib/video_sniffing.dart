@@ -8,4 +8,9 @@ class VideoSniffing {
   static Future<String?> getCustomData(String baseUrl, String jsCode) {
     return VideoSniffingPlatform.instance.getCustomData(baseUrl, jsCode);
   }
+
+  static Future<String?> getResourcesUrl(String baseUrl,String resourcesName) {
+    return VideoSniffingPlatform.instance.getResourcesUrl(baseUrl, resourcesName);
+  }
+
 }

@@ -30,4 +30,8 @@ abstract class VideoSniffingPlatform extends PlatformInterface {
   Future<String?> getCustomData(String baseUrl,String jsCode) {
     throw UnimplementedError('getCustomData(String baseUrl,String jsCode) has not been implemented.');
   }
+
+  Future<String?> getResourcesUrl(String baseUrl,String resourcesName) {
+    throw UnimplementedError('getCustomData(String baseUrl,String jsCode) has not been implemented.');
+  }
 }

@@ -145,7 +145,7 @@ void _addBackMission(BuildContext context,
     }else{
       playUrl = await Api.getAnimePlayUrl(chapter.url);
     }
-    if (playUrl == null) return;
+    if (playUrl.isEmpty) return;
     updateChapterPlayUrls(showUrl, chapter.url, playUrl);
     if (!context.mounted) return;
     LoadingDialogHelper.dismissLoading(context);

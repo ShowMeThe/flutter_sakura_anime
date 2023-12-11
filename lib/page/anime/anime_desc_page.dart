@@ -26,7 +26,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
   late AutoDisposeFutureProvider<AnimeDesData> _desDataProvider;
 
-  late AutoDisposeFutureProvider<AnimePlayListData> _playDataProvider;
+  final AutoDisposeStateProvider<AnimePlayListData?> _playDataProvider = StateProvider.autoDispose((ref) => null);
   late AutoDisposeStateProvider<String> _logoProvider;
 
   late AutoDisposeFutureProvider<LocalCollect?> _isCollectFuture;
@@ -57,13 +57,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
 
     _desDataProvider = FutureProvider.autoDispose<AnimeDesData>((_) async {
       var result = await Api.getAnimeDes(widget.animeShowUrl);
-      ref.invalidate(_playDataProvider);
-      ref.read(_logoProvider.notifier).update((state) => result.logo!);
-      return result;
-    });
-    _playDataProvider = FutureProvider.autoDispose<AnimePlayListData>((_) async {
-      var url = ref.watch(_desDataProvider).valueOrNull?.url;
-      var result = await Api.getAnimePlayList(url!);
+      ref.refresh(_playDataProvider.notifier).update((state) => result.playListData);
+      ref.refresh(_logoProvider.notifier).update((state) => result.logo!);
       return result;
     });
     _isCollectFuture = FutureProvider.autoDispose((_) {
@@ -76,7 +71,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
         return null;
       }
       var chapter = result.chapter;
-      var playData = ref.watch(_playDataProvider).valueOrNull;
+      var playData = ref.watch(_playDataProvider);
       if (playData != null) {
         var index = playData.animeDramas
             .indexWhere((element) => element.listTitle == chapter);
@@ -166,7 +161,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           Row(
                             children: [
                               Consumer(builder: (context,ref,_){
-                                var playData = ref.watch(_playDataProvider).valueOrNull;
+                                var playData = ref.watch(_playDataProvider);
                                 if(playData != null){
                                   var list = playData.animeDramas;
                                   return IconButton(
@@ -244,13 +239,12 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                                         boxFit: BoxFit.cover));
                               }
                             }),
-                            Consumer(builder: (context, watch, _) {
-                              var provider = watch.watch(_desDataProvider);
-                              if (provider.valueOrNull == null ||
-                                  provider.hasError) {
+                            Consumer(builder: (context, ref, _) {
+                              var value = ref.watch(_desDataProvider).valueOrNull;
+                              if (value == null) {
                                 return Container();
                               } else {
-                                var data = provider.value!;
+                                var data = value;
                                 return SizedBox(
                                   width: MediaQuery.sizeOf(context).width / 3,
                                   height: 200,
@@ -308,8 +302,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                         ),
                       ),
                     ),
-                    Consumer(builder: (context, watch, _) {
-                      var provider = watch.watch(_desDataProvider);
+                    Consumer(builder: (context, ref, _) {
+                      var provider = ref.watch(_desDataProvider);
                       if (provider.isLoading) {
                         return const SizedBox(
                           height: 350,
@@ -431,7 +425,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
   Widget buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
-        var data = ref.watch(_playDataProvider).valueOrNull;
+        var data = ref.watch(_playDataProvider);
         if (data == null) {
           return Container();
         } else {
