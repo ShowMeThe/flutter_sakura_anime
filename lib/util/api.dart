@@ -84,7 +84,7 @@ class Api {
         HomeListItem item = HomeListItem();
         var info = anime.querySelectorAll("a");
         item.title = info[1].text;
-        item.url = info[1].attributes["href"];
+        item.url = baseUrl + info[1].attributes["href"]!;
         item.img = baseImgHead +
             (info[0].querySelector("img")?.attributes["src"] ?? "");
         item.episodes = info.length == 3 ? info[2].text : "";
@@ -101,7 +101,7 @@ class Api {
       if (els[i].querySelectorAll("a").length > 1) {
         var query1 = els[i].querySelectorAll("a")[1];
         var title = query1.text;
-        var url = query1.attributes["href"];
+        var url = baseUrl + query1.attributes["href"]!;
         var query0 = els[i].querySelectorAll("a")[0];
         var episode = query0.text;
         var episodeUrl = query0.attributes["href"];
@@ -112,6 +112,7 @@ class Api {
   }
 
   static Future<AnimeDesData> getAnimeDes(String url) async {
+    debugPrint("getAnimeDes = $url");
     if (url.contains(baseUrl)) {
       return getAnimeDesOld(url);
     } else {
