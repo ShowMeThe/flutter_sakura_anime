@@ -32,10 +32,16 @@ class HjApi {
 
   static Future<HjHomeData> getHomePage(
       {String year = "", int page = 1, int type = 0}) async {
-    String requestUrl = baseUrl
-        .replaceAll(id_place, _typeMap[type]!)
-        .replaceAll(year_place, year)
-        .replaceAll(page_place, page.toString());
+
+    String requestUrl;
+    if(year == DateTime.now().year.toString()){
+      requestUrl = "$base${_typeMap[type]!}/";
+    }else{
+      requestUrl = baseUrl
+          .replaceAll(id_place, _typeMap[type]!)
+          .replaceAll(year_place, year)
+          .replaceAll(page_place, page.toString());
+    }
 
     var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
