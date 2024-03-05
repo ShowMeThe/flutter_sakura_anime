@@ -41,7 +41,6 @@ dependencies:
   html: ^0.15.1
   palette_generator: ^0.3.3+2
   extended_image: ^8.1.1
-  flick_video_player: ^0.5.0
   perfect_volume_control: ^1.0.5
   device_display_brightness: ^0.0.6
   flutter_staggered_grid_view: ^0.6.2
@@ -50,16 +49,19 @@ dependencies:
   dio_cache_interceptor_hive_store: ^3.2.0
   path_provider: ^2.0.11
   shared_preferences: ^2.0.16
-  sqlite3: ^1.9.1
+  sqlite3: ^2.3.0
   sqlite3_flutter_libs: ^0.5.12
   gbk_codec_nohtml: ^1.0.0
   fluttertoast: ^8.2.1
   csslib: 0.17.0
-  flutter_meedu_videoplayer: ^4.2.13
-  wakelock: ^0.6.2
+#  flutter_meedu_videoplayer: ^4.2.13
+  wakelock: ^0.4.0
   flutter_hls_parser: ^2.0.1
   ffmpeg_kit_flutter: ^5.1.0
   json_annotation: ^4.8.1
+  media_kit: ^1.1.10
+  media_kit_video: ^1.2.4
+  media_kit_libs_video: ^1.0.4
 
   video_sniffing:
     path: ./plugins/video_sniffing_plugin
@@ -76,6 +78,8 @@ dependency_overrides:
     path: ./plugins/video_player_android
   extended_image_library:
       path: ./plugins/extended_image_library
+  media_kit:
+      path: ./plugins/media_kit
 
 
 

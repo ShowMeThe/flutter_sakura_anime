@@ -36,6 +36,7 @@ class _TimeTableState extends ConsumerState<TimeTablePage>
         ),
         bottom: TabBar(
           isScrollable: true,
+          tabAlignment: TabAlignment.start,
           dividerColor: theme.primaryColor,
           controller: _tabController,
           tabs: tabs(),

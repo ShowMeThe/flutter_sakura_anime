@@ -5,7 +5,11 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/collect.dart';
 import 'dart:ui';
 
+import 'package:media_kit/media_kit.dart';
+
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   runApp(const ProviderScope(child: MyApp()));
   initDb();
 }

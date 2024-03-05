@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
+import 'package:flutter_sakura_anime/page/play_page_2.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:flutter_sakura_anime/widget/error_view.dart';
@@ -71,7 +72,8 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
           child: Stack(
             children: [
               Image(
-                image: ExtendedNetworkImageProvider(widget.logo, cache: true),
+                image: ExtendedNetworkImageProvider(widget.logo,
+                    cache: true),
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
@@ -314,7 +316,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           ref.invalidate(_localHisFuture);
                           var cacheFile = getDownLoadFile(widget.url, element.chapterList[index].url);
                           if (cacheFile != null) {
-                            Navigator.of(context).push(FadeRoute(PlayPage(
+                            Navigator.of(context).push(FadeRoute(NewPlayPage(
                               cacheFile.path,
                               title,
                               fromLocal: true,
@@ -333,7 +335,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           }
                           if (!mounted) return;
                           Navigator.of(context)
-                              .push(FadeRoute(PlayPage(playUrl, title)));
+                              .push(FadeRoute(NewPlayPage(playUrl, title)));
                         },
                         child: Text(element.chapterList[index].title)),
                   ),

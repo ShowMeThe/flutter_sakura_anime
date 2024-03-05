@@ -35,7 +35,7 @@ class HjApi {
 
     String requestUrl;
     if(year == DateTime.now().year.toString()){
-      requestUrl = "$base${_typeMap[type]!}/";
+      requestUrl = "$base/list/${_typeMap[type]!}______${page}.html";
     }else{
       requestUrl = baseUrl
           .replaceAll(id_place, _typeMap[type]!)

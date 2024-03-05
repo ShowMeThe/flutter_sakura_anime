@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'base_export.dart';
@@ -25,8 +26,18 @@ class HttpClient {
     ..headers.clear()
     ..headers["User-Agent"] = USER_AGENT;
 
+  static String appCache = "";
+
+
   static Future<String> getAppDir() async {
     var future = await getApplicationDocumentsDirectory();
+    var cacheDir = (await getApplicationCacheDirectory()).path;
+    var cacheVideoFile = Directory("$cacheDir/video");
+    if(!cacheVideoFile.existsSync()){
+      cacheVideoFile.createSync();
+    }
+    appCache = cacheVideoFile.path;
+    debugPrint("cache file = $appCache");
     return future.path;
   }
 

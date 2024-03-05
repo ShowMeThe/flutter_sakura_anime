@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
+import 'package:flutter_sakura_anime/page/play_page_2.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/download_dialog.dart';
 import 'package:flutter_sakura_anime/util/hj_api.dart';
@@ -391,7 +392,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                       ref.invalidate(_localHisFuture);
                       var cacheFile = getDownLoadFile(widget.url, element.url);
                       if (cacheFile != null) {
-                        Navigator.of(context).push(FadeRoute(PlayPage(
+                        Navigator.of(context).push(FadeRoute(NewPlayPage(
                           cacheFile.path,
                           title,
                           fromLocal: true,
@@ -408,7 +409,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                         LoadingDialogHelper.dismissLoading(context);
                       }
                       if (!mounted) return;
-                      Navigator.of(context).push(FadeRoute(PlayPage(
+                      Navigator.of(context).push(FadeRoute(NewPlayPage(
                         playUrl,
                         title,
                         fromLocal: false,
