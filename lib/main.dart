@@ -1,6 +1,7 @@
+import 'dart:io' as io;
+
 import 'package:flutter/services.dart';
 import 'package:flutter_sakura_anime/page/splash_page.dart';
-import 'package:flutter_sakura_anime/test_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/collect.dart';
 import 'dart:ui';
@@ -14,6 +15,7 @@ void main() async {
   initDb();
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -25,16 +27,15 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           platform: TargetPlatform.android,
           brightness: Brightness.light,
-          colorScheme: ColorScheme(
+          colorScheme: const ColorScheme(
               brightness: Brightness.light,
-              background: Colors.black,
-              onBackground: ColorRes.mainColor,
+              onSurface: Colors.black,
+              surfaceContainerHighest: ColorRes.mainColor,
               primary: Colors.white,
               onPrimary: Colors.blue,
               secondary: Colors.white,
               onSecondary: Colors.blue,
-              onSurface: Colors.white.withAlpha(125),
-              surface: Colors.white.withAlpha(225),
+              surface:  Colors.black,
               error: Colors.red,
               onError: Colors.white),
           primarySwatch: Colors.blue,
@@ -81,18 +82,17 @@ class MyApp extends StatelessWidget {
             labelStyle:
                 TextStyle(color: Colors.black, fontFamily: Static.fonts),
           ),
-          colorScheme: ColorScheme(
+          colorScheme: const ColorScheme(
               brightness: Brightness.light,
-              background: Colors.white,
-              onBackground: ColorRes.mainColor,
+              onSurface: Colors.white,
+              surfaceContainerHighest: ColorRes.mainColor,
               primary: ColorRes.pink400,
               onPrimary: Colors.white,
               secondary: ColorRes.pink400,
               onSecondary: Colors.white,
-              onSurface: Colors.white.withAlpha(125),
-              surface: Colors.white.withAlpha(225),
               error: Colors.red,
-              onError: Colors.white),
+              onError: Colors.white,
+              surface: Colors.white),
           tabBarTheme: const TabBarTheme(
             indicatorColor: ColorRes.pink400,
             labelColor: ColorRes.pink400,

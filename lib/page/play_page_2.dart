@@ -1,7 +1,6 @@
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:path_provider/path_provider.dart';
-
 import '../util/base_export.dart';
 
 // ignore: must_be_immutable
@@ -18,9 +17,15 @@ class NewPlayPage extends ConsumerStatefulWidget {
 
 class _NewPlayState extends ConsumerState<NewPlayPage> {
 
-  late final player = Player(configuration: const PlayerConfiguration(bufferSize: 100 * 1024 * 1024));
+  late final player = Player(
+      configuration: const PlayerConfiguration(bufferSize: 100 * 1024 * 1024,logLevel: MPVLogLevel.debug));
   late final controller = VideoController(player);
   late final GlobalKey<VideoState> key = GlobalKey<VideoState>();
+
+  void initPlayer() async {
+    player.stream.error.listen((error) => debugPrint(error));
+    player.stream.log.listen((log) => debugPrint(log.toString()));
+  }
 
   @override
   void initState() {
@@ -29,6 +34,8 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    initPlayer();
+    debugPrint("playUrl = ${widget.url}");
     player.open(Media(widget.url));
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
 
@@ -75,7 +82,9 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
             brightnessGesture: true,
             bufferingIndicatorBuilder: (context) {
               return CircularProgressIndicator(
-                color: Theme.of(context).primaryColor,
+                color: Theme
+                    .of(context)
+                    .primaryColor,
               );
             },
             topButtonBarMargin: const EdgeInsets.fromLTRB(15.0, 0, 15, 15),
@@ -95,10 +104,17 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
         fullscreen: const MaterialVideoControlsThemeData(),
         child: Center(
           child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width * 9.0 / 16.0,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
+            height: MediaQuery
+                .of(context)
+                .size
+                .width * 9.0 / 16.0,
             child: Video(key: key, controller: controller),
           ),
         ));
   }
+
 }

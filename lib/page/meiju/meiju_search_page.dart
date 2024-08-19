@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/widget/color_size_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -305,31 +306,35 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
                     children: [
                       Padding(
                           padding: const EdgeInsets.only(top: 15.0),
-                          child: Text(
+                          child: AutoSizeText(
                             item.title,
-                            style: TextStyle(
-                                fontSize: item.title.length > 20 ? 12 : 15),
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 12),
                           )),
                       Padding(
                           padding: const EdgeInsets.only(top: 15.0),
-                          child: Text(
+                          child: AutoSizeText(
                             item.state,
-                            style: TextStyle(
-                                fontSize: item.state.length > 20 ? 12 : 15),
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 12),
                           )),
                       Padding(
                           padding: const EdgeInsets.only(top: 15.0),
-                          child: Text(
+                          child: AutoSizeText(
                             item.realName,
-                            style: TextStyle(
-                                fontSize: item.realName.length > 20 ? 12 : 15),
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 12),
                           )),
                       Padding(
                           padding: const EdgeInsets.only(top: 15.0),
-                          child: Text(
+                          child: AutoSizeText(
                             item.time,
-                            style: TextStyle(
-                                fontSize: item.time.length > 20 ? 12 : 15),
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 12),
                           )),
                     ],
                   ),

@@ -71,6 +71,7 @@ dependencies:
   local_auth: ^2.1.6
 
   video_player: ^2.6.1
+  auto_size_text: ^3.0.0
 
 
 dependency_overrides:
@@ -78,8 +79,6 @@ dependency_overrides:
     path: ./plugins/video_player_android
   extended_image_library:
       path: ./plugins/extended_image_library
-  media_kit:
-      path: ./plugins/media_kit
 
 
 

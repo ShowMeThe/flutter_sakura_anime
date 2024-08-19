@@ -32,7 +32,8 @@ class LoadingDialogWidget extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         ///拦截返回导航
-        WillPopScope(
+        PopScope(
+            canPop: dismissible,
             child: Container(
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
@@ -45,9 +46,10 @@ class LoadingDialogWidget extends StatelessWidget {
                 backgroundColor: Colors.grey[300],
               ),
             ),
+            onPopInvoked: (bool){
 
-            ///拦截返回按钮：false = 不允许通过返回按钮关闭弹窗
-            onWillPop: () => Future.value(dismissible))
+            },
+        )
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/bean/meiju_category_data.dart';
@@ -225,21 +226,26 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
                             children: [
                               Padding(
                                   padding: const EdgeInsets.only(top: 15.0),
-                                  child: Text(
-                                    item.title,style: TextStyle(fontSize: item.title.length > 20 ? 12 : 15,color: textColor),
+                                  child: AutoSizeText(
+                                    maxLines: 2,
+                                    item.title,style: TextStyle(fontSize: 12,color: textColor),
                                   )),
                               Padding(
                                   padding: const EdgeInsets.only(top: 15.0),
-                                  child: Text(item.state,style: TextStyle(fontSize: item.state.length > 20 ? 12 : 15,color: textColor),)),
+                                  child: AutoSizeText(
+                                    maxLines: 2,item.state,style: TextStyle(fontSize: 12,color: textColor),)),
                               Padding(
                                   padding: const EdgeInsets.only(top: 15.0),
-                                  child: Text(item.realName,style: TextStyle(fontSize: item.realName.length > 20 ? 12 : 15,color: textColor),)),
+                                  child: AutoSizeText(
+                                    maxLines: 2,item.realName,style: TextStyle(fontSize: 12,color: textColor),)),
                               Padding(
                                   padding: const EdgeInsets.only(top: 15.0),
-                                  child: Text(item.time,style: TextStyle(fontSize: item.time.length > 20 ? 12 : 15,color: textColor),)),
+                                  child: AutoSizeText(
+                                    maxLines: 2,item.time,style: TextStyle(fontSize: 12,color: textColor),)),
                               Padding(
                                   padding: const EdgeInsets.only(top: 15.0),
-                                  child: Text("评分:${item.score}",style: TextStyle(fontSize: 15,color: textColor))),
+                                  child: AutoSizeText(
+                                      maxLines: 2,"评分:${item.score}",style: TextStyle(fontSize: 12,color: textColor))),
                             ],
                           );
                         },
