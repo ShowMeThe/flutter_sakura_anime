@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -357,23 +358,25 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   Widget buildPlayList(List<HjDesPlayData> list) {
     return Consumer(builder: (context, ref, _) {
       var parentIndex = ref.watch(tabSelect);
+      var minSize = MediaQuery.of(context).size.width / 4.0;
       if(list.isEmpty || parentIndex > list.length - 1){
         return Container();
       }
       var element = list[parentIndex];
       return Wrap(
-        children: buildChild(element, element.title),
+        children: buildChild(minSize,element, element.title),
       );
     });
   }
 
-  List<Widget> buildChild(HjDesPlayData data, String parentTitle) {
+  List<Widget> buildChild(double minSize,HjDesPlayData data, String parentTitle) {
     var list = <Widget>[];
     for (int index = 0; index < data.chapterList.length; index++) {
       var element = data.chapterList[index];
+      debugPrint("minSize = $minSize");
       list.add(
         SizedBox(
-          width: 100.0,
+          width: min(100.0, minSize),
           height: 55.0,
           child: Stack(
             children: [

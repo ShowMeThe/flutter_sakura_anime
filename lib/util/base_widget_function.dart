@@ -2,7 +2,7 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 import '../widget/ball_cliprotate_pulse.dart';
 
 Widget showImage(String url, double width, double height,
-    {BoxFit boxFit = BoxFit.fitWidth}) {
+    {BoxFit boxFit = BoxFit.cover}) {
   var headers = <String,String>{};
   if(url.contains(Api.newBaseRefer)){
     headers["Referer"] = Api.newBaseUrl;

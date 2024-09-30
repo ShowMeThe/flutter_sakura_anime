@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
           cardColor: Colors.blue,
           dividerColor: Colors.white,
           chipTheme: const ChipThemeData(
+            shape: RoundedRectangleBorder(side: BorderSide(color: Colors.blue,width: 0.5),borderRadius: BorderRadius.all(Radius.circular(8))),
             secondaryLabelStyle:
                 TextStyle(color: Colors.black, fontFamily: Static.fonts),
             labelStyle:
@@ -77,6 +78,7 @@ class MyApp extends StatelessWidget {
           cardColor: Colors.pink,
           dividerColor: Colors.transparent,
           chipTheme: const ChipThemeData(
+            shape: RoundedRectangleBorder(side: BorderSide(color: Colors.pinkAccent,width: 0.5),borderRadius: BorderRadius.all(Radius.circular(8))),
             secondaryLabelStyle:
                 TextStyle(color: Colors.white, fontFamily: Static.fonts),
             labelStyle:

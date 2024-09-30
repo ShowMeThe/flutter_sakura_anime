@@ -41,8 +41,8 @@ dependencies:
   html: ^0.15.1
   palette_generator: ^0.3.3+2
   extended_image: ^8.1.1
-  perfect_volume_control: ^1.0.5
-  device_display_brightness: ^0.0.6
+#  perfect_volume_control: ^1.0.5
+#  device_display_brightness: ^0.0.6
   flutter_staggered_grid_view: ^0.6.2
   fade_shimmer: ^2.2.0
   dio_cache_interceptor: ^3.3.1
@@ -55,7 +55,7 @@ dependencies:
   fluttertoast: ^8.2.1
   csslib: 0.17.0
 #  flutter_meedu_videoplayer: ^4.2.13
-  wakelock: ^0.4.0
+#  wakelock: ^0.4.0
   flutter_hls_parser: ^2.0.1
   ffmpeg_kit_flutter: ^5.1.0
   json_annotation: ^4.8.1
