@@ -366,9 +366,9 @@ class Api {
       requestUrl += "$page.html";
     }
     var moveData = await _getAnimeList(requestUrl, nowPage: nowPage);
-    if (nowPage == 1) {
-      moveData.movies.insertAll(0, await _getAnimeListByNew(word, nowPage, []));
-    }
+    // if (nowPage == 1) {
+    //   moveData.movies.insertAll(0, await _getAnimeListByNew(word, nowPage, []));
+    // }
     return moveData;
   }
 

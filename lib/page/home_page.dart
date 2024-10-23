@@ -1,6 +1,7 @@
-import 'dart:ui';
+
 
 import 'package:flutter_sakura_anime/page/anime/anime_home_page.dart';
+import 'package:flutter_sakura_anime/page/factory/factory_page.dart';
 import 'package:flutter_sakura_anime/page/hanju/hanju_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
@@ -26,13 +27,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     const AnimeHomePage(),
     const HanjuPage(),
     const MeijuHomePage(),
+    const FactoryPage(),
     const DownLoadPage()
   ];
 
   final _titles = [
     "动漫",
     "日/韩剧",
-    "美剧","下载"
+    "美剧",
+    "厂长",
+    "下载"
   ];
 
   void onTap(int index) {
@@ -106,8 +110,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                       icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
                       label: _titles[2]),
                   BottomNavigationBarItem(
-                      icon: const Icon(Icons.download),
+                      icon: ImageIcon(AssetImage(A.assets_ic_more_movie)),
                       label: _titles[3]),
+                  BottomNavigationBarItem(
+                      icon: const Icon(Icons.download),
+                      label: _titles[4]),
                 ]);
           }),
         ),

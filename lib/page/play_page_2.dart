@@ -80,6 +80,7 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 45),
             volumeGesture: true,
             brightnessGesture: true,
+            seekGesture: true,
             bufferingIndicatorBuilder: (context) {
               return CircularProgressIndicator(
                 color: Theme

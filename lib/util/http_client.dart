@@ -41,6 +41,8 @@ class HttpClient {
     return future.path;
   }
 
+  static List<int> _hitCacheCode () => [401, 403, 404];
+
   static Future<Dio> get() async {
     _dio ??= Dio(_option)
       ..interceptors.add(DioCacheInterceptor(
@@ -48,7 +50,7 @@ class HttpClient {
         maxStale: const Duration(days: 1),
         store: HiveCacheStore(await getAppDir()),
         policy: CachePolicy.refreshForceCache,
-        hitCacheOnErrorExcept: [401, 403, 404], // for offline behaviour
+        hitCacheOnErrorExcept: _hitCacheCode(), // for offline behaviour
       )));
     return _dio!;
   }
@@ -61,7 +63,7 @@ class HttpClient {
         maxStale: const Duration(days: 1),
         store: HiveCacheStore(await getAppDir()),
         policy: CachePolicy.refreshForceCache,
-        hitCacheOnErrorExcept: [401, 403, 404], // for offline behaviour
+        hitCacheOnErrorExcept: _hitCacheCode(), // for offline behaviour
       )));
     return _dio2!;
   }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:local_auth/local_auth.dart';
 import 'home_page.dart';

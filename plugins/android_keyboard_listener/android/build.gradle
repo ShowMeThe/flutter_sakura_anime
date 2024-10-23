@@ -41,6 +41,7 @@ if (flutterRoot == null) {
 android {
     compileSdkVersion 31
 
+    namespace "com.keyborad.listener"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

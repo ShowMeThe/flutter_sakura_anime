@@ -70,7 +70,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
               controller: _controller,
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
-              children: buildBody(provider.value,theme),
+              children: buildBody(provider.value, theme),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
@@ -151,12 +151,13 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
     return widget;
   }
 
-  List<Widget> buildBody(List<MjHomeData>? list,ThemeData themeData) {
+  List<Widget> buildBody(List<MjHomeData>? list, ThemeData themeData) {
     List<Widget> widget = [];
     if (list != null) {
       for (var element in list) {
         var childList = element.list;
         widget.add(GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () {
             Navigator.of(context)
                 .push(FadeRoute(MjCategoryPage(element.url, element.title)));
@@ -168,72 +169,80 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   element.title,
-                  style: TextStyle(fontSize: 20,color: themeData.textTheme.titleSmall?.color),
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: themeData.textTheme.titleSmall?.color),
                 ),
               ),
-              Icon(Icons.navigate_next,color: themeData.colorScheme.secondary,)
+              Icon(
+                Icons.navigate_next,
+                color: themeData.colorScheme.secondary,
+              )
             ],
           ),
         ));
         widget.add(SizedBox(
           height: 250,
-          child: CarouselView(itemExtent: 150,
+          child: CarouselView(
+              itemExtent: 150,
               itemSnapping: true,
               shrinkExtent: 75,
-              children: childList.map((item){
-            return Padding(
-              padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(FadeRoute(MjDesPage(
-                    item.img,
-                    item.url,
-                    item.title,
-                    heroTag: _heroTag,
-                  )));
-                },
-                child: SizedBox(
-                    width: 90,
-                    height: double.infinity,
-                    child: Card(
-                      shape: const RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.all(Radius.circular(12.0))),
-                      clipBehavior: Clip.antiAlias,
-                      child: Stack(
-                        children: [
-                          Hero(
-                              tag: item.img + _heroTag,
-                              child:
-                              showImage(item.img, double.infinity, 150)),
-                          Positioned.fill(
-                              top: 130,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.black.withAlpha(45)),
-                                child: Text(
-                                  item.chapter,
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              )),
-                          Positioned.fill(
-                              left: 0,
-                              top: 150,
-                              child: ColorContainer(
-                                url: item.img,
-                                title: item.title,
-                                baseColor: ColorRes.mainColor,
-                              )),
-                        ],
-                      ),
-                    )),
-              ),
-            );
-          }).toList()),
+              children: childList.map((item) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(FadeRoute(MjDesPage(
+                        item.img,
+                        item.url,
+                        item.title,
+                        heroTag: _heroTag,
+                      )));
+                    },
+                    child: SizedBox(
+                        width: 90,
+                        height: double.infinity,
+                        child: Card(
+                          shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12.0))),
+                          clipBehavior: Clip.antiAlias,
+                          child: Stack(
+                            children: [
+                              Hero(
+                                  tag: item.img + _heroTag,
+                                  child: showImage(
+                                      item.img, double.infinity, 150)),
+                              Positioned.fill(
+                                  top: 130,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.black.withAlpha(45)),
+                                    child: Text(
+                                      item.chapter,
+                                      textAlign: TextAlign.right,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  )),
+                              Positioned.fill(
+                                  left: 0,
+                                  top: 150,
+                                  child: ColorContainer(
+                                    url: item.img,
+                                    title: item.title,
+                                    baseColor: ColorRes.mainColor,
+                                  )),
+                            ],
+                          ),
+                        )),
+                  ),
+                );
+              }).toList()),
         ));
 
-      /*  GridView.builder(
+        /*  GridView.builder(
             padding: const EdgeInsets.only(top: 0),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

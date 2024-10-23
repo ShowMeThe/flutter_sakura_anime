@@ -253,7 +253,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
           ),
           onSelected: (bool) {
             if (bool) {
-              ref.refresh(typeState.notifier).update((state) => i);
+              ref.watch(typeState.notifier).update((state) => i);
               nowPage = 1;
               ref.invalidate(_futureProvider);
             }
@@ -298,7 +298,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
             crossAxisSpacing: 5,
             mainAxisSpacing: 5,
             childAspectRatio: 0.55),
-        itemCount: 10,
+        itemCount: 12,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),

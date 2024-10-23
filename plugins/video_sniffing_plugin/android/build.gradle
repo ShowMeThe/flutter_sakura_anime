@@ -41,6 +41,7 @@ if (flutterRoot == null) {
 android {
     compileSdkVersion 31
 
+    namespace "com.video.sniffing"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -59,7 +60,7 @@ android {
     }
 
     dependencies{
-        compileOnly files("$flutterRoot/bin/cache/artifacts/engine/android-arm/flutter.jar")
+        //compileOnly files("$flutterRoot/bin/cache/artifacts/engine/android-arm/flutter.jar")
     }
 }
 
