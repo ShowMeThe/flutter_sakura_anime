@@ -15,6 +15,16 @@ class WebViewConnect {
 
     private var mWebView: WebView? = null
     private var sortCtx: SoftReference<Context>? = null
+
+    private fun WebView.baseSetting(){
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+        webChromeClient = object : WebChromeClient() {}
+        addJavascriptInterface(VideoSniffing(), "video_sniffing")
+    }
+
+
     private fun loadWebViewHtml() {
         Log.e("VideoSniffingPlugin", "${sortCtx}")
         if (sortCtx == null || sortCtx?.get() == null) return
@@ -23,9 +33,7 @@ class WebViewConnect {
             mWebView = WebView(ctx)
             Log.e("VideoSniffingPlugin", "${mWebView}")
             mWebView?.apply {
-                settings.javaScriptEnabled = true
-                settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                addJavascriptInterface(VideoSniffing(), "video_sniffing")
+                baseSetting()
                 webViewClient = object : WebViewClient() {
                     override fun onReceivedError(
                         view: WebView?,
@@ -55,9 +63,7 @@ class WebViewConnect {
             mWebView = WebView(ctx)
             Log.e("VideoSniffingPlugin", "${mWebView}")
             mWebView?.apply {
-                settings.javaScriptEnabled = true
-                settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                addJavascriptInterface(VideoSniffing(), "video_sniffing")
+                baseSetting()
                 webViewClient = object : WebViewClient() {
                     override fun onReceivedError(
                         view: WebView?,
@@ -87,9 +93,7 @@ class WebViewConnect {
             mWebView = WebView(ctx)
             Log.e("VideoSniffingPlugin", "${mWebView}")
             mWebView?.apply {
-                settings.javaScriptEnabled = true
-                settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                addJavascriptInterface(VideoSniffing(), "video_sniffing")
+                baseSetting()
                 webViewClient = object : WebViewClient() {
                     override fun onReceivedError(
                         view: WebView?,
@@ -114,6 +118,7 @@ class WebViewConnect {
 
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
+                        onDestroy()
                         Log.e("VideoSniffingPlugin", "finish")
                     }
                 }

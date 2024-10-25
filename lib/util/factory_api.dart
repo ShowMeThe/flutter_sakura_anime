@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_sakura_anime/bean/hanju_des_data.dart';
+import 'package:video_sniffing/video_sniffing.dart';
 
 import '../bean/factory_tab.dart';
 import 'http_client.dart';
@@ -20,7 +22,8 @@ class FactoryApi {
       var elementA = li.querySelector("a");
       var text = li.text;
       var href = elementA?.attributes["href"] ?? "";
-      if (!href.startsWith("http") && !href.contains("/gonggao") &&
+      if (!href.startsWith("http") &&
+          !href.contains("/gonggao") &&
           !href.contains("/wangzhanliuyan")) {
         tabs.add(FactoryTab(href, text));
       }
@@ -28,16 +31,14 @@ class FactoryApi {
     return tabs;
   }
 
-
   static Future<FactoryTabList> getTagPageData(String url, int page) async {
     var requestUrl = baseUrl + url;
     var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
         .onError((error, stackTrace) => Future.error("$error", stackTrace));
     var document = parse(future.data);
-    var mainRowList = document
-        .getElementsByClassName("bt_img mi_ne_kd mrb")
-        .first;
+    var mainRowList =
+        document.getElementsByClassName("bt_img mi_ne_kd mrb").first;
     var liRowList = mainRowList.querySelectorAll("ul > li");
     var canLoadMore = true;
     var list = <FactoryTabListBean>[];
@@ -48,16 +49,48 @@ class FactoryApi {
         var imgEle = eleA.querySelector("img");
         var img = imgEle?.attributes["data-original"] ?? "";
         var title = imgEle?.attributes["alt"] ?? "";
-        var score = li
-            .querySelector("div.rating")
-            ?.text ?? "0.0";
+        var score = li.querySelector("div.rating")?.text ?? "0.0";
         list.add(FactoryTabListBean(url, title, score, img));
       }
     }
-    var divPage = mainRowList.querySelector("div.pagenavi_txt")?.querySelectorAll("a");
+    var divPage =
+        mainRowList.querySelector("div.pagenavi_txt")?.querySelectorAll("a");
     var lastIndex = divPage?.lastOrNull?.attributes["title"];
-    canLoadMore = lastIndex  == "跳转到最后一页";
+    canLoadMore = lastIndex == "跳转到最后一页";
     return FactoryTabList(canLoadMore, list);
   }
 
+   static Future<String> getPlayUrl(String playUrl) async {
+     var videoUrl = "";
+    var data = await VideoSniffing.getRawHtml(playUrl);
+    var document = parse(data);
+    var iframe = document.getElementsByClassName("videoplay").first.querySelector("iframe");
+    var videoSrc = iframe?.attributes["src"] ?? "";
+    if(videoSrc.isNotEmpty){
+      debugPrint("videoSrc = ${videoSrc}");
+      videoUrl = await VideoSniffing.getResourcesUrl(videoSrc,"mp4") ?? "";
+    }
+    return videoUrl;
+  }
+
+  static Future<HjDesData> getDes(String requestUrl) async {
+    var future = await (await HttpClient.get())
+        .get(requestUrl, options: Options(responseType: ResponseType.json))
+        .onError((error, stackTrace) => Future.error("$error", stackTrace));
+    var document = parse(future.data);
+    var des = document.getElementsByClassName("yp_context").first.text.trim().replaceAll("\t", "") ?? "";
+    var playListItem = document.querySelector("div.paly_list_btn");
+    List<HjDesPlayData> playList = [];
+    if(playListItem != null){
+      var playUrlList = playListItem.querySelectorAll("a");
+      var chapterList = <HjDesPlayChapter>[];
+      for(var a in playUrlList){
+        var title = a.text ?? "";
+        var url = a.attributes["href"] ??"";
+        chapterList.add(HjDesPlayChapter(title, url));
+      }
+      playList.add(HjDesPlayData("在线播放",chapterList));
+    }
+    return HjDesData(des,playList);
+  }
 }

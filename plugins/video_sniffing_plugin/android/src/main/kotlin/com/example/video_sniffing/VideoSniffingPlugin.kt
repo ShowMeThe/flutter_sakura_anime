@@ -28,7 +28,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(call: MethodCall,  result: Result) {
         if (call.method == "getRawHtml") {
             val url = call.argument<String>("baseUrl")
-            Log.e("VideoSniffingPlugin","${url}")
+            Log.e("VideoSniffingPlugin","getRawHtml ${url}")
             if(url.isNullOrBlank().not()){
                 if (this::webViewConnect.isInitialized.not()) {
                     webViewConnect = WebViewConnect()
@@ -41,7 +41,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
         }else if(call.method == "getCustomData"){
             val url = call.argument<String>("baseUrl")
             val jsCode = call.argument<String>("jsCode")
-            Log.e("VideoSniffingPlugin","${url}")
+            Log.e("VideoSniffingPlugin","getCustomData ${url}")
             if(url.isNullOrBlank().not()){
                 if (this::webViewConnect.isInitialized.not()) {
                     webViewConnect = WebViewConnect()
@@ -54,7 +54,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler {
         } else if(call.method == "getResourcesUrl"){
             val url = call.argument<String>("baseUrl")
             val resourcesName = call.argument<String>("resourcesName")
-            Log.e("VideoSniffingPlugin","${url}")
+            Log.e("VideoSniffingPlugin","getResourcesUrl ${url}")
             if(url.isNullOrBlank().not()){
                 if (this::webViewConnect.isInitialized.not()) {
                     webViewConnect = WebViewConnect()

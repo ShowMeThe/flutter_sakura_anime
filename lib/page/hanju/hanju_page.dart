@@ -173,7 +173,7 @@ class _HanJuPageState extends ConsumerState<HanjuPage>
                                     item.title,
                                     item.score,
                                     item.update,
-                                    heroTag: _HeroTag,
+                                    _HeroTag,
                                   )));
                                 },
                                 child: SizedBox(

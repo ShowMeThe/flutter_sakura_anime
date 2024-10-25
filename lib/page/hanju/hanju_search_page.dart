@@ -266,7 +266,7 @@ class _HanjuSearchState extends ConsumerState {
                                     item.title,
                                     item.score,
                                     item.update,
-                                    heroTag: _HeroTag,
+                                    _HeroTag,
                                   )));
                                 },
                                 child: SizedBox(

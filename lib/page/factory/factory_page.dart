@@ -1,11 +1,14 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_sakura_anime/page/play_page_2.dart';
 
 import '../../bean/factory_tab.dart';
 import '../../util/base_export.dart';
 import '../../util/factory_api.dart';
 import '../../widget/color_container.dart';
 import '../../widget/error_view.dart';
+import '../../widget/hidden_widget.dart';
+import 'factory_des_page.dart';
 
 class FactoryPage extends ConsumerStatefulWidget {
   const FactoryPage({super.key});
@@ -31,7 +34,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
   @override
   void initState() {
     super.initState();
-
+    _controller = HiddenController.instant.newController(this);
     _homeTabFutureProvider =
         FutureProvider.autoDispose<List<FactoryTab>>((_) async {
       var result = await FactoryApi.getHomeTab();
@@ -63,6 +66,14 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    HiddenController.instant.removeController(this);
+    _controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     return Consumer(builder: (context, ref, child) {
@@ -83,116 +94,130 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
       } else {
         var tabs = tabProvider.requireValue;
         return Material(
-          child: NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverToBoxAdapter(
-                  child: SafeArea(
-                child: Wrap(
-                  alignment: WrapAlignment.spaceEvenly,
-                  children: _buildChip(tabs),
-                ),
-              ))
-            ];
-          }, body: Consumer(builder: (context, ref, _) {
-            var provider = ref.watch(_tabSelectFutureProvider);
-            if (provider.isLoading && _movies.isEmpty) {
-              return buildLoadingBody();
-            } else if (provider.hasError && _movies.isEmpty) {
-              return Container(
-                  color: Colors.white,
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: ErrorView(() {
-                    ref.invalidate(_tabSelectFutureProvider);
-                  }));
-            } else {
-              var bean = provider.requireValue;
-              if (!provider.isLoading) {
-                if (nowPage == 1) {
-                  _movies.clear();
-                }
-                _movies.addAll(bean.list);
-                _isLoading = false;
-              }
-              return NotificationListener<ScrollNotification>(
-                onNotification: _handleLoadMoreScroll,
-                child: CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    CupertinoSliverRefreshControl(
-                      onRefresh: () async {
-                        _canLoadMore = true;
-                        debugPrint("onRefresh");
-                        nowPage = 1;
-                        return ref.refresh(_tabSelectFutureProvider);
-                      },
-                    ),
-                    SliverGrid(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                                left: 2.0, top: 2.0, bottom: 2.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                var item = _movies[index];
+          child: SafeArea(
+            child: NestedScrollView(
+                controller: _controller,
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                   SliverToBoxAdapter(
+                     child: Wrap(
+                       children: _buildChip(tabs),
+                     ),
+                   )
+                  ];
+                },
+                body: Consumer(builder: (context, ref, _) {
+                  var provider = ref.watch(_tabSelectFutureProvider);
+                  if (provider.isLoading && _movies.isEmpty) {
+                    return buildLoadingBody();
+                  } else if (provider.hasError && _movies.isEmpty) {
+                    return Container(
+                        color: Colors.white,
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: ErrorView(() {
+                          ref.invalidate(_tabSelectFutureProvider);
+                        }));
+                  } else {
+                    var bean = provider.requireValue;
+                    if (!provider.isLoading) {
+                      if (nowPage == 1) {
+                        _movies.clear();
+                      }
+                      _movies.addAll(bean.list);
+                      _isLoading = false;
+                    }
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: _handleLoadMoreScroll,
+                      child: CustomScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        slivers: [
+                          CupertinoSliverRefreshControl(
+                            onRefresh: () async {
+                              _canLoadMore = true;
+                              debugPrint("onRefresh");
+                              nowPage = 1;
+                              return ref.refresh(_tabSelectFutureProvider);
+                            },
+                          ),
+                          SliverGrid(
+                              delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 2.0, top: 2.0, bottom: 2.0),
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      var item = _movies[index];
+                                      Navigator.of(context)
+                                          .push(FadeRoute(FactoryDesPage(
+                                        item.img,
+                                        item.url,
+                                        item.title,
+                                        item.score,
+                                        heroTag,
+                                      )));
+                                    },
+                                    child: SizedBox(
+                                        width: 90,
+                                        height: double.infinity,
+                                        child: Card(
+                                          shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0))),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: Stack(
+                                            children: [
+                                              Hero(
+                                                  tag: _movies[index].img +
+                                                      heroTag,
+                                                  child: showImage(
+                                                    _movies[index].img,
+                                                    double.infinity,
+                                                    150,
+                                                  )),
+                                              Positioned.fill(
+                                                  top: 130,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.black
+                                                            .withAlpha(45)),
+                                                    child: Text(
+                                                      _movies[index].score,
+                                                      textAlign: TextAlign.right,
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  )),
+                                              Positioned.fill(
+                                                  left: 0,
+                                                  top: 150,
+                                                  child: ColorContainer(
+                                                      url: _movies[index].img,
+                                                      baseColor:
+                                                          ColorRes.mainColor,
+                                                      title:
+                                                          _movies[index].title))
+                                            ],
+                                          ),
+                                        )),
+                                  ),
+                                );
                               },
-                              child: SizedBox(
-                                  width: 90,
-                                  height: double.infinity,
-                                  child: Card(
-                                    shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(12.0))),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: Stack(
-                                      children: [
-                                        Hero(
-                                            tag: _movies[index].img + heroTag,
-                                            child: showImage(
-                                              _movies[index].img,
-                                              double.infinity,
-                                              150,
-                                            )),
-                                        Positioned.fill(
-                                            top: 130,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.black
-                                                      .withAlpha(45)),
-                                              child: Text(
-                                                _movies[index].score,
-                                                textAlign: TextAlign.right,
-                                                style: const TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                            )),
-                                        Positioned.fill(
-                                            left: 0,
-                                            top: 150,
-                                            child: ColorContainer(
-                                                url: _movies[index].img,
-                                                baseColor: ColorRes.mainColor,
-                                                title: _movies[index].title))
-                                      ],
-                                    ),
-                                  )),
-                            ),
-                          );
-                        },
-                            addAutomaticKeepAlives: false,
-                            childCount: _movies.length),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
-                                childAspectRatio: 0.55))
-                  ],
-                ),
-              );
-            }
-          })),
+                                  addAutomaticKeepAlives: false,
+                                  childCount: _movies.length),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 5,
+                                      mainAxisSpacing: 5,
+                                      childAspectRatio: 0.55))
+                        ],
+                      ),
+                    );
+                  }
+                })),
+          ),
         );
       }
     });
@@ -297,6 +322,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
         return Padding(
           padding: const EdgeInsets.only(left: 8.0, right: 8.0),
           child: ChoiceChip(
+            showCheckmark: false,
             selected: selected,
             label: Text(
               value.title,
@@ -307,6 +333,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
                     .refresh(_tabSelectProvider.notifier)
                     .update((state) => value.url);
                 nowPage = 1;
+                ref.invalidate(_tabSelectFutureProvider);
               }
             },
           ),

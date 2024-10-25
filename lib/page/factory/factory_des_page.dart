@@ -1,47 +1,40 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
-import 'package:flutter_sakura_anime/page/play_page.dart';
-import 'package:flutter_sakura_anime/page/play_page_2.dart';
-import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:flutter_sakura_anime/util/download_dialog.dart';
-import 'package:flutter_sakura_anime/util/hj_api.dart';
-import 'package:flutter_sakura_anime/util/mj_api.dart';
-import 'package:flutter_sakura_anime/widget/error_view.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_sakura_anime/util/factory_api.dart';
 
 import '../../bean/hanju_des_data.dart';
-import '../../util/download.dart';
+import '../../util/base_export.dart';
+import '../../widget/error_view.dart';
 import '../../widget/fold_text.dart';
+import '../play_page_2.dart';
 
-class HjDesPage extends ConsumerStatefulWidget {
+class FactoryDesPage extends ConsumerStatefulWidget {
   final String logo;
   final String url;
   final String title;
   final String score;
-  final String update;
   final String heroTag;
 
-  const HjDesPage(this.logo, this.url, this.title, this.score, this.update, this.heroTag,
-      {super.key, });
+  const FactoryDesPage(
+      this.logo, this.url, this.title, this.score, this.heroTag,
+      {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return _HjDesPageState();
+    return _FactoryDesPageState();
   }
 }
 
-class _HjDesPageState extends ConsumerState<HjDesPage> {
+class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
+    with AutomaticKeepAliveClientMixin {
   late AutoDisposeFutureProvider<HjDesData> _desDataProvider;
+  final ScrollController _tabScroller = ScrollController();
+  final AutoDisposeStateProvider<String> _tabSelectProvider =
+      StateProvider.autoDispose<String>((ref) => "");
   final AutoDisposeStateProvider<int> tabSelect =
       StateProvider.autoDispose((ref) => 0);
   late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
-  final AutoDisposeStateProvider<bool> downLoadState =
-      StateProvider.autoDispose((ref) => false);
-  final ScrollController _tabScroller = ScrollController();
 
   @override
   void initState() {
@@ -52,10 +45,11 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
 
     _desDataProvider = FutureProvider.autoDispose((ref) async {
       debugPrint("_desDataProvider getData");
-      var result = await HjApi.getHjDes(widget.url);
+      var result = await FactoryApi.getDes(widget.url);
       await Future.delayed(const Duration(milliseconds: 400));
       return result;
     });
+
 
     _localHisFuture = FutureProvider.autoDispose((_) async {
       var result = findLocalHistory(widget.url);
@@ -96,13 +90,9 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   }
 
   @override
-  void dispose() {
-    _tabScroller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // TODO: implement build
+    super.build(context);
     return Scaffold(
       backgroundColor: ColorRes.mainColor,
       body: Material(
@@ -148,24 +138,6 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
-                          Consumer(builder: (context, ref, _) {
-                            var desData = ref.watch(_desDataProvider);
-                            if (desData.valueOrNull != null &&
-                                desData.valueOrNull?.playList.isNotEmpty ==
-                                    true) {
-                              return IconButton(
-                                  onPressed: () {
-                                    _showDownLoadDialog(
-                                        context, ref, desData.value);
-                                  },
-                                  icon: const Icon(
-                                    Icons.download,
-                                    color: Colors.white,
-                                  ));
-                            } else {
-                              return Container();
-                            }
-                          })
                         ],
                       ),
                     ),
@@ -205,33 +177,6 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                                             widget.score,
                                             style: const TextStyle(
                                                 color: Colors.white),
-                                          )),
-                                      Positioned(
-                                          left: 0,
-                                          bottom: 0,
-                                          right: 0,
-                                          child: Container(
-                                            alignment: Alignment.centerRight,
-                                            width: double.infinity,
-                                            height: 20,
-                                            decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                    begin: Alignment.topCenter,
-                                                    end: Alignment.bottomCenter,
-                                                    colors: [
-                                                  Colors.black12.withAlpha(30),
-                                                  Colors.black12.withAlpha(125)
-                                                ])),
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 4.0),
-                                              child: Text(
-                                                widget.update,
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12.0),
-                                              ),
-                                            ),
                                           )),
                                     ],
                                   ),
@@ -358,25 +303,26 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
   Widget buildPlayList(List<HjDesPlayData> list) {
     return Consumer(builder: (context, ref, _) {
       var parentIndex = ref.watch(tabSelect);
-      var minSize = MediaQuery.of(context).size.width / 4.0;
-      if(list.isEmpty || parentIndex > list.length - 1){
+      var minSize = MediaQuery.of(context).size.width / 3.0;
+      if (list.isEmpty || parentIndex > list.length - 1) {
         return Container();
       }
       var element = list[parentIndex];
       return Wrap(
-        children: buildChild(minSize,element, element.title),
+        children: buildChild(minSize, element, element.title),
       );
     });
   }
 
-  List<Widget> buildChild(double minSize,HjDesPlayData data, String parentTitle) {
+  List<Widget> buildChild(
+      double minSize, HjDesPlayData data, String parentTitle) {
     var list = <Widget>[];
     for (int index = 0; index < data.chapterList.length; index++) {
       var element = data.chapterList[index];
       debugPrint("minSize = $minSize");
       list.add(
         SizedBox(
-          width: min(100.0, minSize),
+          width: min(110.0, minSize),
           height: 55.0,
           child: Stack(
             children: [
@@ -406,7 +352,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
                       var playUrl = getPlayUrlsCache(widget.url, element.url);
                       if (playUrl == null || playUrl.isEmpty) {
                         LoadingDialogHelper.showLoading(context);
-                        playUrl = await HjApi.getPlayUrl(element.url);
+                        playUrl = await FactoryApi.getPlayUrl(element.url);
                         updateChapterPlayUrls(widget.url, element.url, playUrl);
                         if (!mounted) return;
                         LoadingDialogHelper.dismissLoading(context);
@@ -445,24 +391,7 @@ class _HjDesPageState extends ConsumerState<HjDesPage> {
     return list;
   }
 
-  void _showDownLoadDialog(
-      BuildContext context, WidgetRef ref, HjDesData? value) {
-    if (value != null) {
-      var downLoadChapter = getDownLoadChapters(widget.url);
-      var chapters = value.playList.first.chapterList
-          .map((e) => DownloadChapter(
-              e.title,
-              e.url,
-              downLoadChapter
-                      .where((element) => element.url == e.url)
-                      .firstOrNull
-                      ?.localCacheFileDir ??
-                  ""))
-          .toList();
-      var downLoadBean =
-          DownLoadBean(widget.logo, widget.title, widget.url, chapters);
-      debugPrint("$downLoadBean");
-      showDownloadBottomModel(context, ref, HAN_JU_VIDEO_TYPE,downLoadBean);
-    }
-  }
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
