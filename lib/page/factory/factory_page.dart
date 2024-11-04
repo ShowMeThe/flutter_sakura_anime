@@ -249,6 +249,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
     return const Padding(
       padding: EdgeInsets.only(left: 8.0, right: 8.0),
       child: Card(
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(12.0))),
         child: FadeShimmer(

@@ -187,57 +187,56 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
               itemExtent: 150,
               itemSnapping: true,
               shrinkExtent: 75,
+              onTap: (index){
+                var item = childList[index];
+                Navigator.of(context).push(FadeRoute(MjDesPage(
+                  item.img,
+                  item.url,
+                  item.title,
+                  heroTag: _heroTag,
+                )));
+              },
               children: childList.map((item) {
                 return Padding(
                   padding:
                       const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(FadeRoute(MjDesPage(
-                        item.img,
-                        item.url,
-                        item.title,
-                        heroTag: _heroTag,
-                      )));
-                    },
-                    child: SizedBox(
-                        width: 90,
-                        height: double.infinity,
-                        child: Card(
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12.0))),
-                          clipBehavior: Clip.antiAlias,
-                          child: Stack(
-                            children: [
-                              Hero(
-                                  tag: item.img + _heroTag,
-                                  child: showImage(
-                                      item.img, double.infinity, 150)),
-                              Positioned.fill(
-                                  top: 130,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.black.withAlpha(45)),
-                                    child: Text(
-                                      item.chapter,
-                                      textAlign: TextAlign.right,
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  )),
-                              Positioned.fill(
-                                  left: 0,
-                                  top: 150,
-                                  child: ColorContainer(
-                                    url: item.img,
-                                    title: item.title,
-                                    baseColor: ColorRes.mainColor,
-                                  )),
-                            ],
-                          ),
-                        )),
-                  ),
+                  child: SizedBox(
+                    width: 90,
+                    height: double.infinity,
+                    child: Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(12.0))),
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        children: [
+                          Hero(
+                              tag: item.img + _heroTag,
+                              child: showImage(
+                                  item.img, double.infinity, 150)),
+                          Positioned.fill(
+                              top: 130,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.black.withAlpha(45)),
+                                child: Text(
+                                  item.chapter,
+                                  textAlign: TextAlign.right,
+                                  style:
+                                  const TextStyle(color: Colors.white),
+                                ),
+                              )),
+                          Positioned.fill(
+                              left: 0,
+                              top: 150,
+                              child: ColorContainer(
+                                url: item.img,
+                                title: item.title,
+                                baseColor: ColorRes.mainColor,
+                              )),
+                        ],
+                      ),
+                    )),
                 );
               }).toList()),
         ));

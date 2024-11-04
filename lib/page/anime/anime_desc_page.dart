@@ -161,22 +161,22 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               )),
                           Row(
                             children: [
-                              Consumer(builder: (context,ref,_){
-                                var playData = ref.watch(_playDataProvider);
-                                if(playData != null){
-                                  var list = playData.animeDramas;
-                                  return IconButton(
-                                      onPressed: () {
-                                        _showDownLoadDialog(context, ref, list);
-                                      },
-                                      icon: const Icon(
-                                        Icons.download,
-                                        color: Colors.white,
-                                      ));
-                                }else{
-                                  return Container();
-                                }
-                              }),
+                              // Consumer(builder: (context,ref,_){
+                              //   var playData = ref.watch(_playDataProvider);
+                              //   if(playData != null){
+                              //     var list = playData.animeDramas;
+                              //     return IconButton(
+                              //         onPressed: () {
+                              //           _showDownLoadDialog(context, ref, list);
+                              //         },
+                              //         icon: const Icon(
+                              //           Icons.download,
+                              //           color: Colors.white,
+                              //         ));
+                              //   }else{
+                              //     return Container();
+                              //   }
+                              // }),
                               Consumer(builder: (context, ref, _) {
                                 var localCollect =
                                     ref.watch(_isCollectFuture).value;
@@ -496,7 +496,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                           Navigator.of(context)
                               .push(FadeRoute(NewPlayPage(playUrl, title)));
                         },
-                        child: Text(element.list[index].title!)),
+                        child: FittedBox(child: Text(element.list[index].title!))),
                   ),
                   Consumer(builder: (context, ref, _) {
                     var localHistory = ref.watch(_localHisFuture);

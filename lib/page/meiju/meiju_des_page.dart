@@ -109,24 +109,24 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
-                          Consumer(builder: (context, ref, _) {
-                            var desData = ref.watch(_desDataProvider);
-                            if (desData.valueOrNull != null &&
-                                desData.valueOrNull?.playList.isNotEmpty ==
-                                    true) {
-                              return IconButton(
-                                  onPressed: () {
-                                    _showDownLoadDialog(
-                                        context, ref, desData.value);
-                                  },
-                                  icon: const Icon(
-                                    Icons.download,
-                                    color: Colors.white,
-                                  ));
-                            } else {
-                              return Container();
-                            }
-                          })
+                          // Consumer(builder: (context, ref, _) {
+                          //   var desData = ref.watch(_desDataProvider);
+                          //   if (desData.valueOrNull != null &&
+                          //       desData.valueOrNull?.playList.isNotEmpty ==
+                          //           true) {
+                          //     return IconButton(
+                          //         onPressed: () {
+                          //           _showDownLoadDialog(
+                          //               context, ref, desData.value);
+                          //         },
+                          //         icon: const Icon(
+                          //           Icons.download,
+                          //           color: Colors.white,
+                          //         ));
+                          //   } else {
+                          //     return Container();
+                          //   }
+                          // })
                         ],
                       ),
                     ),
@@ -337,7 +337,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           Navigator.of(context)
                               .push(FadeRoute(NewPlayPage(playUrl, title)));
                         },
-                        child: Text(element.chapterList[index].title)),
+                        child: FittedBox(child: Text(element.chapterList[index].title))),
                   ),
                   Consumer(builder: (context, ref, _) {
                     var localHistory = ref.watch(_localHisFuture);

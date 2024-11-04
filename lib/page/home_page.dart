@@ -2,7 +2,6 @@
 
 import 'package:flutter_sakura_anime/page/anime/anime_home_page.dart';
 import 'package:flutter_sakura_anime/page/factory/factory_page.dart';
-import 'package:flutter_sakura_anime/page/hanju/hanju_page.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,18 +24,16 @@ class _HomePageState extends ConsumerState<HomePage> {
       StateProvider.autoDispose<int>((_) => 0);
   final _pages = [
     const AnimeHomePage(),
-    const HanjuPage(),
     const MeijuHomePage(),
     const FactoryPage(),
-    const DownLoadPage()
+    //const DownLoadPage()
   ];
 
   final _titles = [
     "动漫",
-    "日/韩剧",
     "美剧",
     "厂长",
-    "下载"
+    // "下载"
   ];
 
   void onTap(int index) {
@@ -104,17 +101,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                       icon: ImageIcon(AssetImage(A.assets_ic_sakura_flower)),
                       label: _titles[0]),
                   BottomNavigationBarItem(
-                      icon: ImageIcon(AssetImage(A.assets_ic_hanju)),
+                      icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
                       label: _titles[1]),
                   BottomNavigationBarItem(
-                      icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
-                      label: _titles[2]),
-                  BottomNavigationBarItem(
                       icon: ImageIcon(AssetImage(A.assets_ic_more_movie)),
-                      label: _titles[3]),
-                  BottomNavigationBarItem(
-                      icon: const Icon(Icons.download),
-                      label: _titles[4]),
+                      label: _titles[2]),
+                  // BottomNavigationBarItem(
+                  //     icon: const Icon(Icons.download),
+                  //     label: _titles[3]),
                 ]);
           }),
         ),

@@ -8,7 +8,6 @@ import 'package:flutter_sakura_anime/util/download.dart';
 import 'package:flutter_sakura_anime/util/download_dialog.dart';
 
 import '../../util/base_export.dart';
-import '../../util/hj_api.dart';
 import '../../widget/color_size_box.dart';
 
 class DownLoadPage extends ConsumerStatefulWidget {

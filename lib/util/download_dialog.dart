@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter_sakura_anime/util/download.dart';
+import 'package:flutter_sakura_anime/util/factory_api.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'base_export.dart';
-import 'hj_api.dart';
 
 part 'download_dialog.g.dart';
 
@@ -102,7 +102,7 @@ void showDownloadBottomModel(
                 child: Container(),
               ),
               GridView.count(
-                crossAxisCount: 4,
+                crossAxisCount: 3,
                 shrinkWrap: true,
                 childAspectRatio: 1.5,
                 children: buildChild(downLoadBean.chapter, onDownLoadProvider,
@@ -138,10 +138,10 @@ void _addBackMission(BuildContext context,
   var playUrl = getPlayUrlsCache(showUrl, chapter.url);
   if (playUrl == null) {
     LoadingDialogHelper.showLoading(context);
-    if(videoType == HAN_JU_VIDEO_TYPE){
-      playUrl = await HjApi.getPlayUrl(chapter.url);
-    }else if(videoType == MEI_JU_VIDEO_TYPE){
+    if(videoType == MEI_JU_VIDEO_TYPE){
       playUrl = await MeiJuApi.getPlayUrl(chapter.url);
+    }else if(videoType == HAN_JU_VIDEO_TYPE){
+      playUrl = await FactoryApi.getPlayUrl(chapter.url);
     }else{
       playUrl = await Api.getAnimePlayUrl(chapter.url);
     }
@@ -187,7 +187,7 @@ List<Widget> buildChild(
                       toast("已存在下载列表");
                     }
                   },
-                  child: Text(e.chapter)),
+                  child: FittedBox(child: Text(e.chapter))),
               showDownIcon(showIcon)
             ],
           );

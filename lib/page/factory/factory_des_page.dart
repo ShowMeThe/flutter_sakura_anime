@@ -5,6 +5,7 @@ import 'package:flutter_sakura_anime/util/factory_api.dart';
 
 import '../../bean/hanju_des_data.dart';
 import '../../util/base_export.dart';
+import '../../util/download_dialog.dart';
 import '../../widget/error_view.dart';
 import '../../widget/fold_text.dart';
 import '../play_page_2.dart';
@@ -138,6 +139,24 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
                                 Icons.arrow_back,
                                 color: Colors.white,
                               )),
+                          // Consumer(builder: (context, ref, _) {
+                          //   var desData = ref.watch(_desDataProvider);
+                          //   if (desData.valueOrNull != null &&
+                          //       desData.valueOrNull?.playList.isNotEmpty ==
+                          //           true) {
+                          //     return IconButton(
+                          //         onPressed: () {
+                          //           _showDownLoadDialog(
+                          //               context, ref, desData.value);
+                          //         },
+                          //         icon: const Icon(
+                          //           Icons.download,
+                          //           color: Colors.white,
+                          //         ));
+                          //   } else {
+                          //     return Container();
+                          //   }
+                          // })
                         ],
                       ),
                     ),
@@ -330,7 +349,7 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
                 padding:
                     const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
                 child: MaterialButton(
-                    minWidth: 85,
+                    minWidth: min(110.0, minSize),
                     height: double.infinity,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
@@ -364,7 +383,7 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
                         fromLocal: false,
                       )));
                     },
-                    child: Text(element.title)),
+                    child: FittedBox(child: Text(element.title,))),
               ),
               Consumer(builder: (context, ref, _) {
                 var localHistory = ref.watch(_localHisFuture);
@@ -389,6 +408,28 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
       );
     }
     return list;
+  }
+
+
+  void _showDownLoadDialog(
+      BuildContext context, WidgetRef ref, HjDesData? value) {
+    if (value != null) {
+      var downLoadChapter = getDownLoadChapters(widget.url);
+      var chapters = value.playList.first.chapterList
+          .map((e) => DownloadChapter(
+          e.title,
+          e.url,
+          downLoadChapter
+              .where((element) => element.url == e.url)
+              .firstOrNull
+              ?.localCacheFileDir ??
+              ""))
+          .toList();
+      var downLoadBean =
+      DownLoadBean(widget.logo, widget.title, widget.url, chapters);
+      debugPrint("$downLoadBean");
+      showDownloadBottomModel(context, ref, HAN_JU_VIDEO_TYPE,downLoadBean);
+    }
   }
 
   @override

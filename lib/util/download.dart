@@ -79,17 +79,41 @@ class Download {
     if (!tempDir.existsSync()) {
       tempDir.createSync(recursive: true);
     }
-    var m3u8File = File("${tempDir.path}/play.m3u8");
-    if (!m3u8File.existsSync()) {
-      var dio = HttpClient.get3();
-      var response = await dio.download(url, m3u8File.path);
-      if (response.statusCode != 200) {
-        _postDownloadError(url);
-        return;
+    if(url.endsWith("m3u8")){
+      var m3u8File = File("${tempDir.path}/play.m3u8");
+      if (!m3u8File.existsSync()) {
+        var dio = HttpClient.get3();
+        var response = await dio.download(url, m3u8File.path);
+        if (response.statusCode != 200) {
+          _postDownloadError(url);
+          return;
+        }
       }
+      downM3u8(chapterUrl, url, tempDir, m3u8File);
+    }else{
+      var fileName = DateTime.timestamp();
+      var mp4File = File("${tempDir.path}/$fileName.mp4");
+      downMp4(chapterUrl,url,mp4File);
     }
-    downM3u8(chapterUrl, url, tempDir, m3u8File);
   }
+
+  static void downMp4(String chapterUrl, String url,File targetFile) async{
+    debugPrint("downMp4 $url");
+    var dio = HttpClient.get3();
+    var response = await dio.download(url, targetFile.path,onReceiveProgress: (receive,total){
+        if(total != -1){
+          var progress = receive * 1.0 / total;
+          if (_downFunction != null) {
+            _downFunction!(chapterUrl, progress);
+          }
+        }
+    });
+    if (response.statusCode != 200) {
+      _postDownloadError(url);
+      return;
+    }
+  }
+
 
   static void downM3u8(String chapterUrl, String url, Directory segmentsDir,
       File m3u8File) async {

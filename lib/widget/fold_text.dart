@@ -74,7 +74,7 @@ class _FoldTextViewState extends State<FoldTextView> {
       alignment: Alignment.centerRight,
       decoration: BoxDecoration(
           gradient: LinearGradient(
-              colors: [_bgColor.withOpacity(0.0), _bgColor],
+              colors: [_bgColor.withValues(alpha: 0.0), _bgColor],
               end: const FractionalOffset(0.5, 0.5))),
       width: _kMoreWidth,
       child: Text((_temLines > _maxLines) ? '展开' : '收起',
