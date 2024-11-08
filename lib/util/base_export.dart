@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+export 'package:auto_route/auto_route.dart';
+export 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import 'base_export.dart';
-
+export 'package:elegant_spring_animation/elegant_spring_animation.dart';
 export 'package:flutter_sakura_anime/util/http_client.dart';
 export 'package:flutter/material.dart';
 export 'package:html/parser.dart' show parse;

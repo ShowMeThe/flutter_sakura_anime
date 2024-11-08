@@ -48,6 +48,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
         FutureProvider.autoDispose<FactoryTabList>((_) async {
       var url = ref.watch(_tabSelectProvider);
       var result = await FactoryApi.getTagPageData(url, nowPage);
+      debugPrint("run ${result.list.first.title}");
       return result;
     });
   }
@@ -59,6 +60,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
         if (!_isLoading && _canLoadMore) {
           nowPage++;
           ref.invalidate(_tabSelectFutureProvider);
+          _isLoading = true;
         }
       }
     }
@@ -99,11 +101,11 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
                 controller: _controller,
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
-                   SliverToBoxAdapter(
-                     child: Wrap(
-                       children: _buildChip(tabs),
-                     ),
-                   )
+                    SliverToBoxAdapter(
+                      child: Wrap(
+                        children: _buildChip(tabs),
+                      ),
+                    )
                   ];
                 },
                 body: Consumer(builder: (context, ref, _) {
@@ -184,7 +186,8 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
                                                             .withAlpha(45)),
                                                     child: Text(
                                                       _movies[index].score,
-                                                      textAlign: TextAlign.right,
+                                                      textAlign:
+                                                          TextAlign.right,
                                                       style: const TextStyle(
                                                           color: Colors.white),
                                                     ),
@@ -250,6 +253,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
       padding: EdgeInsets.only(left: 8.0, right: 8.0),
       child: Card(
         clipBehavior: Clip.antiAlias,
+        elevation: 0,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(12.0))),
         child: FadeShimmer(

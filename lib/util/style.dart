@@ -4,23 +4,14 @@ import 'dart:ui';
 
 import 'base_export.dart';
 
+
+SystemUiOverlayStyle? _overlayStyle;
 SystemUiOverlayStyle setSystemUi(){
-  var brightness = PlatformDispatcher.instance.platformBrightness;
-  SystemUiOverlayStyle style;
-  if(brightness == Brightness.light){
-    style = const SystemUiOverlayStyle(
+  _overlayStyle ??= const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white);
-    SystemChrome.setSystemUIOverlayStyle(style);
-  }else{
-    style = const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.light,
         systemNavigationBarIconBrightness: Brightness.light,
         systemNavigationBarColor: Colors.black);
-    SystemChrome.setSystemUIOverlayStyle(style);
-  }
-  return style;
+  SystemChrome.setSystemUIOverlayStyle(_overlayStyle!);
+  return _overlayStyle!;
 }

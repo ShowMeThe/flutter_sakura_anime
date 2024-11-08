@@ -33,15 +33,22 @@ class FactoryApi {
 
   static Future<FactoryTabList> getTagPageData(String url, int page) async {
     var requestUrl = baseUrl + url;
+    if(page > 1){
+      requestUrl += "/page/$page";
+    }
+    debugPrint("page url = $requestUrl");
     var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace) => Future.error("$error", stackTrace));
+        .onError((error, stackTrace){
+           debugPrint("error = $error");
+          return Future.error("$error", stackTrace);
+    });
+    var canLoadMore = true;
+    var list = <FactoryTabListBean>[];
     var document = parse(future.data);
     var mainRowList =
         document.getElementsByClassName("bt_img mi_ne_kd mrb").first;
     var liRowList = mainRowList.querySelectorAll("ul > li");
-    var canLoadMore = true;
-    var list = <FactoryTabListBean>[];
     for (var li in liRowList) {
       var eleA = li.querySelector("a");
       if (eleA != null) {
@@ -54,9 +61,10 @@ class FactoryApi {
       }
     }
     var divPage =
-        mainRowList.querySelector("div.pagenavi_txt")?.querySelectorAll("a");
+    mainRowList.querySelector("div.pagenavi_txt")?.querySelectorAll("a");
     var lastIndex = divPage?.lastOrNull?.attributes["title"];
     canLoadMore = lastIndex == "跳转到最后一页";
+    debugPrint("page list = ${list.first.title}");
     return FactoryTabList(canLoadMore, list);
   }
 

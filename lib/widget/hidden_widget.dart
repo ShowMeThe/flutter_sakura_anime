@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 
+import '../util/base_export.dart';
+
 class HiddenController {
   HiddenController._();
 
@@ -56,28 +58,32 @@ class ScrollHidden extends StatefulWidget {
 
 class _ScrollHiddenState extends State<ScrollHidden>
     with SingleTickerProviderStateMixin implements OnScrollChange{
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  bool _isAnimating = false;
+
+  late final double _kBounce = 0.4;
+  late final int _kDuration = 800;
+  late final AnimationController _animationController = AnimationController(
+      vsync: this, duration: Duration(milliseconds: _kDuration));
+  late final ElegantSpring _elegantCurve = ElegantSpring(bounce: _kBounce);
+  late final CurvedAnimation _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: _elegantCurve,
+      reverseCurve: _elegantCurve.flipped);
 
   @override
   void initState() {
     super.initState();
     HiddenController.instant._addHiddenListener(this);
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 350));
-    _animation = Tween(begin: 1.0, end: 0.0).animate(_controller);
-    _controller.forward();
-    _controller.addListener(() {
+
+    _animationController.drive(Tween(begin: 1.0, end: 0.5));
+    _animationController.forward();
+    _animationController.addListener(() {
       setState(() {});
     });
-    _controller.addStatusListener((status) {
+    _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
-        _isAnimating = false;
       } else if (status == AnimationStatus.forward ||
           status == AnimationStatus.reverse) {
-        _isAnimating = true;
       }
     });
   }
@@ -87,22 +93,22 @@ class _ScrollHiddenState extends State<ScrollHidden>
     // TODO: implement dispose
     super.dispose();
     HiddenController.instant._removeHiddenListener(this);
-    _controller.dispose();
+    _animationController.dispose();
   }
 
   @override
   void onScrollChange(double scroll) {
     if (scroll < widget.slideSize) {
-      _controller.forward();
+      _animationController.forward();
     } else {
-      _controller.reverse();
+      _animationController.reverse();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      heightFactor: _controller.value,
+      heightFactor: _animation.value.clamp(0.0, double.infinity),
       alignment: const Alignment(0, -1),
       child: widget.child,
     );

@@ -72,7 +72,8 @@ dependencies:
 
   video_player: ^2.6.1
   auto_size_text: ^3.0.0
-
+  auto_route: ^9.2.2
+  elegant_spring_animation: ^2.0.2
 
 dependency_overrides:
   video_player_android:
@@ -83,6 +84,7 @@ dependency_overrides:
 
 
 dev_dependencies:
+  auto_route_generator: ^9.0.0
   build_runner: ^2.3.3
   json_serializable: ^6.7.1
   flutter_test:
@@ -108,9 +110,9 @@ flutter:
   assets:
     - assets/
   fonts:
-    - family: "MaokenAssortedSansLite"
+    - family: "jiangxizhuokai"
       fonts:
-        - asset: fonts/MaokenAssortedSansLite.ttf
+        - asset: fonts/jiangxizhuokai.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

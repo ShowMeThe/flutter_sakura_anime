@@ -11,7 +11,7 @@ DownloadChapter _$DownloadChapterFromJson(Map<String, dynamic> json) =>
       json['chapter'] as String,
       json['url'] as String,
       json['localCacheFileDir'] as String,
-    )..state = json['state'] as int;
+    )..state = (json['state'] as num).toInt();
 
 Map<String, dynamic> _$DownloadChapterToJson(DownloadChapter instance) =>
     <String, dynamic>{
