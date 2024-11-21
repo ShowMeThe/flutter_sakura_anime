@@ -296,7 +296,7 @@ class _MjSearchPageState extends ConsumerState<MjSearchPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Hero(
                       tag: item.logo + heroTag,
-                      child: showImage(item.logo, 150, double.infinity)),
+                      child: showImage(context,item.logo, 150, double.infinity)),
                 ),
                 Expanded(
                     child: Padding(

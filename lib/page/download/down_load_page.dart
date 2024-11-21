@@ -154,7 +154,7 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: showImage(item.imageUrl, 150, double.infinity),
+              child: showImage(context,item.imageUrl, 150, double.infinity),
             ),
             Expanded(
                 child: Padding(

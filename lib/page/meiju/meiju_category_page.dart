@@ -213,7 +213,7 @@ class _MjCategoryState extends ConsumerState<MjCategoryPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Hero(
                       tag: item.logo + widget.heroTag,
-                      child: showImage(item.logo, 150, double.infinity)),
+                      child: showImage(context,item.logo, 150, double.infinity)),
                 ),
                 Expanded(
                     child: Padding(

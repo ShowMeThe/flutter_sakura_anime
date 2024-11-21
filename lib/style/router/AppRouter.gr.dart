@@ -11,7 +11,7 @@
 import 'package:auto_route/auto_route.dart' as _i4;
 import 'package:flutter_sakura_anime/style/page/AnimeSplashPage.dart' as _i1;
 import 'package:flutter_sakura_anime/style/page/MovieHomePage.dart' as _i2;
-import 'package:flutter_sakura_anime/style/page/NeflexHomePage.dart' as _i3;
+import 'package:flutter_sakura_anime/style/page/NetflexHomePage.dart' as _i3;
 
 /// generated route for
 /// [_i1.AnimeSplashPage]

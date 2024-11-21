@@ -11,9 +11,10 @@ class FactoryTab{
 class FactoryTabList{
 
   bool loadMore;
+  int page;
   List<FactoryTabListBean> list;
 
-  FactoryTabList(this.loadMore, this.list);
+  FactoryTabList(this.loadMore, this.page,this.list);
 
 }
 

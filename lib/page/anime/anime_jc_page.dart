@@ -123,7 +123,7 @@ class _AnimeJcPageState extends ConsumerState<AnimeJcPage> {
                                     children: [
                                       Hero(
                                           tag: _movies[index].logo! + _HeroTag,
-                                          child: showImage(
+                                          child: showImage(context,
                                             _movies[index].logo!,
                                             double.infinity,
                                             150,

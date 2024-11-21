@@ -1,14 +1,15 @@
 import 'dart:ui' as ui;
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sakura_anime/util/LruCache.dart';
 import 'package:palette_generator/palette_generator.dart';
+
 
 // ignore: must_be_immutable
 class ColorContainer extends StatefulWidget {
   late String url;
   late String title;
   late Color baseColor;
-
   ColorContainer({this.url = "",
     this.baseColor = Colors.white,
     this.title = "",
@@ -25,8 +26,10 @@ class _ColorContainerState extends State<ColorContainer>
   late AnimationController _fadeController;
   late Animation _animation;
   Color _placeColor = Colors.white;
-  Color _placeTextColor = Colors.black;
+  Color _placeTextColor = Colors.white;
   var isDispose = false;
+
+  static final staticCache = LruCache<String,Color>(100);
 
   Future getPaletteColor(ui.Image image) async {
     var rectWidth = image.width / 3.0;
@@ -86,8 +89,13 @@ class _ColorContainerState extends State<ColorContainer>
   void initState() {
     super.initState();
     isDispose = false;
-    _placeColor = widget.baseColor;
-    initAnimationControllerIfLate();
+    var color = staticCache.get(widget.url);
+    if(color != null){
+      _placeColor = color;
+    }else{
+      _placeColor = widget.baseColor;
+      initAnimationControllerIfLate();
+    }
   }
 
   @override
@@ -98,9 +106,9 @@ class _ColorContainerState extends State<ColorContainer>
   }
 
   bool checkIsBlack(Color color) {
-    var red = color.red;
-    var green = color.green;
-    var blue = color.blue;
+    var red = color.r;
+    var green = color.g;
+    var blue = color.b;
     return red * 0.299 + green * 0.587 + blue * 0.114 < 192;
   }
 

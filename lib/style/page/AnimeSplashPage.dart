@@ -12,7 +12,7 @@ class AnimeSplashPage extends StatefulWidget {
 }
 
 class _AnimeSplashPageState extends State<AnimeSplashPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin,WidgetsBindingObserver {
   late final double _kBounce = 0.8;
   late final int _kDuration = 1;
   late final AnimationController _animationController = AnimationController(
@@ -36,13 +36,35 @@ class _AnimeSplashPageState extends State<AnimeSplashPage>
     _animation.addListener(() {
       setState(() {});
     });
-    _animationController.forward();
+    var isStart = _animationController.isAnimating;
+    if(!isStart){
+      _animationController.forward();
+    }
+
   }
+
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   // TODO: implement didChangeAppLifecycleState
+  //   super.didChangeAppLifecycleState(state);
+  //   debugPrint("go to run $state");
+  //   switch(state){
+  //     case AppLifecycleState.resumed:
+  //       break;
+  //     case AppLifecycleState.detached:
+  //     case AppLifecycleState.inactive:
+  //     case AppLifecycleState.hidden:
+  //     case AppLifecycleState.paused:
+  //       break;
+  //   }
+  // }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     _animationController.dispose();
   }
 

@@ -26,7 +26,7 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage>{
   ];
 
   final _titles = [
-    "电视剧",
+    "厂长资源",
     "电视剧",
   ];
 
@@ -41,13 +41,13 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage>{
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _pageController.addListener(
-            () => setState(() {
-              pageOffset = _pageController.page!;
-            }),
-      );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
   }
 
   @override
@@ -57,19 +57,7 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage>{
           child: Scaffold(
             body: PageView.builder(
               itemBuilder: (BuildContext context, int index) {
-                double angleY = (pageOffset - index).abs();
-                var matrix4 = Matrix4.identity();
-                matrix4..setEntry(3, 2, 0.001)
-                        ..rotateY(angleY);
-
-                if (index == pageOffset.floor()) {
-                  //当前的item
-                } else if (index == pageOffset.floor() + 1) {
-                  //右边的item
-                } else if (index == pageOffset.floor() - 1) {
-                } else {
-                }
-                return Transform(transform: matrix4,child: _pages[index],);
+                return  _pages[index];
               },
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _pages.length,

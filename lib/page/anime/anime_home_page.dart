@@ -237,7 +237,7 @@ class _HomePageState extends ConsumerState<AnimeHomePage>
                           children: [
                             Hero(
                               tag: childList[index].img!,
-                              child: showImage(
+                              child: showImage(context,
                                 childList[index].img!,
                                 double.infinity,
                                 150,

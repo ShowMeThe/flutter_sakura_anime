@@ -173,7 +173,7 @@ class _FactoryPageState extends ConsumerState<FactoryPage>
                                               Hero(
                                                   tag: _movies[index].img +
                                                       heroTag,
-                                                  child: showImage(
+                                                  child: showImage(context,
                                                     _movies[index].img,
                                                     double.infinity,
                                                     150,

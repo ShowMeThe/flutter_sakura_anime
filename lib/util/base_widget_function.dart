@@ -1,12 +1,15 @@
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import '../widget/ball_cliprotate_pulse.dart';
 
-Widget showImage(String url, double width, double height,
+Widget showImage(BuildContext context,String url, double width, double height,
     {BoxFit boxFit = BoxFit.cover}) {
   var headers = <String,String>{};
   if(url.contains(Api.newBaseRefer)){
     headers["Referer"] = Api.newBaseUrl;
   }
+  var theme = Theme.of(context);
+  var backgroundColor = theme.primaryColor;
+  var progressColor = theme.colorScheme.primary;
   return ExtendedImage.network(
     url,
     headers: headers,
@@ -18,21 +21,21 @@ Widget showImage(String url, double width, double height,
       switch (state.extendedImageLoadState) {
         case LoadState.loading:
           return Container(
-            color: ColorRes.mainColor,
+            color: backgroundColor,
             width: width,
             height: height,
             child: RepaintBoundary(
-              child: BallClipRotatePulse(color: ColorRes.pink50,),
+              child: BallClipRotatePulse(color: progressColor,),
             ),
           );
         case LoadState.failed:
           return Container(
-            color: ColorRes.mainColor,
+            color: backgroundColor,
             width: width,
             height: width,
             child: Image.asset(
               A.assets_ic_photo_error,
-              color: ColorRes.pink50,
+              color: progressColor.withAlpha(125),
             ),
           );
         case LoadState.completed:

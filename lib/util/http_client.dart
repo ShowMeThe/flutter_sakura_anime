@@ -10,8 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'base_export.dart';
 
 class HttpClient {
-  static const USER_AGENT = "Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML,"
-      " like Gecko) Chrome/34.0.1847.114 Mobile Safari/537.36";
+  static const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0";
   static const _baseUrl = "";
   static const _timeOut = Duration(milliseconds: 15000);
   static Dio? _dio;

@@ -13,7 +13,10 @@ class FactoryApi {
   static Future<List<FactoryTab>> getHomeTab() async {
     var future = await (await HttpClient.get())
         .get(baseUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace) => Future.error("$error", stackTrace));
+        .onError((error, stackTrace){
+          debugPrint("getHomeTab error = $error");
+          return Future.error("$error", stackTrace);
+    });
     var document = parse(future.data);
     var submenumi = document.querySelectorAll("ul.submenu_mi");
     var liChild = submenumi.first.querySelectorAll("li");
@@ -43,6 +46,7 @@ class FactoryApi {
            debugPrint("error = $error");
           return Future.error("$error", stackTrace);
     });
+    debugPrint("get result = $requestUrl");
     var canLoadMore = true;
     var list = <FactoryTabListBean>[];
     var document = parse(future.data);
@@ -65,7 +69,7 @@ class FactoryApi {
     var lastIndex = divPage?.lastOrNull?.attributes["title"];
     canLoadMore = lastIndex == "跳转到最后一页";
     debugPrint("page list = ${list.first.title}");
-    return FactoryTabList(canLoadMore, list);
+    return FactoryTabList(canLoadMore, page, list);
   }
 
    static Future<String> getPlayUrl(String playUrl) async {

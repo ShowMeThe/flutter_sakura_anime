@@ -167,7 +167,7 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
                           children: [
                             Hero(
                                 tag: widget.logo + widget.heroTag,
-                                child: showImage(
+                                child: showImage(context,
                                     widget.logo, double.infinity, 200,
                                     boxFit: BoxFit.cover)),
                             Consumer(builder: (context, ref, _) {

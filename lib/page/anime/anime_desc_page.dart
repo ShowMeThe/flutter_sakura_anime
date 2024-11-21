@@ -236,7 +236,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                               } else {
                                 return Hero(
                                     tag: logo + widget.heroTag,
-                                    child: showImage(logo, double.infinity, 200,
+                                    child: showImage(context,logo, double.infinity, 200,
                                         boxFit: BoxFit.cover));
                               }
                             }),
@@ -563,7 +563,7 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             topLeft: Radius.circular(8.0)),
                         child: Hero(
                             tag: list[index].logo! + _HeroTag,
-                            child: showImage(
+                            child: showImage(context,
                               list[index].logo!,
                               double.infinity,
                               150,

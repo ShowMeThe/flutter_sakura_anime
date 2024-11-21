@@ -83,7 +83,7 @@ class _AnimeCollectPage extends ConsumerState<AnimeCollectPage> {
                                 children: [
                                   Hero(
                                       tag: _movies[index].logo + _HeroTag,
-                                      child: showImage(_movies[index].logo,
+                                      child: showImage(context,_movies[index].logo,
                                           double.infinity, 150)),
                                   Expanded(
                                       child: ColorContainer(

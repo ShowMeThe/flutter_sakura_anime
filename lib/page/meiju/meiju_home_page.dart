@@ -212,7 +212,7 @@ class _MeiJuHomePageState extends ConsumerState<MeijuHomePage>
                         children: [
                           Hero(
                               tag: item.img + _heroTag,
-                              child: showImage(
+                              child: showImage(context,
                                   item.img, double.infinity, 150)),
                           Positioned.fill(
                               top: 130,
