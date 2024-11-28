@@ -1,34 +1,24 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_sakura_anime/style/import/PageImport.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../util/base_export.dart';
 
 @RoutePage()
-class MovieHomePage extends ConsumerStatefulWidget{
+class MovieHomePage extends ConsumerStatefulWidget {
   const MovieHomePage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MovieHomePageState();
-
 }
 
-class _MovieHomePageState extends ConsumerState<MovieHomePage>{
-
-
+class _MovieHomePageState extends ConsumerState<MovieHomePage> {
   final _pageController = PageController(initialPage: 0, keepPage: true);
   final AutoDisposeStateProvider<int> _pageProvider =
-  StateProvider.autoDispose<int>((_) => 0);
+      StateProvider.autoDispose<int>((_) => 0);
   var pageOffset = 0.0;
 
-  final _pages = [
-    NetflexHomePage(),
-    NetflexHomePage()
-  ];
-
-  final _titles = [
-    "厂长资源",
-    "电视剧",
-  ];
+  final _pages = [const NetflexHomePage(), Container()];
 
   void onTap(int index) {
     _pageController.animateToPage(index,
@@ -52,41 +42,39 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage>{
 
   @override
   Widget build(BuildContext context) {
-      return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: setSystemUi(),
-          child: Scaffold(
-            body: PageView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                return  _pages[index];
-              },
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _pages.length,
-              controller: _pageController,
-              onPageChanged: (index) {
-                onChange(ref, index);
-              },
-            ),
-            bottomNavigationBar: ScrollHidden(
-              child: Consumer(builder: (context, ref, _) {
-                var currentIndex = ref.watch(_pageProvider.notifier).state;
-                return BottomNavigationBar(
-                    showSelectedLabels: true,
-                    showUnselectedLabels: false,
-                    selectedFontSize: 12,
-                    onTap: onTap,
-                    currentIndex: currentIndex,
-                    items: [
-                      BottomNavigationBarItem(
-                          icon: ImageIcon(AssetImage(A.assets_ic_meiju)),
-                          label: _titles[0]),
-                      BottomNavigationBarItem(
-                          icon: ImageIcon(AssetImage(A.assets_ic_more_movie)),
-                          label: _titles[1]),
-                    ]);
-              }),
-            ),
-          ),
-      );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: setSystemUi(),
+      child: Scaffold(
+        body: PageView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            return _pages[index];
+          },
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _pages.length,
+          controller: _pageController,
+          onPageChanged: (index) {
+            onChange(ref, index);
+          },
+        ),
+        bottomNavigationBar: ScrollHidden(
+          child: Consumer(builder: (context, ref, _) {
+            var currentIndex = ref.watch(_pageProvider.notifier).state;
+            return BottomNavigationBar(
+                currentIndex: currentIndex,
+                onTap: onTap,
+                showUnselectedLabels: false,
+                showSelectedLabels: true,
+                items: [
+                  BottomNavigationBarItem(
+                      label: "电视剧",
+                      icon: ImageIcon(AssetImage(A.assets_ic_meiju))),
+                  BottomNavigationBarItem(
+                      label: "番剧",
+                      icon: ImageIcon(AssetImage(A.assets_ic_fanju)))
+                ]);
+          }),
+        ),
+      ),
+    );
   }
-
 }

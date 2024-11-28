@@ -8,7 +8,7 @@ import '../../util/base_export.dart';
 import '../../util/download_dialog.dart';
 import '../../widget/error_view.dart';
 import '../../widget/fold_text.dart';
-import '../play_page_2.dart';
+import '../NewPlayPage.dart';
 
 class FactoryDesPage extends ConsumerStatefulWidget {
   final String logo;
@@ -363,7 +363,7 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
                         Navigator.of(context).push(FadeRoute(NewPlayPage(
                           cacheFile.path,
                           title,
-                          fromLocal: true,
+                          true,
                         )));
                         printLongText("video from local file");
                         return;
@@ -380,7 +380,7 @@ class _FactoryDesPageState extends ConsumerState<FactoryDesPage>
                       Navigator.of(context).push(FadeRoute(NewPlayPage(
                         playUrl,
                         title,
-                        fromLocal: false,
+                        false,
                       )));
                     },
                     child: FittedBox(child: Text(element.title,))),

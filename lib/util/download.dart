@@ -2,15 +2,10 @@ import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_session.dart';
-import 'package:ffmpeg_kit_flutter/log.dart';
-import 'package:ffmpeg_kit_flutter/statistics.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_sakura_anime/util/http_client.dart';
 
@@ -47,13 +42,13 @@ class Download {
   }
 
   static void _postDownloadError(String url) {
-    Fluttertoast.showToast(
-        msg: "$url 下载失败",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.white,
-        textColor: ColorRes.pink600,
-        fontSize: 12.0);
+    // Fluttertoast.showToast(
+    //     msg: "$url 下载失败",
+    //     toastLength: Toast.LENGTH_SHORT,
+    //     gravity: ToastGravity.BOTTOM,
+    //     backgroundColor: Colors.white,
+    //     textColor: ColorRes.pink600,
+    //     fontSize: 12.0);
   }
 
   static Future<String> getDownFileDir(String url) async {
@@ -227,28 +222,28 @@ class Download {
       }
     }
     String cmd = "-i ${text} -c copy ${playFile.path}";
-    FFmpegKit.executeAsync(cmd, (FFmpegSession session) async {
-      debugPrint(
-          'DownloadUtil, FFmpegKit session completeCallback cmd=${session.getCommand()}');
-      var code = await session.getReturnCode();
-      if (code?.isValueSuccess() == true) {
-        for (var element in tlsFiles) {
-          element.delete();
-        }
-        var showUrl = _downLoadUrls[chapterUrl];
-        if (showUrl != null) {
-          updateDownLoadChapterState(showUrl, chapterUrl);
-          if (_downFunction != null) {
-            _downFunction!(chapterUrl, 1);
-          }
-        }
-      }
-    }, (Log log) {
-      debugPrint('DownloadUtil, FFmpegKit log===${log.getMessage()}');
-    }, (Statistics statistics) {
-      debugPrint(
-          'DownloadUtil, FFmpegKit statistics===${statistics.getTime()}');
-    });
+    // FFmpegKit.executeAsync(cmd, (FFmpegSession session) async {
+    //   debugPrint(
+    //       'DownloadUtil, FFmpegKit session completeCallback cmd=${session.getCommand()}');
+    //   var code = await session.getReturnCode();
+    //   if (code?.isValueSuccess() == true) {
+    //     for (var element in tlsFiles) {
+    //       element.delete();
+    //     }
+    //     var showUrl = _downLoadUrls[chapterUrl];
+    //     if (showUrl != null) {
+    //       updateDownLoadChapterState(showUrl, chapterUrl);
+    //       if (_downFunction != null) {
+    //         _downFunction!(chapterUrl, 1);
+    //       }
+    //     }
+    //   }
+    // }, (Log log) {
+    //   debugPrint('DownloadUtil, FFmpegKit log===${log.getMessage()}');
+    // }, (Statistics statistics) {
+    //   debugPrint(
+    //       'DownloadUtil, FFmpegKit statistics===${statistics.getTime()}');
+    // });
   }
 }
 

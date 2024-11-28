@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sakura_anime/bean/down_load_list_item.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
-import 'package:flutter_sakura_anime/page/play_page_2.dart';
+import 'package:flutter_sakura_anime/page/NewPlayPage.dart';
 import 'package:flutter_sakura_anime/util/download.dart';
 import 'package:flutter_sakura_anime/util/download_dialog.dart';
 
@@ -136,11 +136,11 @@ class DownLoadPageState extends ConsumerState<DownLoadPage> {
       onTap: () {
         var mp4File = File("${item.localCacheFileDir}/play.mp4");
         if (mp4File.existsSync()) {
-          Navigator.of(context).push(FadeRoute(NewPlayPage(
-            mp4File.path,
-            item.chapter,
-            fromLocal: true,
-          )));
+          // Navigator.of(context).push(FadeRoute(NewPlayPage(
+          //   mp4File.path,
+          //   item.chapter,
+          //   fromLocal: true,
+          // )));
         }
       },
       child: ColorSizeBox(

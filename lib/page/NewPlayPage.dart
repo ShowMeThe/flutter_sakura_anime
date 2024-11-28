@@ -3,22 +3,22 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:path_provider/path_provider.dart';
 import '../util/base_export.dart';
 
-// ignore: must_be_immutable
+@RoutePage()
 class NewPlayPage extends ConsumerStatefulWidget {
   final String url;
   final String title;
-  var fromLocal = false;
+  final bool fromLocal;
 
-  NewPlayPage(this.url, this.title, {super.key, this.fromLocal = false});
+  const NewPlayPage(this.url, this.title, this.fromLocal, {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _NewPlayState();
 }
 
 class _NewPlayState extends ConsumerState<NewPlayPage> {
-
   late final player = Player(
-      configuration: const PlayerConfiguration(bufferSize: 100 * 1024 * 1024,logLevel: MPVLogLevel.debug));
+      configuration: const PlayerConfiguration(
+          bufferSize: 100 * 1024 * 1024, logLevel: MPVLogLevel.debug));
   late final controller = VideoController(player);
   late final GlobalKey<VideoState> key = GlobalKey<VideoState>();
 
@@ -83,9 +83,7 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
             seekGesture: true,
             bufferingIndicatorBuilder: (context) {
               return CircularProgressIndicator(
-                color: Theme
-                    .of(context)
-                    .primaryColor,
+                color: Theme.of(context).primaryColor,
               );
             },
             topButtonBarMargin: const EdgeInsets.fromLTRB(15.0, 0, 15, 15),
@@ -105,17 +103,10 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
         fullscreen: const MaterialVideoControlsThemeData(),
         child: Center(
           child: SizedBox(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
-            height: MediaQuery
-                .of(context)
-                .size
-                .width * 9.0 / 16.0,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width * 9.0 / 16.0,
             child: Video(key: key, controller: controller),
           ),
         ));
   }
-
 }

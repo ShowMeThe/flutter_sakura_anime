@@ -1,6 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_sakura_anime/page/play_page_2.dart';
+import 'package:flutter_sakura_anime/page/NewPlayPage.dart';
 
 import '../../bean/factory_tab.dart';
 import '../../util/base_export.dart';

@@ -1,8 +1,10 @@
 import 'package:flutter_sakura_anime/style/import/PageImport.dart';
+import 'package:media_kit/media_kit.dart';
 import 'style/router/AppRouter.dart';
 import 'util/base_export.dart';
 
 void main() async {
+  MediaKit.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(ProviderScope(child: MovieApp()));
 }

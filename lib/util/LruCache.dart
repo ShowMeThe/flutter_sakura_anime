@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-
 class LruCache<K, V> {
   final LinkedHashMap<K, V> _map;
   int _size = 0;

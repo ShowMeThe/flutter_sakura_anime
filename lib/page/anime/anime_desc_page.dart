@@ -3,7 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter_sakura_anime/page/play_page.dart';
-import 'package:flutter_sakura_anime/page/play_page_2.dart';
+import 'package:flutter_sakura_anime/page/NewPlayPage.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/error_view.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
@@ -493,8 +493,8 @@ class _AnimeDesPageState extends ConsumerState<AnimeDesPage> {
                             if (!mounted) return;
                             LoadingDialogHelper.dismissLoading(context);
                           }
-                          Navigator.of(context)
-                              .push(FadeRoute(NewPlayPage(playUrl, title)));
+                          // Navigator.of(context)
+                          //     .push(FadeRoute(NewPlayPage(playUrl, title)));
                         },
                         child: FittedBox(child: Text(element.list[index].title!))),
                   ),

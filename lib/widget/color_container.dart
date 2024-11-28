@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -23,17 +24,17 @@ class ColorContainer extends StatefulWidget {
 
 class _ColorContainerState extends State<ColorContainer>
     with TickerProviderStateMixin {
-  late AnimationController _fadeController;
+  AnimationController? _fadeController;
   late Animation _animation;
   Color _placeColor = Colors.white;
   Color _placeTextColor = Colors.white;
   var isDispose = false;
 
-  static final staticCache = LruCache<String,Color>(100);
+  static final staticCache = LruCache<String,Color>(300);
 
   Future getPaletteColor(ui.Image image) async {
-    var rectWidth = image.width / 3.0;
-    var rectHeight = image.height / 3.0;
+    var rectWidth = min(image.width / 3.0, 100.0);
+    var rectHeight = min(image.height / 3.0, 100.0);
     var color = await PaletteGenerator.fromImage(image,
         region: Rect.fromCenter(
             center: Offset(image.width / 2.0, image.height / 2.0),
@@ -45,6 +46,7 @@ class _ColorContainerState extends State<ColorContainer>
         color.darkVibrantColor ??
         color.darkMutedColor;
     if (maskColor != null) {
+      staticCache.put(widget.url,maskColor.color);
       var isBlack = checkIsBlack(maskColor.color);
       Color blackTextColor;
       if (isBlack) {
@@ -54,10 +56,13 @@ class _ColorContainerState extends State<ColorContainer>
       }
       _placeTextColor = blackTextColor;
 
-      _animation = ColorTween(begin: widget.baseColor, end: maskColor.color)
-          .animate(_fadeController);
-      if (!isDispose) {
-        _fadeController.forward();
+      var controller = _fadeController;
+      if(controller != null){
+        _animation = ColorTween(begin: widget.baseColor, end: maskColor.color)
+            .animate(controller);
+        if (!isDispose) {
+          controller.forward();
+        }
       }
     }
   }
@@ -66,11 +71,14 @@ class _ColorContainerState extends State<ColorContainer>
     _fadeController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
     _addImageLoader(widget.url);
-    _fadeController.addListener(() {
-      setState(() {
-        _placeColor = _animation.value;
+    var controller = _fadeController;
+    if(controller != null){
+      controller.addListener(() {
+        setState(() {
+          _placeColor = _animation.value;
+        });
       });
-    });
+    }
   }
 
   ImageProvider<Object> _addImageLoader(String url) {
@@ -101,7 +109,11 @@ class _ColorContainerState extends State<ColorContainer>
   @override
   void dispose() {
     isDispose = true;
-    _fadeController.dispose();
+    var controller = _fadeController;
+    if(controller != null){
+      controller.dispose();
+      _fadeController = null;
+    }
     super.dispose();
   }
 

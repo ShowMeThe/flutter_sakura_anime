@@ -1,5 +1,6 @@
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/color_container.dart';
 import 'package:flutter_sakura_anime/style/import/PageImport.dart';
@@ -112,13 +113,15 @@ class _NetflexListPageState extends ConsumerState<NetflexListPage> with Automati
                         const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
                     child: GestureDetector(
                       onTap: () async {
-                        Navigator.of(context).push(FadeRoute(FactoryDesPage(
-                          item.img,
-                          item.url,
-                          item.title,
-                          item.score,
-                          heroTag,
-                        )));
+                        context.router.push(NetflexDetailRoute(source: item, heroTag: item.img + heroTag));
+
+                        // Navigator.of(context).push(FadeRoute(FactoryDesPage(
+                        //   item.img,
+                        //   item.url,
+                        //   item.title,
+                        //   item.score,
+                        //   heroTag,
+                        // )));
                       },
                       child: SizedBox(
                           width: 90,

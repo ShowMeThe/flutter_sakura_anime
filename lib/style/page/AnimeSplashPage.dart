@@ -44,22 +44,6 @@ class _AnimeSplashPageState extends State<AnimeSplashPage>
   }
 
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   // TODO: implement didChangeAppLifecycleState
-  //   super.didChangeAppLifecycleState(state);
-  //   debugPrint("go to run $state");
-  //   switch(state){
-  //     case AppLifecycleState.resumed:
-  //       break;
-  //     case AppLifecycleState.detached:
-  //     case AppLifecycleState.inactive:
-  //     case AppLifecycleState.hidden:
-  //     case AppLifecycleState.paused:
-  //       break;
-  //   }
-  // }
-
   @override
   void dispose() {
     // TODO: implement dispose

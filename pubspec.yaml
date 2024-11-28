@@ -41,8 +41,6 @@ dependencies:
   html: ^0.15.1
   palette_generator: ^0.3.3+2
   extended_image: ^8.1.1
-#  perfect_volume_control: ^1.0.5
-#  device_display_brightness: ^0.0.6
   flutter_staggered_grid_view: ^0.6.2
   fade_shimmer: ^2.2.0
   dio_cache_interceptor: ^3.3.1
@@ -52,32 +50,24 @@ dependencies:
   sqlite3: ^2.3.0
   sqlite3_flutter_libs: ^0.5.12
   gbk_codec_nohtml: ^1.0.0
-  fluttertoast: ^8.2.1
+#  fluttertoast: ^8.2.3
   csslib: 0.17.0
-#  flutter_meedu_videoplayer: ^4.2.13
-#  wakelock: ^0.4.0
   flutter_hls_parser: ^2.0.1
-  ffmpeg_kit_flutter: ^6.0.3
   json_annotation: ^4.8.1
   media_kit: ^1.1.11
   media_kit_video: ^1.2.5
   media_kit_libs_video: ^1.0.5
-
-  video_sniffing:
-    path: ./plugins/video_sniffing_plugin
-#  android_keyboard_listener:
-#    path: ./plugins/android_keyboard_listener
-
-  local_auth: ^2.1.6
-
-  video_player: ^2.6.1
+  curved_navigation_bar: ^1.0.6
+#  video_player: ^2.6.1
   auto_size_text: ^3.0.0
   auto_route: ^9.2.2
   elegant_spring_animation: ^2.0.2
+  video_sniffing:
+    path: ./plugins/video_sniffing_plugin
 
 dependency_overrides:
-  video_player_android:
-    path: ./plugins/video_player_android
+#  video_player_android:
+#    path: ./plugins/video_player_android
   extended_image_library:
       path: ./plugins/extended_image_library
 

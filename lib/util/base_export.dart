@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 export 'package:auto_route/auto_route.dart';
 export 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
@@ -36,15 +35,4 @@ void printLongText(String? msg) {
     msg = msg.substring(maxStrLength);
   }
   debugPrint(msg);
-}
-
-
-void toast(String message) {
-  Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.white,
-      textColor: ColorRes.pink600,
-      fontSize: 12.0);
 }

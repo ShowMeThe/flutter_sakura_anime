@@ -36,17 +36,17 @@ class LoadingDialogWidget extends StatelessWidget {
             canPop: dismissible,
             child: Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Colors.grey[200]),
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.withValues(alpha: 0.6)),
               padding: const EdgeInsets.all(20),
               height: 80,
               width: 80,
               child: CircularProgressIndicator(
-                color: Theme.of(context).primaryColor,
-                backgroundColor: Colors.grey[300],
+                color: Colors.amberAccent,
+                backgroundColor: Colors.grey.withValues(alpha: 0.4),
               ),
             ),
-            onPopInvoked: (bool){
+            onPopInvokedWithResult: (bool,_){
 
             },
         )

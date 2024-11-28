@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sakura_anime/bean/meiju_des_data.dart';
 import 'package:flutter_sakura_anime/page/play_page.dart';
-import 'package:flutter_sakura_anime/page/play_page_2.dart';
+import 'package:flutter_sakura_anime/page/NewPlayPage.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/util/mj_api.dart';
 import 'package:flutter_sakura_anime/widget/error_view.dart';
@@ -319,7 +319,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                             Navigator.of(context).push(FadeRoute(NewPlayPage(
                               cacheFile.path,
                               title,
-                              fromLocal: true,
+                              true,
                             )));
                             printLongText("video from local file");
                             return;
@@ -335,7 +335,7 @@ class _MjDesPageState extends ConsumerState<MjDesPage> {
                           }
                           if (!mounted) return;
                           Navigator.of(context)
-                              .push(FadeRoute(NewPlayPage(playUrl, title)));
+                              .push(FadeRoute(NewPlayPage(playUrl, title,false)));
                         },
                         child: FittedBox(child: Text(element.chapterList[index].title))),
                   ),

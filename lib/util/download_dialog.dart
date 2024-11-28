@@ -184,7 +184,7 @@ List<Widget> buildChild(
                     if (!showIcon) {
                       callbackBack(e);
                     }else{
-                      toast("已存在下载列表");
+
                     }
                   },
                   child: FittedBox(child: Text(e.chapter))),
