@@ -142,8 +142,8 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.white.withValues(alpha: 0.2),
-                                Colors.white.withValues(alpha: 0.4),
+                                Colors.grey.withValues(alpha: 0.2),
+                                Colors.grey.withValues(alpha: 0.4),
                               ],
                               begin: const Alignment(-1, -1),
                               end: const Alignment(0.3, 0.5),
@@ -157,7 +157,7 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
                                   child: Text(
                                 widget.source.title,
                                 style: const TextStyle(
-                                    color: Colors.yellowAccent, fontSize: 22.0),
+                                    color: Colors.yellow, fontSize: 22.0),
                               )),
                             ),
                           ),
@@ -175,7 +175,8 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
                         child: SizedBox(
                           width: double.infinity,
                           height: double.infinity,
-                          child: ClipRect(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
                             child: BackdropFilter(
                               filter: ImageFilter.blur(
                                 sigmaX: 15,
@@ -190,20 +191,12 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
                                   borderRadius: BorderRadius.circular(25),
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.white.withValues(alpha: 0.4),
-                                      Colors.white.withValues(alpha: 0.2),
+                                      Colors.grey.withValues(alpha: 0.3),
+                                      Colors.grey.withValues(alpha: 0.1),
                                     ],
                                     begin: const Alignment(-1, -1),
                                     end: const Alignment(0.3, 0.5),
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: const Color(0x00000000)
-                                            .withValues(alpha: 0.1),
-                                        offset: const Offset(0, 1),
-                                        blurRadius: 24,
-                                        spreadRadius: -1)
-                                  ],
                                 ),
                                 child: SingleChildScrollView(
                                   child: Column(
@@ -319,14 +312,20 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
   Widget buildPlayList(List<HjDesPlayData> list) {
     return Consumer(builder: (context, ref, _) {
       var parentIndex = ref.watch(tabSelect);
-      var minSize = MediaQuery.of(context).size.width / 4.0;
+      var minSize = MediaQuery.of(context).size.width / 5.0;
       if (list.isEmpty || parentIndex > list.length - 1) {
         return Container();
       }
       var element = list[parentIndex];
-      return Wrap(
-        alignment: WrapAlignment.start,
-        children: buildChild(minSize, element, element.title),
+      return Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: buildChild(minSize, element, element.title),
+          ),
+        ),
       );
     });
   }

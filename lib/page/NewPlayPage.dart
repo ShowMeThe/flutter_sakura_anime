@@ -97,10 +97,10 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
                       children: [
                         Chewie(controller: _chewieController),
                         Positioned.fill(
-                          left: 16.0,
-                          top: 16.0,
+                          left: 30.0,
+                          top: 30.0,
                           right: viewW * 0.75,
-                          bottom: 16.0,
+                          bottom: 55.0,
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onVerticalDragUpdate: (e) async {
