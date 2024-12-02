@@ -12,7 +12,7 @@ import '../../util/factory_api.dart';
 import '../../widget/error_view.dart';
 
 @RoutePage()
-class NetflexDetailPage extends ConsumerStatefulWidget  {
+class NetflexDetailPage extends ConsumerStatefulWidget {
   final FactoryTabListBean source;
   final String heroTag;
 
@@ -22,7 +22,8 @@ class NetflexDetailPage extends ConsumerStatefulWidget  {
   ConsumerState<ConsumerStatefulWidget> createState() => _MovieDetailState();
 }
 
-class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBindingObserver{
+class _MovieDetailState extends ConsumerState<NetflexDetailPage>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   final ScrollController _tabScroller = ScrollController();
   final AutoDisposeStateProvider<int> tabSelect =
       StateProvider.autoDispose((ref) => 0);
@@ -35,12 +36,15 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
   });
   late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
 
+  late final AnimationController _sheetAnimationController =
+      AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 2000));
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState
     super.didChangeAppLifecycleState(state);
-    switch(state){
+    switch (state) {
       case AppLifecycleState.resumed:
         _resetState();
         break;
@@ -55,14 +59,20 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
   @override
   void initState() {
     super.initState();
+    _delayToShowAnimation();
     _resetState();
     WidgetsBinding.instance.addObserver(this);
   }
 
-  void _resetState(){
+  void _delayToShowAnimation() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    _sheetAnimationController.forward();
+  }
+
+  void _resetState() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   }
 
   @override
@@ -83,14 +93,9 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.yellowAccent),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: FittedBox(
-            child: Text(
-          widget.source.title,
-          style: const TextStyle(color: Colors.white),
-        )),
       ),
       body: Material(
         child: Stack(
@@ -120,90 +125,114 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
             ),
             Column(
               children: [
-                ClipRect(
-                  child: SizedBox(
-                    height: appBarHeight + statusBarHeight,
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 15,
-                        sigmaY: 15,
-                      ),
-                      child: Container(
-                          decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0.2),
-                            Colors.white.withValues(alpha: 0.4),
-                          ],
-                          begin: const Alignment(-1, -1),
-                          end: const Alignment(0.3, 0.5),
+                SlideUpWidget(
+                  controller: _sheetAnimationController,
+                  direction: SlideDirection.dropDown,
+                  child: ClipRect(
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: appBarHeight + statusBarHeight,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                          sigmaX: 15,
+                          sigmaY: 15,
                         ),
-                      )),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 55),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withValues(alpha: 0.2),
+                                Colors.white.withValues(alpha: 0.4),
+                              ],
+                              begin: const Alignment(-1, -1),
+                              end: const Alignment(0.3, 0.5),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: statusBarHeight),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: FittedBox(
+                                  child: Text(
+                                widget.source.title,
+                                style: const TextStyle(
+                                    color: Colors.yellowAccent, fontSize: 22.0),
+                              )),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 Expanded(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.only(top: min(layoutMaxHeight * 0.3, 110)),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: ClipRect(
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 15,
-                            sigmaY: 15,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.white.withValues(alpha: 0.4),
-                                  Colors.white.withValues(alpha: 0.2),
-                                ],
-                                begin: const Alignment(-1, -1),
-                                end: const Alignment(0.3, 0.5),
+                  child: SlideUpWidget(
+                      controller: _sheetAnimationController,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            top: min(layoutMaxHeight * 0.3, 110)),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: ClipRect(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(
+                                sigmaX: 15,
+                                sigmaY: 15,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: const Color(0x00000000)
-                                        .withValues(alpha: 0.1),
-                                    offset: const Offset(0, 1),
-                                    blurRadius: 24,
-                                    spreadRadius: -1)
-                              ],
-                            ),
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Consumer(builder: (context, ref, _) {
-                                    var provider = ref.watch(_desDataProvider);
-                                    if (provider.valueOrNull != null) {
-                                      var desText = provider.requireValue.des;
-                                      return FoldTextView(
-                                          desText,
-                                          4,
-                                          const TextStyle(color: Colors.white),
-                                          layoutMaxWidth);
-                                    } else {
-                                      return Container();
-                                    }
-                                  }),
-                                  buildDrams()
-                                ],
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 15,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.4),
+                                      Colors.white.withValues(alpha: 0.2),
+                                    ],
+                                    begin: const Alignment(-1, -1),
+                                    end: const Alignment(0.3, 0.5),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: const Color(0x00000000)
+                                            .withValues(alpha: 0.1),
+                                        offset: const Offset(0, 1),
+                                        blurRadius: 24,
+                                        spreadRadius: -1)
+                                  ],
+                                ),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      Consumer(builder: (context, ref, _) {
+                                        var provider =
+                                            ref.watch(_desDataProvider);
+                                        if (provider.valueOrNull != null) {
+                                          var desText =
+                                              provider.requireValue.des;
+                                          return FoldTextView(
+                                              desText,
+                                              4,
+                                              const TextStyle(
+                                                  color: Colors.white),
+                                              layoutMaxWidth);
+                                        } else {
+                                          return Container();
+                                        }
+                                      }),
+                                      buildDrams()
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
+                      )),
                 ),
               ],
             )
@@ -241,12 +270,10 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(
-                      top: 8.0, bottom: 8.0),
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                   child: Container(
                     height: 1,
-                    color: Colors.amberAccent
-                        .withValues(alpha: 0.8),
+                    color: Colors.amberAccent.withValues(alpha: 0.8),
                   ),
                 ),
                 buildTabs(data.playList),
@@ -298,7 +325,7 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
       }
       var element = list[parentIndex];
       return Wrap(
-        alignment: WrapAlignment.center,
+        alignment: WrapAlignment.start,
         children: buildChild(minSize, element, element.title),
       );
     });
@@ -309,7 +336,6 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
     var list = <Widget>[];
     for (int index = 0; index < data.chapterList.length; index++) {
       var element = data.chapterList[index];
-      debugPrint("minSize = $minSize");
       list.add(
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
@@ -326,8 +352,9 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
                 LoadingDialogHelper.dismissLoading(context);
               }
               if (!mounted) return;
-              if(playUrl.isNotEmpty){
-                context.router.push(NewPlayRoute(url: playUrl,title: element.title,fromLocal: false));
+              if (playUrl.isNotEmpty) {
+                context.router.push(NewPlayRoute(
+                    url: playUrl, title: element.title, fromLocal: false));
               }
             },
             child: ClipRRect(
@@ -341,7 +368,8 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
                 height: 55.0,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.amberAccent.withValues(alpha: 0.5)),
+                  border: Border.all(
+                      color: Colors.amberAccent.withValues(alpha: 0.5)),
                   boxShadow: [
                     BoxShadow(
                         color: Colors.amberAccent.withValues(alpha: 0.1),
@@ -373,5 +401,95 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage> with WidgetsBin
       );
     }
     return list;
+  }
+}
+
+enum SlideDirection {
+  slideUp,
+  dropDown,
+}
+
+class SlideUpWidget extends StatefulWidget {
+  final Widget child;
+  final SlideDirection direction;
+  final Duration duration;
+  final AnimationController? controller;
+
+  const SlideUpWidget(
+      {required this.child,
+      this.duration = const Duration(milliseconds: 1000),
+      this.direction = SlideDirection.slideUp,
+      this.controller,
+      super.key});
+
+  @override
+  State<StatefulWidget> createState() => _SlideUpWidgetState();
+}
+
+class _SlideUpWidgetState extends State<SlideUpWidget>
+    with SingleTickerProviderStateMixin {
+  late final double _kBounce = 0.4;
+  late final Duration _kDuration = widget.duration;
+  late final AnimationController _animationController = widget.controller ??
+      AnimationController(vsync: this, duration: _kDuration);
+  late final ElegantSpring _elegantCurve = ElegantSpring(bounce: _kBounce);
+  late final CurvedAnimation _curvedAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: _elegantCurve,
+      reverseCurve: _elegantCurve.flipped);
+
+  Tween<Offset> _getOffset() {
+    if (widget.direction == SlideDirection.slideUp) {
+      return Tween(begin: const Offset(0, 1), end: Offset.zero);
+    } else {
+      return Tween(begin: const Offset(0.0, -1), end: Offset.zero);
+    }
+  }
+
+  late final Animation<Offset> _offsetAnimation =
+      _curvedAnimation.drive(_getOffset());
+
+  void animationListener() {
+    if (mounted && _animationController.isAnimating) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.controller == null) {
+      _animationController.forward();
+    }
+    _animationController.addListener(animationListener);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    try {
+      _curvedAnimation.dispose();
+      _animationController.dispose();
+    } catch (e) {
+      debugPrint("e : $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var opacity = 0.0;
+    if (widget.direction == SlideDirection.dropDown) {
+      opacity = _offsetAnimation.value.dy.abs();
+    } else {
+      opacity = _offsetAnimation.value.dy;
+    }
+    return Opacity(
+      opacity: (1 - opacity).clamp(0.0, 1.0),
+      child: SlideTransition(
+        position: _offsetAnimation,
+        child: widget.child,
+      ),
+    );
   }
 }

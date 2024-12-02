@@ -23,3 +23,5 @@ plugins {
 }
 
 include ":app"
+
+System.setProperty("https.protocols", "TLSv1.2")

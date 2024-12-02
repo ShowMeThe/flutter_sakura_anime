@@ -1,7 +1,11 @@
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
+import 'dart:async';
+
+import 'package:chewie/chewie.dart';
+import 'package:flutter_sakura_anime/util/factory_api.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:video_player/video_player.dart';
 import '../util/base_export.dart';
+import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 
 @RoutePage()
 class NewPlayPage extends ConsumerStatefulWidget {
@@ -16,15 +20,19 @@ class NewPlayPage extends ConsumerStatefulWidget {
 }
 
 class _NewPlayState extends ConsumerState<NewPlayPage> {
-  late final player = Player(
-      configuration: const PlayerConfiguration(
-          bufferSize: 100 * 1024 * 1024, logLevel: MPVLogLevel.debug));
-  late final controller = VideoController(player);
-  late final GlobalKey<VideoState> key = GlobalKey<VideoState>();
+  late ChewieController _chewieController;
+  late VideoPlayerController _controller;
 
-  void initPlayer() async {
-    player.stream.error.listen((error) => debugPrint(error));
-    player.stream.log.listen((log) => debugPrint(log.toString()));
+  Future<bool> initPlayer() async {
+    _chewieController = ChewieController(
+      videoPlayerController: _controller,
+      allowedScreenSleep: false,
+      allowFullScreen: false,
+    );
+    await _controller.setLooping(true);
+    await _controller.initialize();
+    _controller.play();
+    return true;
   }
 
   @override
@@ -34,31 +42,28 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    initPlayer();
     debugPrint("playUrl = ${widget.url}");
-    player.open(Media(widget.url));
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(widget.url),
+      httpHeaders: FactoryApi.videoHeader,
+    );
 
-    var seekToHistory = false;
-    player.stream.buffer.listen((buffer) async {
-      var bufferDuration = buffer.inMilliseconds;
-      if (bufferDuration > 0 && !seekToHistory) {
-        seekToHistory = true;
-        var playHistory = findLocalPlayHistory(widget.url);
-        if (playHistory != null) {
-          var duration = Duration(milliseconds: playHistory.timeInMills);
-          await player.seek(duration);
-        }
-      }
-    });
-
-    var lastProgressDuration = 0;
-    player.stream.position.listen((event) {
-      var time = event.inMilliseconds;
-      if (time - lastProgressDuration > 2000) {
-        lastProgressDuration = time;
-        updatePlayHistory(widget.url, time);
-      }
+    Future.microtask(() async {
+      try {
+        _brightnessValue = await ScreenBrightnessPlatform.instance.application;
+        ref
+            .refresh(_brightnessValueProvider.notifier)
+            .update((cb) => _brightnessValue);
+        ScreenBrightnessPlatform.instance.onApplicationScreenBrightnessChanged
+            .listen((value) {
+          if (mounted) {
+            _brightnessValue = value;
+            ref
+                .refresh(_brightnessValueProvider.notifier)
+                .update((cb) => _brightnessValue);
+          }
+        });
+      } catch (_) {}
     });
   }
 
@@ -66,7 +71,8 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    player.dispose();
+    _chewieController.dispose();
+    _controller.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     SystemChrome.setPreferredOrientations(
@@ -75,38 +81,121 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialVideoControlsTheme(
-        normal: MaterialVideoControlsThemeData(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 45),
-            volumeGesture: true,
-            brightnessGesture: true,
-            seekGesture: true,
-            bufferingIndicatorBuilder: (context) {
-              return CircularProgressIndicator(
-                color: Theme.of(context).primaryColor,
-              );
-            },
-            topButtonBarMargin: const EdgeInsets.fromLTRB(15.0, 0, 15, 15),
-            topButtonBar: [
-              IconButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ))
-            ],
-            bottomButtonBar: [
-              const MaterialPositionIndicator(),
-            ]),
-        fullscreen: const MaterialVideoControlsThemeData(),
-        child: Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width * 9.0 / 16.0,
-            child: Video(key: key, controller: controller),
-          ),
-        ));
+    return Material(
+      child: LayoutBuilder(
+        builder: (context,bc){
+          var viewW = bc.maxWidth;
+          var viewH = bc.maxHeight;
+          return FutureBuilder(
+              future: initPlayer(),
+              builder: (context, snapshot) {
+                var state = snapshot.connectionState;
+                if (state == ConnectionState.done) {
+                  return AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: Stack(
+                      children: [
+                        Chewie(controller: _chewieController),
+                        Positioned.fill(
+                          left: 16.0,
+                          top: 16.0,
+                          right: viewW * 0.75,
+                          bottom: 16.0,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onVerticalDragUpdate: (e) async {
+                              final delta = e.delta.dy;
+                              final Offset position = e.localPosition;
+                              if (mounted) {
+                                final brightness = _brightnessValue - delta / 100;
+                                final result = brightness.clamp(0.0, 1.0);
+                                setBrightness(result);
+                              }
+                            },
+                            child: Container(),
+                          ),
+                        ),
+                        IgnorePointer(child: Consumer(builder: (context, ref, _) {
+                          var indicator = ref.watch(_brightnessIndicator);
+                          var indicatorValue = ref.watch(_brightnessValueProvider);
+                          var opacity = indicator ? indicatorValue : 0.0;
+                          return AnimatedOpacity(
+                            curve: Curves.easeInOut,
+                            opacity: opacity,
+                            duration: const Duration(milliseconds: 200),
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: const Color(0x88000000),
+                                borderRadius: BorderRadius.circular(64.0),
+                              ),
+                              height: 52.0,
+                              width: 108.0,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: 52.0,
+                                    width: 42.0,
+                                    alignment: Alignment.centerRight,
+                                    child: Icon(
+                                      indicatorValue < 1.0 / 3.0
+                                          ? Icons.brightness_low
+                                          : indicatorValue < 2.0 / 3.0
+                                          ? Icons.brightness_medium
+                                          : Icons.brightness_high,
+                                      color: const Color(0xFFFFFFFF),
+                                      size: 24.0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  Expanded(
+                                    child: Text(
+                                      '${(indicatorValue * 100.0).round()}%',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 14.0,
+                                        color: Color(0xFFFFFFFF),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16.0),
+                                ],
+                              ),
+                            ),
+                          );
+                        }))
+                      ],
+                    ),
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              });
+        },
+      ),
+    );
+  }
+
+  var _brightnessValue = 0.0;
+  final _brightnessValueProvider = StateProvider.autoDispose((_) => 0.0);
+  final _brightnessIndicator = StateProvider.autoDispose((_) => false);
+  Timer? _brightnessTimer;
+
+  Future<void> setBrightness(double value) async {
+    try {
+      await ScreenBrightnessPlatform.instance
+          .setApplicationScreenBrightness(value);
+    } catch (_) {}
+    ref.refresh(_brightnessIndicator.notifier).update((cb) => true);
+    _brightnessTimer?.cancel();
+    _brightnessTimer = Timer(const Duration(milliseconds: 200), () {
+      ref.refresh(_brightnessIndicator.notifier).update((cb) => false);
+    });
+    // --------------------------------------------------
   }
 }

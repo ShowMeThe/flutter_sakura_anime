@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_sakura_anime/util/base_export.dart';
+import '../style/router/AppRouter.gr.dart';
 import 'home_page.dart';
 import 'anime/anime_home_page.dart';
 
@@ -38,8 +39,11 @@ class _SplashPageState extends State<SplashPage>
 
   Timer delayToPage() {
     return Timer(const Duration(milliseconds: 300), () {
-      var router = FadeRoute(const HomePage());
-      Navigator.of(context).pushAndRemoveUntil(router, (route) => false);
+      // var router = FadeRoute(const HomePage());
+      // Navigator.of(context).pushAndRemoveUntil(router, (route) => false);
+
+      context.router.push(NewPlayRoute(
+          url: "https://yundunm.nowm3.xyz:2083/hls/laosho2.m3u8", title: "", fromLocal: false));
     });
   }
 

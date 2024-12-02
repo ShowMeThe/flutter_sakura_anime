@@ -63,7 +63,6 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
       if (homeTabProvider.valueOrNull != null) {
         tabs.addAll(homeTabProvider.requireValue);
       }
-      debugPrint("do after hasError = ${homeTabProvider.hasError}");
       if(homeTabProvider.isLoading || homeTabProvider.hasError){
         return const Center(
             child: CircularProgressIndicator(),

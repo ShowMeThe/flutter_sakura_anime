@@ -31,6 +31,8 @@ class _AnimeSplashPageState extends State<AnimeSplashPage>
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         context.replaceRoute(const MovieHomeRoute());
+        // context.replaceRoute(NewPlayRoute(
+        //     url: "https://yundunm.nowm3.xyz:2083/hls/laosho2.m3u8", title: "", fromLocal: false));
       }
     });
     _animation.addListener(() {

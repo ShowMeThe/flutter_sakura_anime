@@ -68,13 +68,11 @@ class _ScrollHiddenState extends State<ScrollHidden>
       parent: _animationController,
       curve: _elegantCurve,
       reverseCurve: _elegantCurve.flipped);
-
+  late final Animation _heightFactorAnimation = _animation.drive(Tween(begin: 0.0, end: 1.0));
   @override
   void initState() {
     super.initState();
     HiddenController.instant._addHiddenListener(this);
-
-    _animationController.drive(Tween(begin: 1.0, end: 0.5));
     _animationController.forward();
     _animationController.addListener(() {
       setState(() {});
@@ -92,6 +90,7 @@ class _ScrollHiddenState extends State<ScrollHidden>
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    _animation.dispose();
     HiddenController.instant._removeHiddenListener(this);
     _animationController.dispose();
   }
@@ -108,7 +107,7 @@ class _ScrollHiddenState extends State<ScrollHidden>
   @override
   Widget build(BuildContext context) {
     return Align(
-      heightFactor: _animation.value.clamp(0.0, double.infinity),
+      heightFactor: _heightFactorAnimation.value.clamp(0.0, double.infinity),
       alignment: const Alignment(0, -1),
       child: widget.child,
     );

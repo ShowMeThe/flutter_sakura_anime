@@ -12,7 +12,7 @@ class MovieHomePage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _MovieHomePageState();
 }
 
-class _MovieHomePageState extends ConsumerState<MovieHomePage> {
+class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindingObserver {
   final _pageController = PageController(initialPage: 0, keepPage: true);
   final AutoDisposeStateProvider<int> _pageProvider =
       StateProvider.autoDispose<int>((_) => 0);
@@ -30,8 +30,32 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // TODO: implement didChangeAppLifecycleState
+    super.didChangeAppLifecycleState(state);
+    switch(state){
+      case AppLifecycleState.resumed:
+        _resetState();
+        break;
+      case AppLifecycleState.detached:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        break;
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
+    _resetState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _resetState(){
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   }
 
   @override

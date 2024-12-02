@@ -9,13 +9,14 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 class FactoryApi {
   static const String baseUrl = "https://www.czzy77.com";
   static const String movieUrl = "zuixindianying";
+  static const Map<String, String> videoHeader = {"origin":"https://www.czzy77.com"};
 
   static Future<List<FactoryTab>> getHomeTab() async {
     var future = await (await HttpClient.get())
         .get(baseUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace){
-          debugPrint("getHomeTab error = $error");
-          return Future.error("$error", stackTrace);
+        .onError((error, stackTrace) {
+      debugPrint("getHomeTab error = $error");
+      return Future.error("$error", stackTrace);
     });
     var document = parse(future.data);
     var submenumi = document.querySelectorAll("ul.submenu_mi");
@@ -36,22 +37,24 @@ class FactoryApi {
 
   static Future<FactoryTabList> getTagPageData(String url, int page) async {
     var requestUrl = baseUrl + url;
-    if(page > 1){
+    if (page > 1) {
       requestUrl += "/page/$page";
     }
     debugPrint("page url = $requestUrl");
     var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace){
-           debugPrint("error = $error");
-          return Future.error("$error", stackTrace);
+        .onError((error, stackTrace) {
+      debugPrint("error = $error");
+      return Future.error("$error", stackTrace);
     });
     debugPrint("get result = $requestUrl");
     var canLoadMore = true;
     var list = <FactoryTabListBean>[];
     var document = parse(future.data);
     var mainRowList =
-        document.getElementsByClassName("bt_img mi_ne_kd mrb").first;
+        document
+            .getElementsByClassName("bt_img mi_ne_kd mrb")
+            .first;
     var liRowList = mainRowList.querySelectorAll("ul > li");
     for (var li in liRowList) {
       var eleA = li.querySelector("a");
@@ -60,7 +63,9 @@ class FactoryApi {
         var imgEle = eleA.querySelector("img");
         var img = imgEle?.attributes["data-original"] ?? "";
         var title = imgEle?.attributes["alt"] ?? "";
-        var score = li.querySelector("div.rating")?.text ?? "0.0";
+        var score = li
+            .querySelector("div.rating")
+            ?.text ?? "0.0";
         list.add(FactoryTabListBean(url, title, score, img));
       }
     }
@@ -72,15 +77,21 @@ class FactoryApi {
     return FactoryTabList(canLoadMore, page, list);
   }
 
-   static Future<String> getPlayUrl(String playUrl) async {
-     var videoUrl = "";
+  static Future<String> getPlayUrl(String playUrl) async {
+    var videoUrl = "";
     var data = await VideoSniffing.getRawHtml(playUrl);
     var document = parse(data);
-    var iframe = document.getElementsByClassName("videoplay").first.querySelector("iframe");
+    var iframe = document
+        .getElementsByClassName("videoplay")
+        .first
+        .querySelector("iframe");
     var videoSrc = iframe?.attributes["src"] ?? "";
-    if(videoSrc.isNotEmpty){
-      debugPrint("videoSrc = ${videoSrc}");
-      videoUrl = await VideoSniffing.getResourcesUrl(videoSrc,"mp4") ?? "";
+    debugPrint("videoSrc = ${videoSrc}");
+    if (videoSrc.isNotEmpty) {
+      videoUrl = await VideoSniffing.getResourcesUrl(videoSrc, "mp4") ?? "";
+    }
+    if (videoUrl.isEmpty) {
+      videoUrl = await VideoSniffing.getResourcesUrl(playUrl, "m3u8") ?? "";
     }
     return videoUrl;
   }
@@ -90,19 +101,24 @@ class FactoryApi {
         .get(requestUrl, options: Options(responseType: ResponseType.json))
         .onError((error, stackTrace) => Future.error("$error", stackTrace));
     var document = parse(future.data);
-    var des = document.getElementsByClassName("yp_context").first.text.trim().replaceAll("\t", "") ?? "";
+    var des = document
+        .getElementsByClassName("yp_context")
+        .first
+        .text
+        .trim()
+        .replaceAll("\t", "") ?? "";
     var playListItem = document.querySelector("div.paly_list_btn");
     List<HjDesPlayData> playList = [];
-    if(playListItem != null){
+    if (playListItem != null) {
       var playUrlList = playListItem.querySelectorAll("a");
       var chapterList = <HjDesPlayChapter>[];
-      for(var a in playUrlList){
+      for (var a in playUrlList) {
         var title = a.text ?? "";
-        var url = a.attributes["href"] ??"";
+        var url = a.attributes["href"] ?? "";
         chapterList.add(HjDesPlayChapter(title, url));
       }
-      playList.add(HjDesPlayData("在线播放",chapterList));
+      playList.add(HjDesPlayData("在线播放", chapterList));
     }
-    return HjDesData(des,playList);
+    return HjDesData(des, playList);
   }
 }
