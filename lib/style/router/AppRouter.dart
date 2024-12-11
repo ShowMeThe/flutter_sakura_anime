@@ -14,7 +14,7 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => [
     AutoRoute(page: MovieHomeRoute.page),
     AutoRoute(page: AnimeSplashRoute.page,initial: true),
-    AutoRoute(page: NetflexDetailRoute.page),
+    AutoRoute(page: NetflexDetailRoute.page,fullMatch: true),
     AutoRoute(page: NewPlayRoute.page)
   ];
 

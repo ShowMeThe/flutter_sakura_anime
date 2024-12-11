@@ -9,14 +9,19 @@ import 'package:flutter_sakura_anime/widget/fold_text.dart';
 import '../../bean/factory_tab.dart';
 import '../../bean/hanju_des_data.dart';
 import '../../util/factory_api.dart';
+import '../../widget/color_container.dart';
 import '../../widget/error_view.dart';
+
+class NetflexDetailPageRouter extends PageRouteInfo {
+  NetflexDetailPageRouter(super.name);
+}
 
 @RoutePage()
 class NetflexDetailPage extends ConsumerStatefulWidget {
   final FactoryTabListBean source;
   final String heroTag;
 
-  const NetflexDetailPage(this.source, this.heroTag);
+  const NetflexDetailPage({required this.source, required this.heroTag});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MovieDetailState();
@@ -24,6 +29,7 @@ class NetflexDetailPage extends ConsumerStatefulWidget {
 
 class _MovieDetailState extends ConsumerState<NetflexDetailPage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
+  final _heroTag = "MovieDetailState";
   final ScrollController _tabScroller = ScrollController();
   final AutoDisposeStateProvider<int> tabSelect =
       StateProvider.autoDispose((ref) => 0);
@@ -217,7 +223,8 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
                                           return Container();
                                         }
                                       }),
-                                      buildDrams()
+                                      _buildDrams(),
+                                      _buildPromotion()
                                     ],
                                   ),
                                 ),
@@ -235,7 +242,7 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
     );
   }
 
-  Widget buildDrams() {
+  Widget _buildDrams() {
     return Consumer(
       builder: (context, ref, _) {
         var provider = ref.watch(_desDataProvider);
@@ -400,6 +407,86 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
       );
     }
     return list;
+  }
+
+  Widget _buildPromotion() {
+    return Consumer(builder: (context, ref, _) {
+      var provider = ref.watch(_desDataProvider);
+      var value = provider.valueOrNull;
+      var promotionList = value?.promotionList;
+      if (value == null || promotionList?.isEmpty == true) return Container();
+      var list = promotionList!;
+      return _buildPromotionChild(list);
+    });
+  }
+
+  Widget _buildPromotionChild(List<HjDesPlayPromotion> childList) {
+    return Padding(
+        padding: const EdgeInsets.only(top: 60.0),
+        child: SizedBox(
+          height: 250,
+          child: CarouselView(
+            itemExtent: 150,
+            itemSnapping: true,
+            shrinkExtent: 75,
+            onTap: (index) {
+              var item = childList[index];
+              var heroTag = "${item.logo}$_heroTag$index";
+              context.pushRoute(NetflexDetailRoute(
+                  source:
+                      FactoryTabListBean(item.url, item.title, "", item.logo),
+                  heroTag: heroTag));
+            },
+            children: _buildCarouselViewChild(childList),
+          ),
+        ));
+  }
+
+  List<Widget> _buildCarouselViewChild(List<HjDesPlayPromotion> childList) {
+    var widget = <Widget>[];
+    for (var index = 0; index < childList.length; index++) {
+      var item = childList[index];
+      var heroTag = "${item.logo}$_heroTag$index";
+      widget.add(Padding(
+        padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
+        child: SizedBox(
+            width: 90,
+            height: double.infinity,
+            child: Card(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
+                children: [
+                  Hero(
+                      tag: heroTag,
+                      child:
+                          showImage(context, item.logo, double.infinity, 150)),
+                  Positioned.fill(
+                      top: 130,
+                      child: Container(
+                        decoration:
+                            BoxDecoration(color: Colors.black.withAlpha(45)),
+                        child: Text(
+                          item.title,
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      )),
+                  Positioned.fill(
+                      left: 0,
+                      top: 150,
+                      child: ColorContainer(
+                        url: item.logo,
+                        title: item.title,
+                        baseColor: ColorRes.mainColor,
+                      )),
+                ],
+              ),
+            )),
+      ));
+    }
+    return widget;
   }
 }
 

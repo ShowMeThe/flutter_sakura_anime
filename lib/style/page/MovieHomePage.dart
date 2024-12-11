@@ -68,7 +68,10 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindi
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: setSystemUi(),
-      child: Scaffold(
+      child: const Scaffold(
+        body: NetflexHomePage(),
+      )
+      /*Scaffold(
         body: PageView.builder(
           itemBuilder: (BuildContext context, int index) {
             return _pages[index];
@@ -98,7 +101,7 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindi
                 ]);
           }),
         ),
-      ),
+      ),*/
     );
   }
 }

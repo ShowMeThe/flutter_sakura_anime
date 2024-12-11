@@ -3,8 +3,9 @@ class HjDesData{
 
   String des;
   List<HjDesPlayData> playList = [];
+  List<HjDesPlayPromotion> promotionList = [];
 
-  HjDesData(this.des,this.playList);
+  HjDesData(this.des,this.playList,this.promotionList);
 
   @override
   String toString() {
@@ -12,10 +13,20 @@ class HjDesData{
   }
 }
 
+class HjDesPlayPromotion{
+   final String title;
+   final String url;
+   final String logo;
+
+   HjDesPlayPromotion(this.title, this.url, this.logo);
+}
+
+
 class HjDesPlayData{
 
   final String title;
   List<HjDesPlayChapter> chapterList = [];
+
 
   HjDesPlayData(this.title, this.chapterList);
 

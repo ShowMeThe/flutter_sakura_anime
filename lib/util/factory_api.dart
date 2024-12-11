@@ -9,7 +9,9 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 class FactoryApi {
   static const String baseUrl = "https://www.czzy77.com";
   static const String movieUrl = "zuixindianying";
-  static const Map<String, String> videoHeader = {"origin":"https://www.czzy77.com"};
+  static const Map<String, String> videoHeader = {
+    "origin": "https://www.czzy77.com"
+  };
 
   static Future<List<FactoryTab>> getHomeTab() async {
     var future = await (await HttpClient.get())
@@ -52,9 +54,7 @@ class FactoryApi {
     var list = <FactoryTabListBean>[];
     var document = parse(future.data);
     var mainRowList =
-        document
-            .getElementsByClassName("bt_img mi_ne_kd mrb")
-            .first;
+        document.getElementsByClassName("bt_img mi_ne_kd mrb").first;
     var liRowList = mainRowList.querySelectorAll("ul > li");
     for (var li in liRowList) {
       var eleA = li.querySelector("a");
@@ -63,14 +63,12 @@ class FactoryApi {
         var imgEle = eleA.querySelector("img");
         var img = imgEle?.attributes["data-original"] ?? "";
         var title = imgEle?.attributes["alt"] ?? "";
-        var score = li
-            .querySelector("div.rating")
-            ?.text ?? "0.0";
+        var score = li.querySelector("div.rating")?.text ?? "0.0";
         list.add(FactoryTabListBean(url, title, score, img));
       }
     }
     var divPage =
-    mainRowList.querySelector("div.pagenavi_txt")?.querySelectorAll("a");
+        mainRowList.querySelector("div.pagenavi_txt")?.querySelectorAll("a");
     var lastIndex = divPage?.lastOrNull?.attributes["title"];
     canLoadMore = lastIndex == "跳转到最后一页";
     debugPrint("page list = ${list.first.title}");
@@ -100,13 +98,15 @@ class FactoryApi {
     var future = await (await HttpClient.get())
         .get(requestUrl, options: Options(responseType: ResponseType.json))
         .onError((error, stackTrace) => Future.error("$error", stackTrace));
+    List<HjDesPlayPromotion> promotionList = [];
     var document = parse(future.data);
     var des = document
-        .getElementsByClassName("yp_context")
-        .first
-        .text
-        .trim()
-        .replaceAll("\t", "") ?? "";
+            .getElementsByClassName("yp_context")
+            .first
+            .text
+            .trim()
+            .replaceAll("\t", "") ??
+        "";
     var playListItem = document.querySelector("div.paly_list_btn");
     List<HjDesPlayData> playList = [];
     if (playListItem != null) {
@@ -117,8 +117,22 @@ class FactoryApi {
         var url = a.attributes["href"] ?? "";
         chapterList.add(HjDesPlayChapter(title, url));
       }
+
+      var interestItem = document.getElementsByClassName("bt_img mi_ne_kd").firstOrNull;
+      if(interestItem != null){
+        var ul = interestItem.querySelectorAll("ul > li");
+        for (var a in ul) {
+          var aItem = a.querySelector("a");
+          if(aItem != null){
+            var title = aItem.attributes["title"] ?? "";
+            var url = aItem.attributes["href"] ?? "";
+            var logo = aItem.querySelector("img")?.attributes["data-original"] ?? "";
+            promotionList.add(HjDesPlayPromotion(title, url, logo));
+          }
+        }
+      }
       playList.add(HjDesPlayData("在线播放", chapterList));
     }
-    return HjDesData(des, playList);
+    return HjDesData(des, playList,promotionList);
   }
 }

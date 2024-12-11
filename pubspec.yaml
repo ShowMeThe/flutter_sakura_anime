@@ -65,6 +65,8 @@ dependencies:
   video_sniffing:
     path: ./plugins/video_sniffing_plugin
   screen_brightness: ^2.0.0+2
+  drift: ^2.22.1
+  drift_flutter: ^0.1.0
 
 dependency_overrides:
   video_player_android:
@@ -76,8 +78,9 @@ dependency_overrides:
 
 dev_dependencies:
   auto_route_generator: ^9.0.0
-  build_runner: ^2.3.3
-  json_serializable: ^6.7.1
+  drift_dev: ^2.22.0
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.0
   flutter_test:
     sdk: flutter
 

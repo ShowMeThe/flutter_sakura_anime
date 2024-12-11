@@ -78,8 +78,8 @@ class NetflexDetailRoute extends _i6.PageRouteInfo<NetflexDetailRouteArgs> {
     builder: (data) {
       final args = data.argsAs<NetflexDetailRouteArgs>();
       return _i3.NetflexDetailPage(
-        args.source,
-        args.heroTag,
+        source: args.source,
+        heroTag: args.heroTag,
       );
     },
   );

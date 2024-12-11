@@ -18,7 +18,7 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   late AutoDisposeFutureProvider<List<FactoryTab>> _homeTabFutureProvider;
   late final _tabControllerProvider =
-  StateProvider.autoDispose((_) => TabController(length: 0, vsync: this));
+  StateProvider.autoDispose((_) => TabController(length: 0,vsync: this));
   late final _pageController = PageController(initialPage: 0);
   var _pageOffset = 0.0;
   @override
