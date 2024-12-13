@@ -10,7 +10,9 @@ class FactoryApi {
   static const String baseUrl = "https://www.czzy77.com";
   static const String movieUrl = "zuixindianying";
   static const Map<String, String> videoHeader = {
-    "origin": "https://www.czzy77.com"
+    "origin": baseUrl,
+    'User-Agent':
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
   };
 
   static Future<List<FactoryTab>> getHomeTab() async {
@@ -77,19 +79,26 @@ class FactoryApi {
 
   static Future<String> getPlayUrl(String playUrl) async {
     var videoUrl = "";
-    var data = await VideoSniffing.getRawHtml(playUrl);
-    var document = parse(data);
-    var iframe = document
-        .getElementsByClassName("videoplay")
-        .first
-        .querySelector("iframe");
-    var videoSrc = iframe?.attributes["src"] ?? "";
-    debugPrint("videoSrc = ${videoSrc}");
-    if (videoSrc.isNotEmpty) {
-      videoUrl = await VideoSniffing.getResourcesUrl(videoSrc, "mp4") ?? "";
+    // var data = await VideoSniffing.getRawHtml(playUrl);
+    // var document = parse(data);
+    // var iframe = document
+    //     .getElementsByClassName("videoplay")
+    //     .first
+    //     .querySelector("iframe");
+    // var videoSrc = iframe?.attributes["src"] ?? "";
+    // debugPrint("videoSrc = ${videoSrc}");
+    debugPrint("getPlayUrl mp4 before");
+    videoUrl = await VideoSniffing.getResourcesUrl(playUrl, "mp4") ?? "";
+    if (videoUrl.isNotEmpty) {
+      debugPrint("getPlayUrl mp4 = $videoUrl");
+    } else {
+      debugPrint("getPlayUrl mp4 not found");
     }
     if (videoUrl.isEmpty) {
       videoUrl = await VideoSniffing.getResourcesUrl(playUrl, "m3u8") ?? "";
+      debugPrint("getPlayUrl m3u8 = $videoUrl");
+    } else {
+      debugPrint("getPlayUrl m3u8 not found");
     }
     return videoUrl;
   }
@@ -118,21 +127,23 @@ class FactoryApi {
         chapterList.add(HjDesPlayChapter(title, url));
       }
 
-      var interestItem = document.getElementsByClassName("bt_img mi_ne_kd").firstOrNull;
-      if(interestItem != null){
+      var interestItem =
+          document.getElementsByClassName("bt_img mi_ne_kd").firstOrNull;
+      if (interestItem != null) {
         var ul = interestItem.querySelectorAll("ul > li");
         for (var a in ul) {
           var aItem = a.querySelector("a");
-          if(aItem != null){
+          if (aItem != null) {
             var title = aItem.attributes["title"] ?? "";
             var url = aItem.attributes["href"] ?? "";
-            var logo = aItem.querySelector("img")?.attributes["data-original"] ?? "";
+            var logo =
+                aItem.querySelector("img")?.attributes["data-original"] ?? "";
             promotionList.add(HjDesPlayPromotion(title, url, logo));
           }
         }
       }
       playList.add(HjDesPlayData("在线播放", chapterList));
     }
-    return HjDesData(des, playList,promotionList);
+    return HjDesData(des, playList, promotionList);
   }
 }

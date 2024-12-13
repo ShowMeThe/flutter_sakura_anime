@@ -92,6 +92,7 @@ class WebViewConnect {
         if (mWebView == null) {
             mWebView = WebView(ctx)
             Log.e("VideoSniffingPlugin", "${mWebView}")
+            var hasFoundResource = false
             mWebView?.apply {
                 baseSetting()
                 webViewClient = object : WebViewClient() {
@@ -110,6 +111,7 @@ class WebViewConnect {
                         Log.e("VideoSniffingPlugin", "request = ${request?.url}")
                         var resourcesUrl = request?.url?.toString()
                         if(resourcesUrl != null && resourcesUrl.contains(resourcesName)){
+                            hasFoundResource = true
                             callbacks?.invoke(resourcesUrl)
                             onDestroy()
                         }
@@ -119,6 +121,9 @@ class WebViewConnect {
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
                         onDestroy()
+                        if(!hasFoundResource){
+                            callbacks?.invoke("")
+                        }
                         Log.e("VideoSniffingPlugin", "finish")
                     }
                 }

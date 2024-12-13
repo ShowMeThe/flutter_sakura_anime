@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_sakura_anime/style/database/PlayUrlHistory.dart';
 import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 import 'package:flutter_sakura_anime/widget/fold_text.dart';
@@ -348,12 +349,17 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
           child: GestureDetector(
             onTap: () async {
               var item = widget.source;
-              String? playUrl;
+              String title = item.title;
+              String? playUrl = (await DatabaseManager.getPlayHistory(item.title))?.playUrl;
               if (playUrl == null || playUrl.isEmpty) {
+                if (!mounted) return;
                 LoadingDialogHelper.showLoading(context);
                 playUrl = await FactoryApi.getPlayUrl(element.url);
                 debugPrint("playUrl = $playUrl");
-                // updateChapterPlayUrls(item.url, element.url, playUrl);
+                if(playUrl.isNotEmpty){
+                  DatabaseManager.insertPlayHistory(title, playUrl);
+                }
+                 updateChapterPlayUrls(item.url, element.url, playUrl);
                 if (!mounted) return;
                 LoadingDialogHelper.dismissLoading(context);
               }
