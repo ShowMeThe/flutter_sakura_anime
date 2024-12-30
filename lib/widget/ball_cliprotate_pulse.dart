@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
 
-// ignore: must_be_immutable
-class BallClipRotatePulse extends StatefulWidget {
-  Color color = ColorRes.pink400;
 
-  BallClipRotatePulse({this.color = ColorRes.pink400, super.key});
+class BallClipRotatePulse extends StatefulWidget {
+
+  final Color color;
+
+  const BallClipRotatePulse({required this.color, super.key});
 
   @override
   State<StatefulWidget> createState() => _BallClipRotatePulseState();
@@ -64,6 +65,7 @@ class BallClipRotatePulsePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var width = size.width;
     var height = size.height;
+    if(width == 0 || height == 0) return;
 
     var x = width / 2.0;
     var y = height / 2.0;

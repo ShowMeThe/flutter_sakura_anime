@@ -7,7 +7,7 @@ import 'video_sniffing_platform_interface.dart';
 class MethodChannelVideoSniffing extends VideoSniffingPlatform {
   /// The method channel used to interact with the native platform.
   final methodChannel = const MethodChannel('video_sniffing');
-
+  final eventChannel = const EventChannel("VideoSniffingPlugin.Event");
   @override
   Future<String?> getRawHtml(String baseUrl) async {
     final result = await methodChannel
@@ -27,5 +27,10 @@ class MethodChannelVideoSniffing extends VideoSniffingPlatform {
     final result = await methodChannel.invokeMethod<String>(
         'getResourcesUrl', {"baseUrl": baseUrl, "resourcesName": resourcesName});
     return result;
+  }
+
+  @override
+  Stream<dynamic> watchCloudflareResult() {
+    return eventChannel.receiveBroadcastStream();
   }
 }

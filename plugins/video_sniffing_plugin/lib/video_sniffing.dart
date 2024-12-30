@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 import 'video_sniffing_platform_interface.dart';
 
 class VideoSniffing {
@@ -12,5 +14,10 @@ class VideoSniffing {
   static Future<String?> getResourcesUrl(String baseUrl,String resourcesName) {
     return VideoSniffingPlatform.instance.getResourcesUrl(baseUrl, resourcesName);
   }
+
+  static Stream<dynamic> watchCloudflareResult() {
+    return VideoSniffingPlatform.instance.watchCloudflareResult();
+  }
+
 
 }

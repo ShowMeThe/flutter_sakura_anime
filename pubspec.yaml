@@ -103,10 +103,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
-  fonts:
-    - family: "jiangxizhuokai"
-      fonts:
-        - asset: fonts/jiangxizhuokai.ttf
+#  fonts:
+#    - family: "jiangxizhuokai"
+#      fonts:
+#        - asset: fonts/jiangxizhuokai.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -1,2 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name="com.example.video_sniffing.CloudflareChallengesActivity"
+            android:launchMode="singleTask"
+            />
+    </application>
+
 </manifest>

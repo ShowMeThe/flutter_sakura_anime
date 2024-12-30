@@ -34,4 +34,8 @@ abstract class VideoSniffingPlatform extends PlatformInterface {
   Future<String?> getResourcesUrl(String baseUrl,String resourcesName) {
     throw UnimplementedError('getCustomData(String baseUrl,String jsCode) has not been implemented.');
   }
+
+  Stream<dynamic> watchCloudflareResult() {
+    throw UnimplementedError('watchCloudflareResult() has not been implemented.');
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_sakura_anime/style/import/PageImport.dart';
+import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
 import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
 
 import '../../util/base_export.dart';
@@ -12,7 +13,8 @@ class MovieHomePage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _MovieHomePageState();
 }
 
-class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindingObserver {
+class _MovieHomePageState extends ConsumerState<MovieHomePage>
+    with WidgetsBindingObserver {
   final _pageController = PageController(initialPage: 0, keepPage: true);
   final AutoDisposeStateProvider<int> _pageProvider =
       StateProvider.autoDispose<int>((_) => 0);
@@ -33,7 +35,7 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindi
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // TODO: implement didChangeAppLifecycleState
     super.didChangeAppLifecycleState(state);
-    switch(state){
+    switch (state) {
       case AppLifecycleState.resumed:
         _resetState();
         break;
@@ -52,7 +54,7 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindi
     WidgetsBinding.instance.addObserver(this);
   }
 
-  void _resetState(){
+  void _resetState() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
@@ -67,11 +69,21 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindi
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: setSystemUi(),
-      child: const Scaffold(
-        body: NetflexHomePage(),
-      )
-      /*Scaffold(
+        value: setSystemUi(),
+        child: Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+              label: const Text("搜索"),
+              icon: const Icon(
+                Icons.search,
+                color: Colors.black,
+              ),
+              isExtended: true,
+              onPressed: () {
+                context.navigateTo(const NetFlexSearchRoute());
+              }),
+          body: const NetflexHomePage(),
+        )
+        /*Scaffold(
         body: PageView.builder(
           itemBuilder: (BuildContext context, int index) {
             return _pages[index];
@@ -102,6 +114,6 @@ class _MovieHomePageState extends ConsumerState<MovieHomePage> with WidgetsBindi
           }),
         ),
       ),*/
-    );
+        );
   }
 }
