@@ -1,14 +1,6 @@
-import 'package:fade_shimmer/fade_shimmer.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:flutter_sakura_anime/widget/color_container.dart';
-import 'package:flutter_sakura_anime/style/import/PageImport.dart';
-
-import '../../bean/factory_tab.dart';
-import '../../util/factory_api.dart';
-import '../../widget/error_view.dart';
-import '../../widget/shimmer_placeholder.dart';
 
 class NetflexListPage extends ConsumerStatefulWidget {
   final String baseUrl;

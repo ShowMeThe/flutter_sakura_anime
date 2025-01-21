@@ -1,17 +1,11 @@
-import 'dart:math';
+
+
 import 'dart:ui';
 
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter_sakura_anime/style/database/PlayUrlHistory.dart';
 import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:flutter_sakura_anime/widget/fold_text.dart';
 
-import '../../bean/factory_tab.dart';
-import '../../bean/hanju_des_data.dart';
-import '../../util/factory_api.dart';
-import '../../widget/color_container.dart';
-import '../../widget/error_view.dart';
+
 
 class NetflexDetailPageRouter extends PageRouteInfo {
   NetflexDetailPageRouter(super.name);
@@ -41,7 +35,6 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
     await Future.delayed(const Duration(milliseconds: 400));
     return result;
   });
-  late AutoDisposeFutureProvider<LocalHistory?> _localHisFuture;
 
   late final AnimationController _sheetAnimationController =
       AnimationController(
@@ -359,7 +352,6 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
                 if(playUrl.isNotEmpty){
                   DatabaseManager.insertPlayHistory(title, playUrl);
                 }
-                 updateChapterPlayUrls(item.url, element.url, playUrl);
                 if (!mounted) return;
                 LoadingDialogHelper.dismissLoading(context);
               }

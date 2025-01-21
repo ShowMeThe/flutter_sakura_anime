@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sakura_anime/util/LruCache.dart';
+import 'package:flutter_sakura_anime/util/lru_cache.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 

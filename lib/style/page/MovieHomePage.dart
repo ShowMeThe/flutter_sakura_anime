@@ -1,8 +1,5 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_sakura_anime/style/import/PageImport.dart';
 import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
-import 'package:flutter_sakura_anime/widget/hidden_widget.dart';
-
 import '../../util/base_export.dart';
 
 @RoutePage()

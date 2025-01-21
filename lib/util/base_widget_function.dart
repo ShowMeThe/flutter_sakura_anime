@@ -4,9 +4,6 @@ import '../widget/ball_cliprotate_pulse.dart';
 Widget showImage(BuildContext context,String url, double width, double height,
     {BoxFit boxFit = BoxFit.cover}) {
   var headers = <String,String>{};
-  if(url.contains(Api.newBaseRefer)){
-    headers["Referer"] = Api.newBaseUrl;
-  }
   var theme = Theme.of(context);
   var backgroundColor = theme.primaryColor;
   var progressColor = theme.colorScheme.primary;

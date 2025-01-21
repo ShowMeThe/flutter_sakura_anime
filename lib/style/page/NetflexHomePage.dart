@@ -1,9 +1,7 @@
-import 'package:flutter_sakura_anime/style/page/NetflexListPage.dart';
 
-import '../../bean/factory_tab.dart';
-import '../../page/factory/factory_page.dart';
 import '../../util/base_export.dart';
-import '../../util/factory_api.dart';
+import '../import/PageImport.dart';
+
 
 @RoutePage()
 class NetflexHomePage extends ConsumerStatefulWidget {

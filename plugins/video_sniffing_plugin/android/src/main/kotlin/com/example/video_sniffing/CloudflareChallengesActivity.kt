@@ -44,6 +44,7 @@ class CloudflareChallengesActivity : Activity() {
                 request: WebResourceRequest?
             ): WebResourceResponse? {
                 val newCookie = getCookie(extraUrl)
+                Log.e("VideoSniffingPlugin", "newCookie $newCookie")
                 if(newCookie != mLastCfCookie){
                     Log.e("VideoSniffingPlugin", "newCookie")
                     setResult(RESULT_OK)
@@ -54,6 +55,15 @@ class CloudflareChallengesActivity : Activity() {
 
             override fun onPageFinished(view: WebView, url: String?) {
                 super.onPageFinished(view, url)
+                if(url != null){
+                    val newCookie = getCookie(url)
+                    Log.e("VideoSniffingPlugin", "onPageFinished newCookie $newCookie")
+                    if(newCookie != mLastCfCookie){
+                        Log.e("VideoSniffingPlugin", "onPageFinished newCookie")
+                        setResult(RESULT_OK)
+                        finish()
+                    }
+                }
             }
         }
     }

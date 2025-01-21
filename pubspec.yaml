@@ -80,7 +80,6 @@ dev_dependencies:
   auto_route_generator: ^9.0.0
   drift_dev: ^2.22.0
   build_runner: ^2.4.13
-  json_serializable: ^6.9.0
   flutter_test:
     sdk: flutter
 

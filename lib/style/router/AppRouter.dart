@@ -1,7 +1,6 @@
 
 
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_sakura_anime/page/home_page.dart';
 import 'package:flutter_sakura_anime/style/router/AppRouter.gr.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Screen|Page,Route')

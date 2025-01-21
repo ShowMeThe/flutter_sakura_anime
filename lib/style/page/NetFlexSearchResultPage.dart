@@ -1,15 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter_sakura_anime/util/base_export.dart';
-import 'package:video_sniffing/video_sniffing.dart';
 import 'package:video_sniffing/video_sniffing_platform_interface.dart';
-
-import '../../bean/factory_tab.dart';
-import '../../util/factory_api.dart';
-import '../../widget/ball_cliprotate_pulse.dart';
-import '../../widget/color_container.dart';
-import '../../widget/error_view.dart';
-import '../../widget/shimmer_placeholder.dart';
 import '../router/AppRouter.gr.dart';
 
 @RoutePage()
@@ -68,7 +59,6 @@ class _NetFlexSearchResultPageState
         if (!_isLoading && _canLoadMore) {
           nowPage++;
           ref.invalidate(_listDataProvider);
-          debugPrint("load more");
           _isLoading = true;
         }
       }

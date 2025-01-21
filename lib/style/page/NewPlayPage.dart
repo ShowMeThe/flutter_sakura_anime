@@ -1,10 +1,7 @@
 import 'dart:async';
 
 import 'package:chewie/chewie.dart';
-import 'package:flutter_sakura_anime/util/factory_api.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
-
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 
 import '../../util/base_export.dart';
@@ -84,10 +81,10 @@ class _NewPlayState extends ConsumerState<NewPlayPage> {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.black,
       child: LayoutBuilder(
         builder: (context,bc){
           var viewW = bc.maxWidth;
-          var viewH = bc.maxHeight;
           return FutureBuilder(
               future: initPlayer(),
               builder: (context, snapshot) {

@@ -1,4 +1,4 @@
-import '../util/base_export.dart';
+import 'base_export.dart';
 
 class LoadingDialogHelper {
 
