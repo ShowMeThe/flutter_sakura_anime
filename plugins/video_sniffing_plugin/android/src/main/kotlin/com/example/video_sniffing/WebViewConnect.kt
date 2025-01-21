@@ -1,7 +1,6 @@
 package com.example.video_sniffing
 
 import android.app.Activity
-import android.app.NotificationChannel
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +11,10 @@ import androidx.fragment.app.FragmentActivity
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import java.lang.ref.SoftReference
-import java.util.logging.Handler
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class WebViewConnect(private val channel:MethodChannel){
 
@@ -160,6 +162,7 @@ class WebViewConnect(private val channel:MethodChannel){
                     ) {
                         super.onReceivedError(view, request, error)
                         Log.e("VideoSniffingPlugin", "error = ${error?.description}")
+                        clearTask()
                     }
 
                     override fun shouldInterceptRequest(
@@ -167,11 +170,18 @@ class WebViewConnect(private val channel:MethodChannel){
                         request: WebResourceRequest?
                     ): WebResourceResponse? {
                         Log.e("VideoSniffingPlugin", "request = ${request?.url}")
-                        checkHasCloudChallenge(activity, request?.url, baseUrl)
-                        var resourcesUrl = request?.url?.toString()
-                        if (resourcesUrl != null && resourcesUrl.contains(resourcesName)) {
+//                       checkHasCloudChallenge(activity, request?.url, baseUrl)
+//                        var resourcesUrl = request?.url?.toString()
+//                        if (resourcesUrl != null && resourcesUrl.contains(resourcesName)) {
+//                            hasFoundResource = true
+//                            callbacks?.invoke(resourcesUrl)
+//                            onDestroy()
+//                        }
+
+                        val urlString = request?.url?.toString()
+                        addNetRunJob(urlString){
                             hasFoundResource = true
-                            callbacks?.invoke(resourcesUrl)
+                            callbacks?.invoke(urlString)
                             onDestroy()
                         }
                         return super.shouldInterceptRequest(view, request)
@@ -180,15 +190,45 @@ class WebViewConnect(private val channel:MethodChannel){
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
                         onDestroy()
-                        if (!hasFoundResource) {
-                            callbacks?.invoke("")
-                        }
-                        Log.e("VideoSniffingPlugin", "finish")
                     }
                 }
             }
         }
     }
+
+    private val pools by lazy { Executors.newFixedThreadPool(10) }
+    private val tasks by lazy { ArrayList<Future<*>>() }
+    private fun clearTask(){
+        tasks.forEach { it.cancel(true) }
+        tasks.clear()
+    }
+    private fun addNetRunJob(urlString: String?, runnable: Runnable) {
+        tasks.add(pools.submit {
+            var urlConnection: HttpURLConnection? = null
+            try {
+                if (Thread.interrupted()) return@submit
+                val url = URL(urlString);
+                urlConnection = url.openConnection() as HttpURLConnection
+                urlConnection.connectTimeout = 3000
+                urlConnection.connect()
+                if (urlConnection.responseCode == 200 && !Thread.interrupted()) {
+                    val fields = urlConnection.headerFields
+                    urlConnection.disconnect()
+                    val values = fields["Content-Type"]
+                    val isVideo = values?.any { v -> v.startsWith("video/") || v.contains("application/vnd.apple.mpegurl") } == true
+                    if (isVideo) {
+                        runnable.run()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("VideoSniffingPlugin", "addNetRunJob Exception ${urlString} ${e.message}")
+                e.printStackTrace()
+            } finally {
+                urlConnection?.disconnect()
+            }
+        })
+    }
+
 
     inner class VideoSniffing() {
 
