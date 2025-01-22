@@ -90,12 +90,12 @@ class FactoryApi {
     } else {
       debugPrint("getPlayUrl mp4 not found");
     }
-    if (videoUrl.isEmpty) {
-      videoUrl = await VideoSniffing.getResourcesUrl(playUrl, "m3u8") ?? "";
-      debugPrint("getPlayUrl m3u8 = $videoUrl");
-    } else {
-      debugPrint("getPlayUrl m3u8 not found");
-    }
+    // if (videoUrl.isEmpty) {
+    //   videoUrl = await VideoSniffing.getResourcesUrl(playUrl, "m3u8") ?? "";
+    //   debugPrint("getPlayUrl m3u8 = $videoUrl");
+    // } else {
+    //   debugPrint("getPlayUrl m3u8 not found");
+    // }
     return videoUrl;
   }
 

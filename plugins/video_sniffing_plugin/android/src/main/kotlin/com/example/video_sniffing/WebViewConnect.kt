@@ -3,6 +3,7 @@ package com.example.video_sniffing
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Looper
 import android.util.Log
@@ -145,6 +146,7 @@ class WebViewConnect(private val channel:MethodChannel){
 
     private fun getResourcesUrl(activity: Activity?, resourcesName: String, baseUrl: String) {
         isStartChecking = false
+        clearTask()
         Log.e("VideoSniffingPlugin", "${sortCtx}")
         if (sortCtx == null || sortCtx?.get() == null) return
         val ctx = requireNotNull(sortCtx?.get())
@@ -162,9 +164,8 @@ class WebViewConnect(private val channel:MethodChannel){
                     ) {
                         super.onReceivedError(view, request, error)
                         Log.e("VideoSniffingPlugin", "error = ${error?.description}")
-                        clearTask()
-                    }
 
+                    }
                     override fun shouldInterceptRequest(
                         view: WebView?,
                         request: WebResourceRequest?
@@ -180,6 +181,7 @@ class WebViewConnect(private val channel:MethodChannel){
 
                         val urlString = request?.url?.toString()
                         addNetRunJob(urlString){
+                            clearTask()
                             hasFoundResource = true
                             callbacks?.invoke(urlString)
                             onDestroy()
@@ -207,7 +209,7 @@ class WebViewConnect(private val channel:MethodChannel){
             var urlConnection: HttpURLConnection? = null
             try {
                 if (Thread.interrupted()) return@submit
-                val url = URL(urlString);
+                val url = URL(urlString)
                 urlConnection = url.openConnection() as HttpURLConnection
                 urlConnection.connectTimeout = 3000
                 urlConnection.connect()

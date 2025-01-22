@@ -26,12 +26,13 @@ class CloudflareChallengesActivity : Activity() {
 
         val extraUrl = intent.getStringExtra(EXT_URL) ?: ""
         Log.e("VideoSniffingPlugin", "onCreate extraUrl $extraUrl")
-        if(extraUrl.isBlank()){
+        if (extraUrl.isBlank()) {
             finish()
             return
         }
 
         mLastCfCookie = getCookie(extraUrl)
+        cookieCheckLoop(extraUrl)
         webView.apply {
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
@@ -45,7 +46,7 @@ class CloudflareChallengesActivity : Activity() {
             ): WebResourceResponse? {
                 val newCookie = getCookie(extraUrl)
                 Log.e("VideoSniffingPlugin", "newCookie $newCookie")
-                if(newCookie != mLastCfCookie){
+                if (newCookie != mLastCfCookie) {
                     Log.e("VideoSniffingPlugin", "newCookie")
                     setResult(RESULT_OK)
                     finish()
@@ -55,15 +56,34 @@ class CloudflareChallengesActivity : Activity() {
 
             override fun onPageFinished(view: WebView, url: String?) {
                 super.onPageFinished(view, url)
-                if(url != null){
-                    val newCookie = getCookie(url)
-                    Log.e("VideoSniffingPlugin", "onPageFinished newCookie $newCookie")
-                    if(newCookie != mLastCfCookie){
+                val newCookie = getCookie(extraUrl)
+                Log.e("VideoSniffingPlugin", "onPageFinished newCookie $newCookie")
+                if (newCookie != mLastCfCookie) {
+                    Log.e("VideoSniffingPlugin", "onPageFinished newCookie")
+                    setResult(RESULT_OK)
+                    finish()
+                }
+            }
+        }
+    }
+
+    private var mThread: Thread? = null
+    private fun cookieCheckLoop(extraUrl: String) {
+        if (mThread != null) {
+            mThread = Thread {
+                var skip = false
+                while (!Thread.interrupted() && !skip) {
+                    Thread.sleep(100)
+                    val newCookie = getCookie(extraUrl)
+                    if (newCookie != mLastCfCookie) {
                         Log.e("VideoSniffingPlugin", "onPageFinished newCookie")
                         setResult(RESULT_OK)
+                        skip = true
                         finish()
                     }
                 }
+            }.apply {
+                start()
             }
         }
     }
@@ -89,5 +109,6 @@ class CloudflareChallengesActivity : Activity() {
         super.onDestroy()
         Log.e("VideoSniffingPlugin", "CloudflareChallengesActivity onDestroy")
         webView.destroy()
+        mThread?.interrupt()
     }
 }
