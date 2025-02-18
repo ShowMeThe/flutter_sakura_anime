@@ -341,21 +341,20 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
           padding: const EdgeInsets.only(left: 8.0, top: 6.0, bottom: 6.0),
           child: GestureDetector(
             onTap: () async {
+              if (!mounted) return;
+              LoadingDialogHelper.showLoading(context);
               var item = widget.source;
               String title = item.title;
               String? playUrl = (await DatabaseManager.getPlayHistory(item.title))?.playUrl;
               if (playUrl == null || playUrl.isEmpty) {
-                if (!mounted) return;
-                LoadingDialogHelper.showLoading(context);
                 playUrl = await FactoryApi.getPlayUrl(element.url);
                 debugPrint("playUrl = $playUrl");
                 if(playUrl.isNotEmpty){
                   DatabaseManager.insertPlayHistory(title, playUrl);
                 }
-                if (!mounted) return;
-                LoadingDialogHelper.dismissLoading(context);
               }
               if (!mounted) return;
+              LoadingDialogHelper.dismissLoading(context);
               if (playUrl.isNotEmpty) {
                 context.router.push(NewPlayRoute(
                     url: playUrl, title: element.title, fromLocal: false));
