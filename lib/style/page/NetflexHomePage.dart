@@ -86,18 +86,13 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
             },
             controller: _pageController,
             itemBuilder: (context, index) {
-              double angleY = (_pageOffset - index).abs();
-              var matrix4 = Matrix4.identity();
-              matrix4..setEntry(3, 2, 0.001)
-                ..rotateY(angleY);
-              if (index == _pageOffset.floor()) {
-                //当前的item
-              } else if (index == _pageOffset.floor() + 1) {
-                //右边的item
-              } else if (index == _pageOffset.floor() - 1) {
-              } else {
-              }
-              return Transform(transform: matrix4,child: NetflexListPage(tabs[index].url));
+              // var matrix4 = Matrix4.identity();
+              // if(index == _pageOffset.floor()){
+              //   var currentScale = 1
+              //   matrix4 = Matrix4.diagonal3Values(1.0, y, z)
+              // }
+
+              return NetflexListPage(tabs[index].url);
             },
             itemCount: tabs.length,
           ),
