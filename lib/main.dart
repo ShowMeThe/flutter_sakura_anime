@@ -1,10 +1,12 @@
 import 'package:flutter_sakura_anime/style/import/PageImport.dart';
 import 'package:flutter_sakura_anime/style/page/ViewTestPage.dart';
+import 'package:flutter_sakura_anime/util/web_disk_cache.dart';
 import 'style/router/AppRouter.dart';
 import 'util/base_export.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  WebCache.init();
   runApp(ProviderScope(child: MovieApp()));
 }
 

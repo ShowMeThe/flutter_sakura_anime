@@ -26,17 +26,3 @@ export 'package:flutter_sakura_anime/util/factory_api.dart';
 export 'package:auto_size_text/auto_size_text.dart';
 export 'package:flutter_sakura_anime/widget/shimmer_placeholder.dart';
 export 'package:flutter_sakura_anime/widget/ball_cliprotate_pulse.dart';
-
-
-void printLongText(String? msg) {
-  if (msg == null) {
-    debugPrint(msg);
-    return;
-  }
-  int maxStrLength = 1000;
-  while (msg!.length > maxStrLength) {
-    debugPrint(msg.substring(0, maxStrLength));
-    msg = msg.substring(maxStrLength);
-  }
-  debugPrint(msg);
-}

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_sakura_anime/bean/hanju_des_data.dart';
+import 'package:flutter_sakura_anime/util/web_disk_cache.dart';
 import 'package:video_sniffing/video_sniffing.dart';
 
 import '../bean/factory_tab.dart';
@@ -16,14 +17,24 @@ class FactoryApi {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
   };
 
+  static Future<String?> getWebHtml(String html) async{
+    var result =  await VideoSniffing.getRawHtml(html);
+    if(result != null){
+      debugPrint("put value $result");
+      WebCache.put(html,result);
+    }
+    return result;
+  }
+
   static Future<List<FactoryTab>> getHomeTab() async {
-    var future = await (await HttpClient.get())
-        .get(baseUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace) {
-      debugPrint("getHomeTab error = $error");
-      return Future.error("$error", stackTrace);
-    });
-    var document = parse(future.data);
+    // var future = await (await HttpClient.get())
+    //     .get(baseUrl, options: Options(responseType: ResponseType.json))
+    //     .onError((error, stackTrace) {
+    //   debugPrint("getHomeTab error = $error");
+    //   return Future.error("$error", stackTrace);
+    // });
+    var future = await WebCache.get(baseUrl) ?? await getWebHtml(baseUrl);
+    var document = parse(future);
     var submenumi = document.querySelectorAll("ul.submenu_mi");
     var liChild = submenumi.first.querySelectorAll("li");
     var tabs = <FactoryTab>[];
@@ -45,17 +56,17 @@ class FactoryApi {
     if (page > 1) {
       requestUrl += "/page/$page";
     }
-    debugPrint("page url = $requestUrl");
-    var future = await (await HttpClient.get())
-        .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace) {
-      debugPrint("error = $error");
-      return Future.error("$error", stackTrace);
-    });
-    debugPrint("get result = $requestUrl");
+    debugPrint("getTagPageData url = $requestUrl");
+    // var future = await (await HttpClient.get())
+    //     .get(requestUrl, options: Options(responseType: ResponseType.json))
+    //     .onError((error, stackTrace) {
+    //   debugPrint("error = $error");
+    //   return Future.error("$error", stackTrace);
+    // });
+    var future = await WebCache.get(requestUrl) ?? await getWebHtml(requestUrl);
     var canLoadMore = true;
     var list = <FactoryTabListBean>[];
-    var document = parse(future.data);
+    var document = parse(future);
     var mainRowList =
         document
             .getElementsByClassName("bt_img mi_ne_kd mrb")
@@ -90,21 +101,16 @@ class FactoryApi {
     } else {
       debugPrint("getPlayUrl mp4 not found");
     }
-    // if (videoUrl.isEmpty) {
-    //   videoUrl = await VideoSniffing.getResourcesUrl(playUrl, "m3u8") ?? "";
-    //   debugPrint("getPlayUrl m3u8 = $videoUrl");
-    // } else {
-    //   debugPrint("getPlayUrl m3u8 not found");
-    // }
     return videoUrl;
   }
 
   static Future<HjDesData> getDes(String requestUrl) async {
-    var future = await (await HttpClient.get())
-        .get(requestUrl, options: Options(responseType: ResponseType.json))
-        .onError((error, stackTrace) => Future.error("$error", stackTrace));
+    // var future = await (await HttpClient.get())
+    //     .get(requestUrl, options: Options(responseType: ResponseType.json))
+    //     .onError((error, stackTrace) => Future.error("$error", stackTrace));
+    var future = await WebCache.get(requestUrl) ?? await getWebHtml(requestUrl);
     List<HjDesPlayPromotion> promotionList = [];
-    var document = parse(future.data);
+    var document = parse(future);
     var des = document
         .getElementsByClassName("yp_context")
         .first
@@ -154,12 +160,11 @@ class FactoryApi {
     }
     requestUrl = Uri.encodeFull(requestUrl);
     debugPrint("getSearch url = $requestUrl");
-    var future = await VideoSniffing.getRawHtml(requestUrl);
+    var future = await WebCache.get(requestUrl) ?? await getWebHtml(requestUrl);
     var document = parse(future);
     var searchDiv = document
         .getElementsByClassName("bt_img mi_ne_kd search_list")
         .firstOrNull;
-    debugPrint("getSearch searchDiv = $searchDiv");
     var searchList = <FactoryTabListBean>[];
     if (searchDiv != null) {
       var ul = searchDiv.querySelector("ul");

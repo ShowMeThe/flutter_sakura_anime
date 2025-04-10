@@ -24,6 +24,13 @@ class _NetFlexSearchResultPageState
   final _currentList = <FactoryTabListBean>[];
   late final _listDataProvider = FutureProvider.autoDispose((_) async {
     var result = await FactoryApi.getSearch(widget.keyWord, page: nowPage);
+    if (nowPage == 1 && result.list.isNotEmpty) {
+      _currentList.clear();
+    }
+    if (nowPage == result.page) {
+      _currentList.addAll(result.list);
+    }
+    _canLoadMore = result.loadMore;
     return result;
   });
 
@@ -89,14 +96,6 @@ class _NetFlexSearchResultPageState
       body: Consumer(builder: (context, ref, _) {
         var watchProvider = ref.watch(_listDataProvider);
         if (watchProvider.valueOrNull != null && !watchProvider.isRefreshing) {
-          var newData = watchProvider.requireValue;
-          if (nowPage == 1 && newData.list.isNotEmpty) {
-            _currentList.clear();
-          }
-          if (!watchProvider.hasError) {
-            _currentList.addAll(newData.list);
-          }
-          _canLoadMore = newData.loadMore;
           _isLoading = false;
         }
         if (watchProvider.isLoading && _currentList.isEmpty) {

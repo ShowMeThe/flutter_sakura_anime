@@ -75,6 +75,7 @@ class CloudflareChallengesActivity : Activity() {
                 while (!Thread.interrupted() && !skip) {
                     Thread.sleep(100)
                     val newCookie = getCookie(extraUrl)
+                    Log.e("VideoSniffingPlugin", "onPageFinished cookie = $newCookie")
                     if (newCookie != mLastCfCookie) {
                         Log.e("VideoSniffingPlugin", "onPageFinished newCookie")
                         setResult(RESULT_OK)
@@ -110,5 +111,10 @@ class CloudflareChallengesActivity : Activity() {
         Log.e("VideoSniffingPlugin", "CloudflareChallengesActivity onDestroy")
         webView.destroy()
         mThread?.interrupt()
+    }
+
+    override fun onBackPressed() {
+        setResult(RESULT_OK)
+        super.onBackPressed()
     }
 }

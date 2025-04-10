@@ -67,6 +67,8 @@ dependencies:
   screen_brightness: ^2.0.0+2
   drift: ^2.22.1
   drift_flutter: ^0.2.2
+  flutter_disk_lru_cache: ^1.0.1
+
 
 dependency_overrides:
   video_player_android:

@@ -49,6 +49,7 @@ class WebViewConnect(private val channel:MethodChannel){
         if (mWebView == null) {
             mWebView = WebView(ctx)
             Log.e("VideoSniffingPlugin", "${mWebView}")
+            var hasCloudflareChallenge = false
             mWebView?.apply {
                 baseSetting()
                 webViewClient = object : WebViewClient() {
@@ -66,15 +67,24 @@ class WebViewConnect(private val channel:MethodChannel){
                         request: WebResourceRequest?
                     ): WebResourceResponse? {
                         Log.e("VideoSniffingPlugin", "shouldInterceptRequest ${request?.url}")
-                        checkHasCloudChallenge(activity, request?.url, baseUrl)
+                        val has = checkHasCloudChallenge(activity, request?.url, baseUrl)
+                        if(has){
+                            Log.e("VideoSniffingPlugin", "has hasCloudflareChallenge ${request?.url}")
+                            hasCloudflareChallenge = true
+                        }
                         return super.shouldInterceptRequest(view, request)
                     }
 
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
-                        Log.e("VideoSniffingPlugin", "finish")
-                        view
-                            .loadUrl("javascript:window.video_sniffing.showHtml(document.getElementsByTagName('html')[0].innerHTML);")
+                        Log.e("VideoSniffingPlugin", "finish $url $hasCloudflareChallenge")
+                        if(!hasCloudflareChallenge){
+                            view
+                                .loadUrl("javascript:window.video_sniffing.showHtml(document.getElementsByTagName('html')[0].innerHTML);")
+                        }else{
+                            onDestroy()
+                            callbacks?.invoke(null)
+                        }
                     }
                 }
             }
@@ -91,6 +101,7 @@ class WebViewConnect(private val channel:MethodChannel){
             Log.e("VideoSniffingPlugin", "${mWebView}")
             mWebView?.apply {
                 baseSetting()
+                var hasCloudflareChallenge = false
                 webViewClient = object : WebViewClient() {
                     override fun onReceivedError(
                         view: WebView?,
@@ -106,24 +117,38 @@ class WebViewConnect(private val channel:MethodChannel){
                         request: WebResourceRequest?
                     ): WebResourceResponse? {
                         Log.e("VideoSniffingPlugin", "shouldInterceptRequest ${request?.url}")
-                        checkHasCloudChallenge(activity, request?.url, baseUrl)
+                        val has = checkHasCloudChallenge(activity, request?.url, baseUrl)
+                        if(has){
+                            hasCloudflareChallenge = true
+                        }
                         return super.shouldInterceptRequest(view, request)
                     }
 
                     override fun onPageFinished(view: WebView, url: String?) {
                         super.onPageFinished(view, url)
                         Log.e("VideoSniffingPlugin", "finish")
-                        view
-                            .loadUrl("javascript:window.video_sniffing.loadCustomData(${jsCode});")
+                        if(!hasCloudflareChallenge){
+                            view
+                                .loadUrl("javascript:window.video_sniffing.loadCustomData(${jsCode});")
+                        }else{
+                            onDestroy()
+                            callbacks?.invoke(null)
+                        }
                     }
                 }
             }
         }
     }
 
-
-    private fun checkHasCloudChallenge(activity: Activity?, url: Uri?, baseUrl: String) {
-        if (url?.host?.equals(cloudflareChallenges) == true && !isStartChecking) {
+    private fun isCloudFlare(url: String?):Boolean {
+        return url?.contains(cloudflareChallenges) == true
+    }
+    private fun isCloudFlare(url: Uri?):Boolean {
+        return url?.host?.equals(cloudflareChallenges) == true
+    }
+    private fun checkHasCloudChallenge(activity: Activity?, url: Uri?, baseUrl: String):Boolean {
+        val isCloudChallenge = isCloudFlare(url)
+        if (isCloudChallenge && !isStartChecking) {
             activity?.apply {
                 Log.e("VideoSniffingPlugin", "startActivity $this")
                 isStartChecking = true
@@ -142,6 +167,7 @@ class WebViewConnect(private val channel:MethodChannel){
                 }
             }
         }
+        return isCloudChallenge
     }
 
     private fun getResourcesUrl(activity: Activity?, resourcesName: String, baseUrl: String) {

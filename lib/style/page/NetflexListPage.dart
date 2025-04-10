@@ -21,6 +21,14 @@ class _NetflexListPageState extends ConsumerState<NetflexListPage> with Automati
   final _currentList = <FactoryTabListBean>[];
   late final _listDataProvider = FutureProvider.autoDispose((_) async {
     var result = await FactoryApi.getTagPageData(widget.baseUrl, nowPage);
+    if(nowPage == 1 && result.list.isNotEmpty){
+      _currentList.clear();
+    }
+    if(result.page == nowPage){
+      _currentList.addAll(result.list);
+    }
+    _canLoadMore = result.loadMore;
+    _isLoading = false;
     return result;
   });
 
@@ -57,17 +65,7 @@ class _NetflexListPageState extends ConsumerState<NetflexListPage> with Automati
     super.build(context);
     return Consumer(builder: (context, ref, _) {
       var watchProvider = ref.watch(_listDataProvider);
-      if (watchProvider.valueOrNull != null && !watchProvider.isRefreshing) {
-        var newData = watchProvider.requireValue;
-        if (nowPage == 1 && newData.list.isNotEmpty) {
-          _currentList.clear();
-        }
-        if (!watchProvider.hasError) {
-          _currentList.addAll(newData.list);
-        }
-        _canLoadMore = newData.loadMore;
-        _isLoading = false;
-      }
+      debugPrint("has error ${watchProvider.hasError} ${watchProvider.error}");
       if (watchProvider.isLoading && _currentList.isEmpty) {
         return _buildLoadingList();
       } else if ((watchProvider.hasError ||

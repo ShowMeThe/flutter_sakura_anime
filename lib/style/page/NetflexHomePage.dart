@@ -1,7 +1,9 @@
+import 'dart:async';
+
+import 'package:video_sniffing/video_sniffing_platform_interface.dart';
 
 import '../../util/base_export.dart';
 import '../import/PageImport.dart';
-
 
 @RoutePage()
 class NetflexHomePage extends ConsumerStatefulWidget {
@@ -16,38 +18,50 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   late AutoDisposeFutureProvider<List<FactoryTab>> _homeTabFutureProvider;
   late final _tabControllerProvider =
-  StateProvider.autoDispose((_) => TabController(length: 0,vsync: this));
+      StateProvider.autoDispose((_) => TabController(length: 0, vsync: this));
   late final _pageController = PageController(initialPage: 0);
   var _pageOffset = 0.0;
+  late StreamSubscription _streamSubscription;
+
   @override
   void initState() {
     super.initState();
     _homeTabFutureProvider =
         FutureProvider.autoDispose<List<FactoryTab>>((_) async {
-          var result = await FactoryApi.getHomeTab();
-          if (result.isNotEmpty) {
-            ref.watch(_tabControllerProvider.notifier)
-                .update((cb) =>
-                TabController(length: result.length, vsync: this)..addListener((){
-                   setState(() {
-                     _pageOffset = _pageController.page!;
-                   });
-                }));
-          }
-          return result;
-        });
-    _pageController
-        .addListener(
-          () => setState(() {
+      var result = await FactoryApi.getHomeTab();
+      if (result.isNotEmpty) {
+        ref
+            .watch(_tabControllerProvider.notifier)
+            .update((cb) => TabController(length: result.length, vsync: this)
+              ..addListener(() {
+                setState(() {
+                  _pageOffset = _pageController.page!;
+                });
+              }));
+      }
+      return result;
+    });
+    _pageController.addListener(
+      () => setState(() {
         _pageOffset = _pageController.page!;
       }),
     );
 
+    _streamSubscription =
+        VideoSniffingPlatform.instance.watchCloudflareResult().listen((data) {
+      if (data is bool) {
+        if (data) {
+          debugPrint("watchCloudflareResult refresh");
+          ref.invalidate(_homeTabFutureProvider);
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
+    _streamSubscription.cancel();
     _pageController.dispose();
   }
 
@@ -61,11 +75,11 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
       if (homeTabProvider.valueOrNull != null) {
         tabs.addAll(homeTabProvider.requireValue);
       }
-      if(homeTabProvider.isLoading || homeTabProvider.hasError){
+      if (homeTabProvider.isLoading || homeTabProvider.hasError) {
         return const Center(
-            child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(),
         );
-      }else{
+      } else {
         return Scaffold(
           appBar: TabBar(
               isScrollable: true,
@@ -106,7 +120,9 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
 
   List<Tab> buildTab(List<FactoryTab> tabs) {
     return tabs
-        .map((element) => Tab(text: element.title,))
+        .map((element) => Tab(
+              text: element.title,
+            ))
         .toList();
   }
 }
