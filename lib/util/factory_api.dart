@@ -10,7 +10,7 @@ import 'package:flutter_sakura_anime/util/base_export.dart';
 class FactoryApi {
   static const String baseUrl = "https://www.czzy77.com";
   static const String movieUrl = "zuixindianying";
-  static const String searchUrl = "/daoyongjiek0shibushiyoubing?q=";
+  static const String searchUrl = "/daoyongjiekoshibushiy0ubing?q=";
   static const Map<String, String> videoHeader = {
     "origin": baseUrl,
     'User-Agent':
@@ -19,11 +19,14 @@ class FactoryApi {
 
   static Future<String?> getWebHtml(String html) async{
     var result =  await VideoSniffing.getRawHtml(html);
+    return result;
+  }
+
+  static void putWebCache(String html,String? result){
     if(result != null){
       debugPrint("put value $result");
       WebCache.put(html,result);
     }
-    return result;
   }
 
   static Future<List<FactoryTab>> getHomeTab() async {
@@ -48,6 +51,7 @@ class FactoryApi {
         tabs.add(FactoryTab(href, text));
       }
     }
+    putWebCache(baseUrl, future);
     return tabs;
   }
 
@@ -90,6 +94,7 @@ class FactoryApi {
     var lastIndex = divPage?.lastOrNull?.attributes["title"];
     canLoadMore = lastIndex == "跳转到最后一页";
     debugPrint("page list = ${list.first.title}");
+    putWebCache(requestUrl, future);
     return FactoryTabList(canLoadMore, page, list);
   }
 
@@ -150,6 +155,7 @@ class FactoryApi {
       }
       playList.add(HjDesPlayData("在线播放", chapterList));
     }
+    putWebCache(requestUrl, future);
     return HjDesData(des, playList, promotionList);
   }
 
@@ -176,7 +182,7 @@ class FactoryApi {
           var imgDiv = element.querySelector("img");
           if (imgDiv == null) continue;
           var title = imgDiv.attributes["alt"] ?? "";
-          var img = imgDiv.attributes["data-original"] ?? "";
+          var img = imgDiv.attributes["src"] ?? "";
           searchList.add(FactoryTabListBean(url, title, "", img));
         }
       }
@@ -187,6 +193,7 @@ class FactoryApi {
     var maxSize = divPage?.querySelectorAll("a").length ?? 1;
     debugPrint("maxSize = $maxSize");
     canLoadMore = page < maxSize;
+    putWebCache(requestUrl, future);
     return FactoryTabList(canLoadMore,page,searchList);
   }
 }

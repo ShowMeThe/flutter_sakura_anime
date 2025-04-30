@@ -10,6 +10,22 @@ void main() async {
   runApp(ProviderScope(child: MovieApp()));
 }
 
+class ShareProvider extends InheritedWidget {
+
+  final String data;
+  const ShareProvider(Widget child, this.data, {super.key}) : super(child: child);
+
+  @override
+  bool updateShouldNotify(covariant ShareProvider old) {
+     return data != old.data;
+  }
+
+  static ShareProvider of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ShareProvider>()!;
+  }
+
+}
+
 class MovieApp extends StatelessWidget {
   MovieApp({super.key});
 
@@ -28,7 +44,11 @@ class MovieApp extends StatelessWidget {
           colorScheme: const ColorScheme.dark(
               primary: Colors.yellow, secondary: Colors.yellowAccent),
           shadowColor: Colors.yellowAccent.withAlpha(80),
-          cardTheme: CardTheme(elevation: 8.0,   clipBehavior: Clip.antiAlias, shadowColor: Colors.yellowAccent.withAlpha(80),),
+          cardTheme: CardTheme(
+            elevation: 8.0,
+            clipBehavior: Clip.antiAlias,
+            shadowColor: Colors.yellowAccent.withAlpha(80),
+          ),
           tabBarTheme: const TabBarThemeData(
               dividerHeight: 0, indicatorColor: Colors.yellow)),
     );

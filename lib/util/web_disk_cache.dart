@@ -57,7 +57,7 @@ class WebCache {
       int lastTime = int.parse(time);
       debugPrint("last time is $lastTime");
       int currentTime = DateTime.now().millisecondsSinceEpoch;
-      if (currentTime - lastTime >= 12 * 60 * 60 * 1000) {
+      if (currentTime - lastTime >= 1 * 60 * 60 * 1000) {
         debugPrint("time is differ");
         return null;
       }
