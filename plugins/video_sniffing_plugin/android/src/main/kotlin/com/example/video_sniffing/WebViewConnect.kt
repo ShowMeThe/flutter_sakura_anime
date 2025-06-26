@@ -17,7 +17,7 @@ import java.net.URL
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class WebViewConnect(private val channel:MethodChannel){
+class WebViewConnect(private val key:String){
 
 
     private val cloudflareChallenges = "challenges.cloudflare.com"
@@ -284,6 +284,7 @@ class WebViewConnect(private val channel:MethodChannel){
         mHanlder.post {
             mWebView?.destroy()
             mWebView = null
+            VideoSniffingPlugin.webViewCache.remove(key)
         }
     }
 

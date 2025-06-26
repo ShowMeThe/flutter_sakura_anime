@@ -65,8 +65,8 @@ class _NetflexListPageState extends ConsumerState<NetflexListPage> with Automati
     super.build(context);
     return Consumer(builder: (context, ref, _) {
       var watchProvider = ref.watch(_listDataProvider);
-      debugPrint("has error ${watchProvider.hasError} ${watchProvider.error}");
-      if (watchProvider.isLoading && _currentList.isEmpty) {
+      debugPrint("has error ${widget.baseUrl} ${watchProvider.hasError} ${watchProvider.error}");
+      if (watchProvider.isLoading && !watchProvider.hasValue && _currentList.isEmpty) {
         return _buildLoadingList();
       } else if ((watchProvider.hasError ||
               watchProvider.valueOrNull == null) &&

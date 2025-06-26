@@ -2,6 +2,7 @@ package com.example.video_sniffing
 
 import android.app.Activity
 import android.content.Context
+import android.util.ArrayMap
 import android.util.Log
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -14,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.lang.ref.WeakReference
+import java.util.concurrent.CopyOnWriteArrayList
 
 /** VideoSniffingPlugin */
 class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
@@ -22,9 +24,12 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
+
+    companion object{
+        val webViewCache = ArrayMap<String,WebViewConnect>()
+    }
     private lateinit var channel: MethodChannel
     private lateinit var eventChannel: EventChannel
-    private lateinit var webViewConnect: WebViewConnect
     private lateinit var mContext: Context
     private var mWeakRefAct: WeakReference<Activity>? = null
     private val EVENT_CHANNEL = "VideoSniffingPlugin.Event"
@@ -38,11 +43,12 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         eventChannel.setStreamHandler(this)
     }
 
-    private fun initWebConnect(){
-        if (this::webViewConnect.isInitialized.not()) {
-            webViewConnect = WebViewConnect(channel)
-            webViewConnect.setContext(mContext)
-            webViewConnect.setEventSink(mEventSink)
+    private fun getOrNewWebConnect(url:String):WebViewConnect{
+        return webViewCache.getOrPut(url){
+            WebViewConnect(url).apply {
+                setContext(mContext)
+                setEventSink(mEventSink)
+            }
         }
     }
 
@@ -51,8 +57,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             val url = call.argument<String>("baseUrl")
             Log.e("VideoSniffingPlugin", "getRawHtml ${url}")
             if (url.isNullOrBlank().not()) {
-                initWebConnect()
-                webViewConnect.loadUrl(mWeakRefAct?.get(), url!!) {
+                getOrNewWebConnect(url!!).loadUrl(mWeakRefAct?.get(), url) {
                     result.success(this)
                 }
             }
@@ -61,8 +66,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             val jsCode = call.argument<String>("jsCode")
             Log.e("VideoSniffingPlugin", "getCustomData ${url}")
             if (url.isNullOrBlank().not()) {
-                initWebConnect()
-                webViewConnect.loadCustomData(mWeakRefAct?.get(), url!!, jsCode!!) {
+                getOrNewWebConnect(url!!).loadCustomData(mWeakRefAct?.get(), url, jsCode!!) {
                     result.success(this)
                 }
             }
@@ -71,8 +75,7 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             val resourcesName = call.argument<String>("resourcesName")
             Log.e("VideoSniffingPlugin", "getResourcesUrl ${url}")
             if (url.isNullOrBlank().not()) {
-                initWebConnect()
-                webViewConnect.getResourcesUrl(mWeakRefAct?.get(), url!!, resourcesName!!) {
+                getOrNewWebConnect(url!!).getResourcesUrl(mWeakRefAct?.get(), url, resourcesName!!) {
                     result.success(this)
                 }
             }
@@ -83,9 +86,10 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
-        if (this::webViewConnect.isInitialized) {
-            webViewConnect.onDestroy()
+        webViewCache.values.onEach {
+            it.onDestroy()
         }
+        webViewCache.clear()
     }
 
     override fun onAttachedToActivity(p0: ActivityPluginBinding) {
@@ -110,16 +114,17 @@ class VideoSniffingPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     override fun onListen(p0: Any?, p1: EventChannel.EventSink?) {
         Log.e("VideoSniffingPlugin", "onListen $p0 $p1")
         mEventSink = p1
-        if(this::webViewConnect.isInitialized){
-            webViewConnect.setEventSink(p1)
+        webViewCache.values.onEach {
+            it.setEventSink(p1)
         }
+
     }
 
     override fun onCancel(p0: Any?) {
         Log.e("VideoSniffingPlugin", "onCancel $p0")
         mEventSink = null
-        if(this::webViewConnect.isInitialized){
-            webViewConnect.setEventSink(null)
+        webViewCache.values.onEach {
+            it.setEventSink(null)
         }
     }
 }
