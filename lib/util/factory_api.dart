@@ -22,7 +22,7 @@ class FactoryApi {
     return result;
   }
 
-  static void putWebCache(String html,String? result){
+  static void putWebCache(String html,String? result) async{
     if(result != null){
       debugPrint("put value $result");
       WebCache.put(html,result);
@@ -47,10 +47,12 @@ class FactoryApi {
       var href = elementA?.attributes["href"] ?? "";
       if (!href.startsWith("http") &&
           !href.contains("/gonggao") &&
+          !href.contains("/movie_bt") &&
           !href.contains("/wangzhanliuyan")) {
         tabs.add(FactoryTab(href, text));
       }
     }
+    tabs.insert(0,FactoryTab("/zuixindianying", "最新电影"));
     putWebCache(baseUrl, future);
     return tabs;
   }

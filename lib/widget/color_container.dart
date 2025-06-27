@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sakura_anime/util/lru_cache.dart';
@@ -11,9 +12,11 @@ class ColorContainer extends StatefulWidget {
   late String url;
   late String title;
   late Color baseColor;
+  double textSize;
   ColorContainer({this.url = "",
     this.baseColor = Colors.white,
     this.title = "",
+    this.textSize = 10.0,
     super.key});
 
   @override
@@ -31,6 +34,7 @@ class _ColorContainerState extends State<ColorContainer>
   var isDispose = false;
 
   static final staticCache = LruCache<String,Color>(300);
+  static final staticTextCache = LruCache<String,Color>(300);
 
   Future getPaletteColor(ui.Image image) async {
     var rectWidth = min(image.width / 3.0, 100.0);
@@ -40,22 +44,20 @@ class _ColorContainerState extends State<ColorContainer>
             center: Offset(image.width / 2.0, image.height / 2.0),
             width: rectWidth,
             height: rectHeight),
-        maximumColorCount: 5);
-    var maskColor = color.lightVibrantColor ??
-        color.lightMutedColor ??
-        color.darkVibrantColor ??
-        color.darkMutedColor;
+        maximumColorCount: 10);
+    var maskColor = color.dominantColor;
     if (maskColor != null) {
       staticCache.put(widget.url,maskColor.color);
-      var isBlack = checkIsBlack(maskColor.color);
-      Color blackTextColor;
-      if (isBlack) {
-        blackTextColor =  Colors.white;
-      } else {
-        blackTextColor =  Colors.black;
-      }
-      _placeTextColor = blackTextColor;
-
+      Color placeTextColor = getReadableAccentTextColor(maskColor.color);
+      // if (isBlack) {
+      //   var lightTextColor = color.lightVibrantColor ?? color.lightMutedColor ?? color.vibrantColor;
+      //   placeTextColor =  lightTextColor == null ?  Colors.white : lightTextColor.color;
+      // } else {
+      //   var darkTextColor = color.darkVibrantColor ?? color.darkMutedColor ?? color.mutedColor;
+      //   placeTextColor =  darkTextColor == null ? Colors.black : darkTextColor.color;
+      // }
+      _placeTextColor = placeTextColor;
+      staticTextCache.put(widget.url, placeTextColor);
       var controller = _fadeController;
       if(controller != null){
         _animation = ColorTween(begin: widget.baseColor, end: maskColor.color)
@@ -66,6 +68,17 @@ class _ColorContainerState extends State<ColorContainer>
       }
     }
   }
+
+  Color getReadableAccentTextColor(Color baseColor) {
+    final hsl = HSLColor.fromColor(baseColor);
+    final isDark = hsl.lightness < 0.5;
+    final newLightness = isDark
+        ? (hsl.lightness + 0.4).clamp(0.0, 1.0)
+        : (hsl.lightness - 0.4).clamp(0.0, 1.0);
+    final newColor = hsl.withLightness(newLightness).toColor();
+    return newColor;
+  }
+
 
   void initAnimationControllerIfLate() {
     _fadeController = AnimationController(
@@ -104,6 +117,10 @@ class _ColorContainerState extends State<ColorContainer>
       _placeColor = widget.baseColor;
       initAnimationControllerIfLate();
     }
+    var textColor = staticTextCache.get(widget.url);
+    if(textColor != null){
+      _placeTextColor = textColor;
+    }
   }
 
   @override
@@ -131,11 +148,12 @@ class _ColorContainerState extends State<ColorContainer>
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
-          child: Text(
+          child: AutoSizeText(
             widget.title,
+            minFontSize: 5,
+            maxFontSize: widget.textSize,
             style: TextStyle(
               color: _placeTextColor,
-              fontSize: 10.0,
               overflow: TextOverflow.ellipsis,
             ),
             maxLines: 2,

@@ -44,7 +44,7 @@ class MovieApp extends StatelessWidget {
           colorScheme: const ColorScheme.dark(
               primary: Colors.yellow, secondary: Colors.yellowAccent),
           shadowColor: Colors.yellowAccent.withAlpha(80),
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             elevation: 8.0,
             clipBehavior: Clip.antiAlias,
             shadowColor: Colors.yellowAccent.withAlpha(80),

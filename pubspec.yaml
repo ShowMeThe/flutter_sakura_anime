@@ -40,7 +40,7 @@ dependencies:
   flutter_riverpod: ^2.3.6
   html: ^0.15.5
   palette_generator: ^0.3.3+2
-  extended_image: ^9.0.7
+  extended_image: ^10.0.1
   flutter_staggered_grid_view: ^0.7.0
   fade_shimmer: ^2.2.0
   dio_cache_interceptor: ^3.3.1
@@ -60,7 +60,7 @@ dependencies:
   video_player: ^2.9.2
   chewie: ^1.8.5
   auto_size_text: ^3.0.0
-  auto_route: ^9.2.2
+  auto_route: ^10.1.0+1
   elegant_spring_animation: ^2.0.2
   video_sniffing:
     path: ./plugins/video_sniffing_plugin
@@ -70,16 +70,16 @@ dependencies:
   flutter_disk_lru_cache: ^1.0.1
 
 
-dependency_overrides:
-  video_player_android:
-    path: ./plugins/video_player_android
+#dependency_overrides:
+#  video_player_android:
+#    path: ./plugins/video_player_android
 #  extended_image_library:
 #      path: ./plugins/extended_image_library
 
 
 
 dev_dependencies:
-  auto_route_generator: ^9.0.0
+  auto_route_generator: ^10.2.3
   drift_dev: ^2.22.0
   build_runner: ^2.4.13
   flutter_test:
@@ -90,7 +90,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -104,10 +104,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
-#  fonts:
-#    - family: "jiangxizhuokai"
-#      fonts:
-#        - asset: fonts/jiangxizhuokai.ttf
+  fonts:
+    - family: "hanyikuyahei65w"
+      fonts:
+        - asset: fonts/hanyikuyahei65w.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

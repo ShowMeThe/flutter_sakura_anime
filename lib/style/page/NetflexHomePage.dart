@@ -20,8 +20,9 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
   late final _tabControllerProvider =
       StateProvider.autoDispose((_) => TabController(length: 0, vsync: this));
   late final _pageController = PageController(initialPage: 0);
-  var _pageOffset = 0.0;
+  var _pageOffsetSetting = false;
   late StreamSubscription _streamSubscription;
+  TabController? _tabController;
 
   @override
   void initState() {
@@ -32,19 +33,21 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
       if (result.isNotEmpty) {
         ref
             .watch(_tabControllerProvider.notifier)
-            .update((cb) => TabController(length: result.length, vsync: this)
-              ..addListener(() {
-                setState(() {
-                  _pageOffset = _pageController.page!;
-                });
-              }));
+            .update((cb){
+              var controller = TabController(length: result.length, vsync: this);
+              _tabController = controller;
+              return controller;
+        });
       }
       return result;
     });
     _pageController.addListener(
-      () => setState(() {
-        _pageOffset = _pageController.page!;
-      }),
+      (){
+        var controller = _tabController;
+        if(controller != null && !controller.indexIsChanging && !_pageOffsetSetting){
+          controller.offset = _pageController.page! - controller.index;
+        }
+      }
     );
 
     _streamSubscription =
@@ -86,26 +89,24 @@ class _NetflexHomePageState extends ConsumerState<NetflexHomePage>
               indicatorSize: TabBarIndicatorSize.label,
               indicatorAnimation: TabIndicatorAnimation.elastic,
               controller: tabController,
-              onTap: (index) {
-                _pageController.animateToPage(index,
+              onTap: (index) async {
+                _pageOffsetSetting = true;
+                await _pageController.animateToPage(index,
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.ease);
+                _pageOffsetSetting = false;
               },
               tabs: buildTab(tabs)),
           body: PageView.builder(
             onPageChanged: (page) {
-              tabController.animateTo(page,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.ease);
+              if(tabController.index != page){
+                tabController.animateTo(page,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.ease);
+              }
             },
             controller: _pageController,
             itemBuilder: (context, index) {
-              // var matrix4 = Matrix4.identity();
-              // if(index == _pageOffset.floor()){
-              //   var currentScale = 1
-              //   matrix4 = Matrix4.diagonal3Values(1.0, y, z)
-              // }
-
               return NetflexListPage(tabs[index].url);
             },
             itemCount: tabs.length,

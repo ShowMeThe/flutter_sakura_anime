@@ -89,6 +89,7 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
     var statusBarHeight = MediaQuery.of(context).padding.top;
     var layoutMaxWidth = MediaQuery.of(context).size.width;
     var layoutMaxHeight = MediaQuery.of(context).size.height;
+    debugPrint("widgetTag ${widget.heroTag}");
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -418,6 +419,7 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
   }
 
   Widget _buildPromotionChild(List<HjDesPlayPromotion> childList) {
+    var currentTime = DateTime.now().millisecondsSinceEpoch.toString();
     return Padding(
         padding: const EdgeInsets.only(top: 60.0),
         child: SizedBox(
@@ -426,62 +428,46 @@ class _MovieDetailState extends ConsumerState<NetflexDetailPage>
             itemExtent: 150,
             itemSnapping: true,
             shrinkExtent: 75,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12.0))),
             onTap: (index) {
               var item = childList[index];
-              var heroTag = "${item.logo}$_heroTag$index";
+              var heroTag = "${item.logo}$currentTime";
               context.pushRoute(NetflexDetailRoute(
                   source:
                       FactoryTabListBean(item.url, item.title, "", item.logo),
                   heroTag: heroTag));
             },
-            children: _buildCarouselViewChild(childList),
+            children: _buildCarouselViewChild(childList,currentTime),
           ),
         ));
   }
 
-  List<Widget> _buildCarouselViewChild(List<HjDesPlayPromotion> childList) {
+  List<Widget> _buildCarouselViewChild(List<HjDesPlayPromotion> childList,String tagEnd) {
     var widget = <Widget>[];
     for (var index = 0; index < childList.length; index++) {
       var item = childList[index];
-      var heroTag = "${item.logo}$_heroTag$index";
-      widget.add(Padding(
-        padding: const EdgeInsets.only(left: 2.0, top: 2.0, bottom: 2.0),
-        child: SizedBox(
-            width: 90,
-            height: double.infinity,
-            child: Card(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
-                children: [
-                  Hero(
-                      tag: heroTag,
-                      child:
-                          showImage(context, item.logo, double.infinity, 150)),
-                  Positioned.fill(
-                      top: 130,
-                      child: Container(
-                        decoration:
-                            BoxDecoration(color: Colors.black.withAlpha(45)),
-                        child: Text(
-                          item.title,
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      )),
-                  Positioned.fill(
-                      left: 0,
-                      top: 150,
-                      child: ColorContainer(
-                        url: item.logo,
-                        title: item.title,
-                        baseColor: ColorRes.mainColor,
-                      )),
-                ],
-              ),
-            )),
-      ));
+      var heroTag = "${item.logo}$tagEnd";
+      widget.add(SizedBox(
+          width: 90,
+          height: double.infinity,
+          child: Stack(
+            children: [
+              Hero(
+                  tag: heroTag,
+                  child:
+                  showImage(context, item.logo, double.infinity, 150)),
+              Positioned.fill(
+                  left: 0,
+                  top: 150,
+                  child: ColorContainer(
+                    url: item.logo,
+                    title: item.title,
+                    baseColor: ColorRes.mainColor,
+                    textSize: 16,
+                  )),
+            ],
+          )));
     }
     return widget;
   }

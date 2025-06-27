@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Static{
-  static const String fonts = "jiangxizhuokai";
+  static const String fonts = "hanyikuyahei65w";
 
   static const List<String> WEEK = ["周一","周二","周三","周四","周五","周六","周日"];
 
